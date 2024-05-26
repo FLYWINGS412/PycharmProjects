@@ -39,7 +39,7 @@ def main():
     desired_caps = {
         "platformName": "Android",
         "platformVersion": "7",
-        "deviceName": "192.168.0.35:5555 device",
+        "deviceName": "192.168.0.129:5555 device",
         "appPackage": "com.xiangshi.bjxsgc",
         "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
         'settings[waitForIdleTimeout]': 100,
