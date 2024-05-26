@@ -16,7 +16,7 @@ def check_and_handle_popups(driver):
     try:
         # 直接尝试获取接收弹窗元素
         bg_element = WebDriverWait(driver, 3).until(
-            EC.presence_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
         )
         sleep(random.randint(1, 5))  # 随机等待1-5秒
         bg_element.click()
@@ -25,7 +25,7 @@ def check_and_handle_popups(driver):
         # 尝试获取并点击关闭弹窗，仅在元素存在时执行
         try:
             close_element = WebDriverWait(driver, 3).until(
-                EC.presence_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
             sleep(random.randint(1, 5))  # 随机等待1-5秒
             close_element.click()
@@ -38,8 +38,8 @@ def check_and_handle_popups(driver):
 def main():
     desired_caps = {
         "platformName": "Android",
-        "platformVersion": "9",
-        "deviceName": "192.168.0.34:5555 device",
+        "platformVersion": "7",
+        "deviceName": "192.168.0.35:5555 device",
         "appPackage": "com.xiangshi.bjxsgc",
         "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
         'settings[waitForIdleTimeout]': 100,
@@ -56,7 +56,7 @@ def main():
 
     # 等待页面完成加载
     WebDriverWait(driver, 60).until(
-        EC.invisibility_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/text"))
+        EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
     print("首次加载页面已完成")
 
@@ -83,7 +83,7 @@ def main():
 
         # 等待页面完成加载
         WebDriverWait(driver, 60).until(
-            EC.invisibility_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/text"))
+            EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
         )
         print("页面已正常加载")
 

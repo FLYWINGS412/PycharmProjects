@@ -17,23 +17,22 @@ def handle_display_page(driver, wait):
         print("页面已正常加载")
         time.sleep(10)  # 先等待页面可能的加载时间
 
-        WebDriverWait(driver, 70).until_not(
-            EC.presence_of_all_elements_located((By.XPATH, "//android.widget.TextView[@width<100 and @height<100]"))
+        WebDriverWait(driver, 120).until(
+            EC.invisibility_of_element_located((MobileBy.XPATH, "//*[@text='秒']"))
         )
         print("倒计时结束。")
-
-        time.sleep(10)  # 等待页面可能的自动刷新
+        time.sleep(5)  # 等待页面可能的自动刷新
 
         try:
-            cruel_leave_button = WebDriverWait(driver, 3).until(
-                EC.presence_of_element_located((By.XPATH, "//*[contains(@text, '残忍离开')]"))
+            cruel_leave_button = WebDriverWait(driver, 1).until(
+                EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '残忍离开')]"))
             )
             cruel_leave_button.click()
             print("点击了‘残忍离开’按钮。")
         except TimeoutException:
-            print("未在规定时间内找到‘残忍离开’按钮，继续下一步。")
+            print("未在规定时间内找到‘残忍离开’按钮。")
         except NoSuchElementException:
-            print("页面上不存在‘残忍离开’按钮，继续下一步。")
+            print("页面上不存在‘残忍离开’按钮。")
         except Exception as e:
             print(f"尝试点击‘残忍离开’时发生异常：{str(e)}")
 
@@ -48,9 +47,9 @@ def handle_display_page(driver, wait):
 # 获取元素
 def find_right_top_button(driver):
     # 搜索 ImageView 和 TextView 类型的元素
-    elements = driver.find_elements(By.CLASS_NAME, "android.widget.ImageView") + \
-               driver.find_elements(By.CLASS_NAME, "android.widget.TextView") + \
-               driver.find_elements(By.CLASS_NAME, "android.widget.RelativeLayout")
+    elements = driver.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") + \
+               driver.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView")
+               # driver.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
     right_top_button = None
     min_distance = float('inf')
     for element in elements:
@@ -71,19 +70,17 @@ def retry_click_right_top_button(driver):
                 WebDriverWait(driver, 3).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
-                if WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))):
-                    # print("已成功回到资产页。")
-                    return True
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
+                print("已成功回到资产页。")
+                return True
             else:
                 print("未找到符合条件的右上角关闭按钮。")
         except StaleElementReferenceException:
-            print("元素状态已改变，正在重新定位元素。")
-            driver.refresh()  # 刷新页面可以帮助重置页面状态
+            print("元素状态已改变，正在重新获取元素。")
         except NoSuchElementException:
             print("未能定位到元素，可能页面已更新。")
-            driver.refresh()  # 刷新页面，尝试重新定位元素
-        except Exception as e:
-            print(f"尝试点击右上角关闭按钮时发生异常：{str(e)}")
+        except Exception:
+            print("关闭按钮DOM已更新。")
         time.sleep(1)  # 在尝试之间稍作等待
         attempts += 1
     print("尝试多次后仍未成功点击按钮。")
@@ -104,7 +101,7 @@ def click_reward(driver, wait, long_wait):
             for base_xpath in base_xpaths:
                 xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
                 try:
-                    reward = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+                    reward = wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
                     if reward.get_attribute("selected") == "true":
                         reward.click()
                         print(f"点击了位于 {i} 的领取奖励，使用的XPath为: {xpath}")
@@ -145,8 +142,8 @@ def click_miss_bubble(driver, wait):
 
 desired_caps = {
     'platformName': 'Android',
-    'platformVersion': '9',
-    'deviceName': '192.168.0.34:5555 device',
+    'platformVersion': '7',
+    'deviceName': '192.168.0.35:5555 device',
     'settings[waitForIdleTimeout]': 100,
     'settings[waitForSelectorTimeout]': 100,
     'newCommandTimeout': 300, # 设置新的命令超时时间为300秒

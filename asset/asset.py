@@ -22,18 +22,18 @@ def handle_display_page(driver, wait):
         )
         print("倒计时结束。")
 
-        time.sleep(10)  # 等待页面可能的自动刷新
+        time.sleep(5)  # 等待页面可能的自动刷新
 
         try:
-            cruel_leave_button = WebDriverWait(driver, 3).until(
+            cruel_leave_button = WebDriverWait(driver, 1).until(
                 EC.presence_of_element_located((By.XPATH, "//*[contains(@text, '残忍离开')]"))
             )
             cruel_leave_button.click()
             print("点击了‘残忍离开’按钮。")
         except TimeoutException:
-            print("未在规定时间内找到‘残忍离开’按钮，继续下一步。")
+            print("未在规定时间内找到‘残忍离开’按钮。")
         except NoSuchElementException:
-            print("页面上不存在‘残忍离开’按钮，继续下一步。")
+            print("页面上不存在‘残忍离开’按钮。")
         except Exception as e:
             print(f"尝试点击‘残忍离开’时发生异常：{str(e)}")
 
@@ -145,8 +145,8 @@ def click_miss_bubble(driver, wait):
 
 desired_caps = {
     'platformName': 'Android',
-    'platformVersion': '9',
-    'deviceName': '192.168.0.34:5555 device',
+    'platformVersion': '7',
+    'deviceName': '192.168.0.35:5555 device',
     'settings[waitForIdleTimeout]': 100,
     'settings[waitForSelectorTimeout]': 100,
     'newCommandTimeout': 300, # 设置新的命令超时时间为300秒

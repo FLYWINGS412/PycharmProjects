@@ -17,23 +17,22 @@ def handle_display_page(driver, wait):
         print("页面已正常加载")
         time.sleep(10)  # 先等待页面可能的加载时间
 
-        WebDriverWait(driver, 70).until_not(
-            EC.presence_of_all_elements_located((By.XPATH, "//android.widget.TextView[@width<100 and @height<100]"))
+        WebDriverWait(driver, 120).until(
+            EC.invisibility_of_element_located((MobileBy.XPATH, "//*[@text='秒']"))
         )
         print("倒计时结束。")
-
-        time.sleep(10)  # 等待页面可能的自动刷新
+        time.sleep(5)  # 等待页面可能的自动刷新
 
         try:
-            cruel_leave_button = WebDriverWait(driver, 3).until(
+            cruel_leave_button = WebDriverWait(driver, 1).until(
                 EC.presence_of_element_located((By.XPATH, "//*[contains(@text, '残忍离开')]"))
             )
             cruel_leave_button.click()
             print("点击了‘残忍离开’按钮。")
         except TimeoutException:
-            print("未在规定时间内找到‘残忍离开’按钮，继续下一步。")
+            print("未在规定时间内找到‘残忍离开’按钮。")
         except NoSuchElementException:
-            print("页面上不存在‘残忍离开’按钮，继续下一步。")
+            print("页面上不存在‘残忍离开’按钮。")
         except Exception as e:
             print(f"尝试点击‘残忍离开’时发生异常：{str(e)}")
 
@@ -68,22 +67,20 @@ def retry_click_right_top_button(driver):
         try:
             button = find_right_top_button(driver)
             if button:
-                # 检查元素是否可见并且可点击
-                WebDriverWait(driver, 3).until(EC.visibility_of(button))
                 WebDriverWait(driver, 3).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
                 if WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))):
-                    print("已成功回到资产页。")
+                    # print("已成功回到资产页。")
                     return True
             else:
                 print("未找到符合条件的右上角关闭按钮。")
         except StaleElementReferenceException:
-            print("元素状态已改变，正在尝试重新定位元素。")
-            time.sleep(1)  # 稍作等待再次尝试定位
+            print("元素状态已改变，正在重新定位元素。")
+            driver.refresh()  # 刷新页面可以帮助重置页面状态
         except NoSuchElementException:
-            print("未能定位到元素，可能页面已更新。重新搜索元素。")
-            time.sleep(1)  # 页面可能已更新，稍等再试重新定位
+            print("未能定位到元素，可能页面已更新。")
+            driver.refresh()  # 刷新页面，尝试重新定位元素
         except Exception as e:
             print(f"尝试点击右上角关闭按钮时发生异常：{str(e)}")
         time.sleep(1)  # 在尝试之间稍作等待
@@ -147,8 +144,8 @@ def click_miss_bubble(driver, wait):
 
 desired_caps = {
     'platformName': 'Android',
-    'platformVersion': '9',
-    'deviceName': '192.168.0.34:5555 device',
+    'platformVersion': '7',
+    'deviceName': '192.168.0.35:5555 device',
     'settings[waitForIdleTimeout]': 100,
     'settings[waitForSelectorTimeout]': 100,
     'newCommandTimeout': 300, # 设置新的命令超时时间为300秒
