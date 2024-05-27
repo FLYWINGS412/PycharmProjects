@@ -10,8 +10,8 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 # 展示页
 def handle_display_page(driver, wait):
     try:
-        time.sleep(3)
-        WebDriverWait(driver, 60).until(
+        time.sleep(1)
+        WebDriverWait(driver, 120).until(
             EC.invisibility_of_element_located((MobileBy.XPATH, "//*[@text='加载中']"))
         )
         print("页面已正常加载")
@@ -46,11 +46,9 @@ def handle_display_page(driver, wait):
 
 # 获取元素
 def find_right_top_button(driver):
-    # time.sleep(10)
     # 搜索 ImageView 和 TextView 类型的元素
     elements = driver.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") + \
                driver.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView")
-    # driver.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
     right_top_button = None
     min_distance = float('inf')
     for element in elements:

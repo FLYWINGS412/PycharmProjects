@@ -39,7 +39,7 @@ def main():
     desired_caps = {
         "platformName": "Android",
         "platformVersion": "7",
-        "deviceName": "192.168.0.129:5555 device",
+        "deviceName": "192.168.0.131:5555 device",
         "appPackage": "com.xiangshi.bjxsgc",
         "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
         'settings[waitForIdleTimeout]': 100,
@@ -52,7 +52,7 @@ def main():
 
     driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
     wait = WebDriverWait(driver, 10)
-    sleep(20)  # 等待APP完全加载
+    sleep(30)  # 等待APP完全加载
 
     # 等待页面完成加载
     WebDriverWait(driver, 60).until(
