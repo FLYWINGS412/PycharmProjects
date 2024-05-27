@@ -21,7 +21,7 @@ def handle_display_page(driver, wait):
             EC.invisibility_of_element_located((MobileBy.XPATH, "//*[@text='后']"))
         )
         print("倒计时结束。")
-        time.sleep(5)  # 等待页面可能的自动刷新
+        time.sleep(10)  # 等待页面可能的自动刷新
 
         try:
             cruel_leave_button = WebDriverWait(driver, 1).until(
@@ -29,7 +29,7 @@ def handle_display_page(driver, wait):
             )
             cruel_leave_button.click()
             print("点击了‘残忍离开’按钮。")
-            time.sleep(60)  # 点击后等待60秒
+            time.sleep(30)  # 点击后等待30秒
         except TimeoutException:
             print("未在规定时间内找到‘残忍离开’按钮。继续下一步操作。")
         except NoSuchElementException:
@@ -54,6 +54,11 @@ def handle_display_page(driver, wait):
 def retry_click_right_top_button(driver, wait):
     attempts = 0
     while attempts < 5:
+        # 检查是否当前在桌面
+        if ".launcher3.Launcher" in driver.current_activity:
+            print("检测到应用异常退回到桌面，需要重新开始。")
+            return False  # 这将提示 main 函数重新启动应用
+
         try:
             button = find_right_top_button(driver)
             if button:
@@ -72,7 +77,7 @@ def retry_click_right_top_button(driver, wait):
             print("未能定位到元素，可能页面已更新。")
         except Exception as e:
             print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
-        time.sleep(1)  # 在尝试之间稍作等待
+        time.sleep(random.randint(2, 5))
         attempts += 1
     print("尝试多次后仍未成功点击按钮。")
     return False
@@ -80,15 +85,17 @@ def retry_click_right_top_button(driver, wait):
 # 获取元素
 def find_right_top_button(driver):
     try:
-        wait = WebDriverWait(driver, 60)  # 设置等待时间为60秒
+        wait = WebDriverWait(driver, 30)  # 设置等待时间为30秒
         elements = []
 
-        # 等待并查找 android.widget.ImageView 和 android.widget.TextView 元素
+        # 等待并查找 关闭按钮 元素
         try:
             elements = wait.until(lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
-                                            d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView"))
+                                            d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
+                                            d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+                                            d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]"))
         except TimeoutException:
-            print("等待 android.widget.ImageView 或 android.widget.TextView 元素超时")
+            print("等待 关闭按钮 超时")
 
         right_top_button = None
         min_distance = float('inf')
@@ -103,29 +110,8 @@ def find_right_top_button(driver):
 
         return right_top_button
     except Exception as e:
-        print(f"获取右上角按钮时发生错误: {str(e)}")
+        print(f"获取右上角按钮时发生错误")
         return None
-
-# 点击领取
-def click_miss_bubble(driver, wait):
-    try:
-        miss_bubble_text = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble"))).text
-        current, total = map(int, miss_bubble_text.replace(" ", "").strip('()').split('/'))
-        print(f"当前状态：{current}/{total}")
-        while current < total:
-            receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
-            receive_bubble.click()
-            print(f"点击了领取按钮，更新剩余次数：{current+1}/{total}")
-            if not handle_display_page(driver, wait):  # 处理展示页的逻辑
-                return False
-            current += 1
-
-            # 随机等待1-5秒
-            time.sleep(random.randint(2, 5))
-    except (TimeoutException, NoSuchElementException):
-        print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
-        return False
-    return True
 
 # 领取奖励
 def click_reward(driver, wait):
@@ -166,6 +152,27 @@ def click_reward(driver, wait):
         time.sleep(random.randint(2, 5))
     return True
 
+# 点击领取
+def click_miss_bubble(driver, wait):
+    try:
+        miss_bubble_text = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble"))).text
+        current, total = map(int, miss_bubble_text.replace(" ", "").strip('()').split('/'))
+        print(f"当前状态：{current}/{total}")
+        while current < total:
+            receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
+            receive_bubble.click()
+            print(f"点击了领取按钮，更新剩余次数：{current+1}/{total}")
+            if not handle_display_page(driver, wait):  # 处理展示页的逻辑
+                return False
+            current += 1
+
+            # 随机等待1-5秒
+            time.sleep(random.randint(2, 5))
+    except (TimeoutException, NoSuchElementException):
+        print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
+        return False
+    return True
+
 def is_on_assets_page(driver, wait):
     try:
         # 检查是否存在资产页的特定元素
@@ -193,6 +200,11 @@ def main():
     wait = WebDriverWait(driver, 10)
     long_wait = WebDriverWait(driver, 60)
     time.sleep(30)  # 等待APP完全加载
+
+    # 获取设备的屏幕大小
+    size = driver.get_window_size()
+    width = size['width']
+    height = size['height']
 
     try:
         # 转到资产页执行任务
