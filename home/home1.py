@@ -9,8 +9,9 @@ from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
-# 弹窗红包
+
 def check_and_handle_popups(driver):
+    """检查并循环处理弹窗直到没有更多弹窗出现"""
     time.sleep(1)
     try:
         # 直接尝试获取接收弹窗元素
@@ -37,13 +38,13 @@ def check_and_handle_popups(driver):
 def main():
     desired_caps = {
         "platformName": "Android",
-        "platformVersion": "12",
-        "deviceName": "192.168.0.247:5555 device",
+        "platformVersion": "9",
+        "deviceName": "192.168.0.246:5555 device",
         "appPackage": "com.xiangshi.bjxsgc",
         "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
         'settings[waitForIdleTimeout]': 100,
         'settings[waitForSelectorTimeout]': 100,
-        # 'newCommandTimeout': 300, # 设置新的命令超时时间为300秒
+        'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
         "unicodeKeyboard": True,
         "resetKeyboard": True,
         "noReset": True
@@ -67,21 +68,55 @@ def main():
     width = size['width']
     height = size['height']
 
+    # 视频观看循环
     while True:
         start_time = time.time()  # 记录循环开始时间
 
-        # 执行滑动操作
-        start_x = random.randint(width // 3, width * 2 // 3)
-        start_y = random.randint(height * 2 // 3, height * 4 // 5)
-        end_x = random.randint(width // 3, width * 2 // 3)
-        end_y = random.randint(height // 5, height // 3)
-        duration = random.randint(200, 500)
-        action = TouchAction(driver)
-        action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
-        print(f"Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
+        while True:
+            # 记录小循环开始时间
+            start_time_inner = time.time()
 
-        # 检查并处理可能出现的弹窗
-        check_and_handle_popups(driver)
+            # 执行滑动操作
+            start_x = random.randint(width // 3, width * 2 // 3)
+            start_y = random.randint(height * 2 // 3, height * 4 // 5)
+            end_x = random.randint(width // 3, width * 2 // 3)
+            end_y = random.randint(height // 5, height // 3)
+            duration = random.randint(200, 500)
+            action = TouchAction(driver)
+            action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
+            print(f"Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
+
+            # 检查并处理可能出现的弹窗
+            check_and_handle_popups(driver)
+
+            # 现在可以安全地读取进度条文本，因为所有弹窗处理已完成
+            try:
+                WebDriverWait(driver, 10).until(
+                    EC.visibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/progressbar"))
+                )
+                progressbar_text_initial = driver.find_element(By.ID, "com.xiangshi.bjxsgc:id/progressbar").text
+                time.sleep(3)  # 短暂等待后再次读取以检查变化
+
+                # 检查并处理可能出现的弹窗
+                check_and_handle_popups(driver)
+
+                # 第二次读取进度条文本
+                progressbar_text_updated = driver.find_element(By.ID, "com.xiangshi.bjxsgc:id/progressbar").text
+
+                # 判断进度条文本是否发生变化
+                if progressbar_text_initial != progressbar_text_updated:
+                    print("进度条已变化，退出小循环")
+
+                    # 输出小循环用时
+                    end_time_inner = time.time()
+                    elapsed_time_inner = round(end_time_inner - start_time_inner, 2)
+                    print(f"小循环用时: {elapsed_time_inner} seconds")
+
+                    break
+                else:
+                    print("进度条未变化，继续小循环")
+            except NoSuchElementException:
+                print("未能找到进度条元素，可能页面还未完全加载或元素ID已更改。")
 
         # 等待页面完成加载
         WebDriverWait(driver, 60).until(
@@ -90,7 +125,7 @@ def main():
         print("页面已正常加载")
 
         # sleep(random_sleep)  # 翻页后的随机等待时间
-        random_sleep = random.randint(0, 20)
+        random_sleep = random.randint(0, 15)
         print(f"等待 {random_sleep} 秒")
         time.sleep(random_sleep)
 

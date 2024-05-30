@@ -12,31 +12,53 @@ def handle_display_page(driver, wait):
     try:
         time.sleep(1)
         WebDriverWait(driver, 120).until(
-            EC.invisibility_of_element_located((MobileBy.XPATH, "//*[@text='加载中']"))
+            EC.invisibility_of_element_located((MobileBy.XPATH, "//*[contains(@text, '加载中')]"))
         )
         print("页面已正常加载")
         time.sleep(10)  # 先等待页面可能的加载时间
 
-        WebDriverWait(driver, 120).until(
-            EC.invisibility_of_element_located((MobileBy.XPATH, "//*[@text='后']"))
-        )
-        print("倒计时结束。")
-        time.sleep(10)  # 等待页面可能的自动刷新
+        start_time = time.time()
+        timeout = 120
+        popup_texts = ["放弃福利", "残忍离开", "放弃奖励离开"]
+        handled_popup = False
 
-        try:
-            cruel_leave_button = WebDriverWait(driver, 1).until(
-                EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '残忍离开')]"))
-            )
-            cruel_leave_button.click()
-            print("点击了‘残忍离开’按钮。")
-            time.sleep(30)  # 点击后等待30秒
-        except TimeoutException:
-            print("未在规定时间内找到‘残忍离开’按钮。继续下一步操作。")
-        except NoSuchElementException:
-            print("页面上不存在‘残忍离开’按钮。继续下一步操作。")
-        except Exception as e:
-            print(f"尝试点击‘残忍离开’时发生异常：{str(e)}")
-            return False
+        while time.time() - start_time < timeout:
+            if not handled_popup:
+                for text in popup_texts:
+                    try:
+                        xpath_expression = f"//*[contains(@text, '{text}')]"
+                        popup_button = WebDriverWait(driver, 1).until(
+                            EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
+                        )
+                        popup_button.click()
+                        print(f"关闭了‘{text}’弹窗。")
+                        time.sleep(1)  # 点击后等待页面可能的自动刷新
+                        handled_popup = True
+                        break
+                    except (TimeoutException, NoSuchElementException):
+                        continue
+                    except StaleElementReferenceException:
+                        print("遇到过时元素，正在重试。")
+                        continue  # 在重试之前可能需要添加一些逻辑来重新获取元素
+
+            try:
+                element_to_wait = None
+
+                if driver.find_elements(By.XPATH, "//*[contains(@text, '后')]"):
+                    element_to_wait = (By.XPATH, "//*[contains(@text, '后')]")
+                elif driver.find_elements(By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"):
+                    element_to_wait = (By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+
+                if element_to_wait:
+                    WebDriverWait(driver, 5).until(EC.invisibility_of_element_located(element_to_wait))
+                print("倒计时结束。")
+                time.sleep(random.randint(2, 5))
+                break
+            except TimeoutException:
+                continue
+
+        if not handled_popup:
+            print("未找到任何弹窗。")
 
         # 调用点击元素函数
         if not retry_click_right_top_button(driver, wait):
@@ -62,12 +84,12 @@ def retry_click_right_top_button(driver, wait):
         try:
             button = find_right_top_button(driver)
             if button:
-                WebDriverWait(driver, 20).until(EC.element_to_be_clickable(button))
+                WebDriverWait(driver, 1).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
 
-                # 直接调用 is_on_assets_page 函数来检测是否已成功回到资产页
-                if is_on_assets_page(driver, wait):
+                # 检测是否已成功回到资产页
+                if is_on_assets_page(driver):
                     return True
             else:
                 print("未找到符合条件的右上角关闭按钮。")
@@ -77,7 +99,6 @@ def retry_click_right_top_button(driver, wait):
             print("未能定位到元素，可能页面已更新。")
         except Exception as e:
             print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
-        time.sleep(random.randint(2, 5))
         attempts += 1
     print("尝试多次后仍未成功点击按钮。")
     return False
@@ -85,15 +106,15 @@ def retry_click_right_top_button(driver, wait):
 # 获取元素
 def find_right_top_button(driver):
     try:
-        wait = WebDriverWait(driver, 30)  # 设置等待时间为30秒
+        time.sleep(2)  # 间隔等待再次尝试
         elements = []
 
         # 等待并查找 关闭按钮 元素
         try:
-            elements = wait.until(lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
-                                            d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
-                                            d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
-                                            d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]"))
+            elements = WebDriverWait(driver, 120).until(lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
+                                                                  d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
+                                                                  d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+                                                                  d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]"))
         except TimeoutException:
             print("等待 关闭按钮 超时")
 
@@ -148,58 +169,163 @@ def click_reward(driver, wait):
             print("未找到任何选中的‘领取奖励’按钮或已完成所有奖励领取。")
             break
 
-        # 随机等待1-5秒
+        # 随机等待2-5秒
         time.sleep(random.randint(2, 5))
     return True
 
 # 点击领取
 def click_miss_bubble(driver, wait):
     try:
-        miss_bubble_text = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble"))).text
-        current, total = map(int, miss_bubble_text.replace(" ", "").strip('()').split('/'))
-        print(f"当前状态：{current}/{total}")
-        while current < total:
+        while True:  # 使用无限循环，直到所有奖励被领取或发生异常
+            miss_bubble_text = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble"))).text
+            current, total = map(int, miss_bubble_text.replace(" ", "").strip('()').split('/'))
+            print(f"当前状态：{current}/{total}")
+
+            if current >= total:
+                print("所有奖励已领取完毕。")
+                break
+
             receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
             receive_bubble.click()
             print(f"点击了领取按钮，更新剩余次数：{current+1}/{total}")
+
             if not handle_display_page(driver, wait):  # 处理展示页的逻辑
                 return False
-            current += 1
 
-            # 随机等待1-5秒
+            # 随机等待2-5秒
             time.sleep(random.randint(2, 5))
+
     except (TimeoutException, NoSuchElementException):
         print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
         return False
     return True
 
-def is_on_assets_page(driver, wait):
+# 股东分红和整点红包
+def handle_hourly_bonus(driver, wait):
+    try:
+        # 检测是否存在观看视频领取分红的按钮
+        try:
+            watch_ad_button = WebDriverWait(driver, 2).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_watch_ad"))
+            )
+            time.sleep(random.randint(2, 5))
+            watch_ad_button.click()
+            print("点击了观看视频领取分红。")
+
+            # 处理展示页
+            if not handle_display_page(driver, wait):
+                print("处理展示页时出错。")
+                return False
+        except TimeoutException:
+            print("未找到观看视频领取分红按钮，跳过此部分。")
+
+        # 检测是否存在整点红包接收按钮
+        try:
+            receive_button = WebDriverWait(driver, 2).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
+            )
+            time.sleep(random.randint(2, 5))
+            receive_button.click()
+            print("点击了立即领取。")
+
+            # 处理展示页
+            if not handle_display_page(driver, wait):
+                print("处理展示页时出错。")
+                return False
+
+            # 尝试获取并点击关闭弹窗
+            close_element = WebDriverWait(driver, 2).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+            )
+            time.sleep(random.randint(1, 5))  # 随机等待1-5秒
+            close_element.click()
+            print("点击了关闭弹窗")
+        except TimeoutException:
+            print("未找到整点红包按钮，跳过此部分。")
+
+    except Exception as e:
+        print(f"处理活动时发生异常：{str(e)}")
+        return False
+
+    # 检测是否已成功回到资产页
+    return is_on_assets_page(driver)
+
+# 跳转资产页
+def navigate_to_assets_page(driver, wait):
+    """尝试导航到资产页面，并关闭可能出现的弹窗。"""
+    max_attempts = 3
+    attempts = 0
+    while attempts < max_attempts:
+        try:
+            assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '资产')]")))
+            assets_element.click()
+            print("已找到并点击‘资产’。")
+            time.sleep(random.randint(2, 5))
+
+            if handle_hourly_bonus(driver, wait):
+                print("已领取整点红包")
+                return True
+            else:
+                print("领取整点红包后未成功到达资产页")
+
+            if is_on_assets_page(driver):
+                return True
+            else:
+                print("未成功到达资产页，尝试再次点击。")
+        except TimeoutException:
+            print("未找到‘资产’元素或未成功到达资产页。")
+        except Exception as e:
+            print(f"检查‘资产’时发生错误: {e}")
+        attempts += 1
+        time.sleep(2)
+
+    print("尝试多次后仍未成功访问资产页。")
+    return False
+
+# 检查资产页或弹窗
+def is_on_assets_page(driver):
     try:
         # 检查是否存在资产页的特定元素
-        wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
+        assets_page_element = WebDriverWait(driver, 2).until(
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))
+        )
         print("已成功到达资产页。")
         return True
     except TimeoutException:
-        print("未成功到达资产页。")
-        return False
+        # 检查是否存在整点红包弹窗
+        try:
+            hourly_bonus_popup = WebDriverWait(driver, 2).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+            )
+            print("检测到整点红包弹窗。")
+            return True  # 如果检测到红包弹窗，则返回False
+        except TimeoutException:
+            print("未成功到达资产页。")
+            return False
 
 def main():
     desired_caps = {
         'platformName': 'Android',
-        'platformVersion': '7',
-        'deviceName': '192.168.0.131:5555 device',
+        'platformVersion': '12',
+        'deviceName': 'localhost:7555 device',
         "appPackage": "com.xiangshi.bjxsgc",
         "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
         'settings[waitForIdleTimeout]': 100,
         'settings[waitForSelectorTimeout]': 100,
-        'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
+        # 'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
         'noReset': True
     }
 
     driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
     wait = WebDriverWait(driver, 10)
-    long_wait = WebDriverWait(driver, 60)
+    # long_wait = WebDriverWait(driver, 60)
     time.sleep(30)  # 等待APP完全加载
+
+    # 等待页面完成加载
+    WebDriverWait(driver, 60).until(
+        EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+    )
+    print("首次加载页面已完成")
 
     # 获取设备的屏幕大小
     size = driver.get_window_size()
@@ -207,38 +333,19 @@ def main():
     height = size['height']
 
     try:
-        # 转到资产页执行任务
-        attempts = 0
-        max_attempts = 3
-        while attempts < max_attempts:
-            try:
-                assets_element = wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@text, '资产')]")))
-                assets_element.click()
-                print("已找到并点击‘资产’。")
+        # 跳转资产页
+        if not navigate_to_assets_page(driver, wait):
+            print("未能导航到资产页面，程序终止。")
+            return False
 
-                # 检测是否成功到达资产页
-                if is_on_assets_page(driver, wait):
-                    break
-                else:
-                    print("未成功到达资产页，尝试再次点击。")
-            except TimeoutException:
-                print("未找到‘资产’元素或未成功到达资产页。")
-            except Exception as e:
-                print(f"检查‘资产’时发生错误")
-            attempts += 1
-            time.sleep(2)  # 间隔等待再次尝试
-
-        if attempts == max_attempts:
-            print("尝试多次后仍未成功访问资产页。")
-            return False  # 返回 False 表示未成功到达资产页，需要重新尝试
-
-        # 执行奖励领取和其他功能
+        # 点击领取
         time.sleep(random.randint(2, 5))
-        if not is_on_assets_page(driver, wait) or not click_miss_bubble(driver, wait):
+        if not is_on_assets_page(driver) or not click_miss_bubble(driver, wait):
             return False  # 不在资产页或领取气泡失败，重新尝试
 
+        # 领取奖励
         time.sleep(random.randint(2, 5))
-        if not is_on_assets_page(driver, wait) or not click_reward(driver, wait):
+        if not is_on_assets_page(driver) or not click_reward(driver, wait):
             return False  # 不在资产页或领取奖励失败，重新尝试
 
         print("所有操作完成，准备退出应用。")
@@ -249,7 +356,7 @@ def main():
         return False
 
     finally:
-        driver.quit()
+        # driver.quit()
         print("驱动已关闭，应用退出。")
 
 if __name__ == "__main__":

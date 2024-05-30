@@ -150,8 +150,8 @@ def main_menu(driver):
 # 设置Desired Capabilities
 desired_caps = {
     "platformName": "Android",
-    "platformVersion": "7",
-    "deviceName": "192.168.0.35:5555 device",
+    "platformVersion": "12",
+    "deviceName": "192.168.0.247:5555 device",
     "noReset": True,
     'settings[waitForIdleTimeout]': 10,  # 设置waitForIdleTimeout为50ms
     'settings[waitForSelectorTimeout]': 10,  # 设置waitForSelectorTimeout为50ms
