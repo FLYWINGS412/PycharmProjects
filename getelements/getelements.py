@@ -23,6 +23,7 @@ def filter_elements(elements, attribute_type):
 
             # 过滤掉坐标为[0,0] 或宽度或高度大于100的元素 以及android.view.View和android.widget.Image元素
             if (location['x'] == 0 and location['y'] == 0) or (size['width'] > 100 or size['height'] > 100) or class_name in ["android.view.View", "android.widget.Image"]:
+            # if (location['x'] == 0 and location['y'] == 0) or class_name in ["android.view.View", "android.widget.Image"]:
                 continue
 
             if attribute_type == "xpath":
