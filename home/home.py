@@ -41,8 +41,8 @@ def main():
         "deviceName": "192.168.0.247:5555 device",
         "appPackage": "com.xiangshi.bjxsgc",
         "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
-        'settings[waitForIdleTimeout]': 100,
-        'settings[waitForSelectorTimeout]': 100,
+        'settings[waitForIdleTimeout]': 10,
+        'settings[waitForSelectorTimeout]': 10,
         # 'newCommandTimeout': 300, # 设置新的命令超时时间为300秒
         "unicodeKeyboard": True,
         "resetKeyboard": True,
@@ -105,7 +105,7 @@ def main():
             # 输出循环用时
             end_time = time.time()
             elapsed_time = round(end_time - start_time, 2)
-            print(f"用时: {elapsed_time} seconds")
+            print(f"用时: {elapsed_time} 秒")
         else:
             # 第一次未找到元素时，再次处理弹窗并重新检查
             print("未找到元素，再次检查弹窗")
@@ -115,7 +115,7 @@ def main():
             # 输出循环用时
             end_time = time.time()
             elapsed_time = round(end_time - start_time, 2)
-            print(f"用时: {elapsed_time} seconds")
+            print(f"用时: {elapsed_time} 秒")
             if not elements:
                 print("再次检查后仍未找到元素，退出循环")
                 break
