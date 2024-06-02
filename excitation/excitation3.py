@@ -106,12 +106,12 @@ def retry_click_right_top_button(driver, wait, width, height):
                 # 检测是否已成功回到激励广告页
                 try:
                     WebDriverWait(driver, 0).until(
-                        EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_progress"))
+                        EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                     )
-                    print("检查到转盘")
+                    print("检查到头像")
                     return True
                 except TimeoutException:
-                    print("未检查到转盘")
+                    print("未检查到头像")
             else:
                 print("未找到符合条件的右上角关闭按钮。")
         except StaleElementReferenceException:
@@ -138,8 +138,8 @@ def find_right_top_button(driver, wait, width, height):
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
                       d.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
-                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
-                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
+            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
         )
 
         for element in elements:
@@ -223,20 +223,21 @@ def main():
             print("页面已正常加载")
             time.sleep(5)  # 先等待页面可能的加载时间
 
-            # 检查是否有转盘
+            # 检查头像是否消失
             try:
-                WebDriverWait(driver, 3).until(
-                    EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_progress"))
+                WebDriverWait(driver, 0).until(
+                    EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                 )
-                print("没检查到转盘，加载展示页。")
+                print("没检查到头像，加载展示页。")
                 handle_display_page(driver, wait, width, height)
-                time.sleep(random.randint(2, 5))
-            except Exception as e:
-                print("检查到转盘，继续循环。")
+            except TimeoutException:
+                print("检查到头像，继续执行滑动操作。")
         except Exception as e:
             print("未找到或不可点击激励广告。")
 
-        执行滑动操作
+        time.sleep(random.randint(2, 5))
+
+        # 执行滑动操作
         start_x = random.randint(width // 3, width * 2 // 3)
         start_y = random.randint(height * 2 // 3, height * 4 // 5)
         end_x = random.randint(width // 3, width * 2 // 3)
