@@ -139,7 +139,10 @@ desired_caps = {
     "noReset": True,
     'settings[waitForIdleTimeout]': 10,  # 设置waitForIdleTimeout为50ms
     'settings[waitForSelectorTimeout]': 10,  # 设置waitForSelectorTimeout为50ms
-    'newCommandTimeout': 300  # 设置新的命令超时时间为300秒
+    'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
+    "unicodeKeyboard": True,
+    "resetKeyboard": True,
+    "noReset": True
 }
 
 driver = None

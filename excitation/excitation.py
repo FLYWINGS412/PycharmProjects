@@ -193,7 +193,9 @@ def main():
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
         # 'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
-        'noReset': True
+        "unicodeKeyboard": True,
+        "resetKeyboard": True,
+        "noReset": True
     }
 
     driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
