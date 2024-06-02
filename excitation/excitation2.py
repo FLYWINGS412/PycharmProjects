@@ -235,8 +235,7 @@ def main():
                     WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
                     )
-                    print("检测到'每日'文本，程序终止并退出到系统桌面。")
-                    driver.press_keycode(3)  # 3 是 Android 的 Home 键代码
+                    print("检测到'每日20次'文本，程序终止并退出到系统桌面。")
                     break
                 except TimeoutException:
                     print("未检测到'每日20次'文本，继续执行。")
@@ -244,8 +243,6 @@ def main():
                 print("检查到头像，继续执行滑动操作。")
         except Exception as e:
             print("未找到或不可点击激励广告。")
-
-        time.sleep(random.randint(2, 5))
 
         # 执行滑动操作
         start_x = random.randint(width // 3, width * 2 // 3)
