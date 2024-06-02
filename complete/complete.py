@@ -187,6 +187,43 @@ def is_on_assets_page(driver, wait, width, height):
             print("未成功到达资产页。")
             return False
 
+# 点击领取
+def click_miss_bubble(driver, wait, width, height):
+    try:
+        while True:  # 使用无限循环，直到所有奖励被领取或发生异常
+            start_time = time.time()  # 记录循环开始时间
+            try:
+                miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
+                miss_bubble_text = miss_bubble_element.text
+                current, total = map(int, miss_bubble_text.replace(" ", "").strip('()').split('/'))
+                print(f"当前状态：{current}/{total}")
+
+                if current >= total:
+                    print("所有奖励已领取完毕。")
+                    break
+
+                receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
+                receive_bubble.click()
+                print(f"点击了领取按钮，更新剩余次数：{current+1}/{total}")
+
+                if not handle_display_page(driver, wait, width, height):  # 处理展示页的逻辑
+                    return False
+
+                time.sleep(random.randint(1, 5))
+
+                # 输出循环用时
+                elapsed_time = round(time.time() - start_time, 2)
+                print(f"用时: {elapsed_time} 秒")
+
+            except StaleElementReferenceException:
+                print("元素不再存在于 DOM 中，重新获取元素。")
+                continue
+
+    except (TimeoutException, NoSuchElementException):
+        print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
+        return False
+    return True
+
 # 领取奖励
 def click_reward(driver, wait, width, height):
     base_xpaths = [
@@ -228,43 +265,6 @@ def click_reward(driver, wait, width, height):
         # 输出循环用时
         elapsed_time = round(time.time() - start_time, 2)
         print(f"用时: {elapsed_time} 秒")
-    return True
-
-# 点击领取
-def click_miss_bubble(driver, wait, width, height):
-    try:
-        while True:  # 使用无限循环，直到所有奖励被领取或发生异常
-            start_time = time.time()  # 记录循环开始时间
-            try:
-                miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
-                miss_bubble_text = miss_bubble_element.text
-                current, total = map(int, miss_bubble_text.replace(" ", "").strip('()').split('/'))
-                print(f"当前状态：{current}/{total}")
-
-                if current >= total:
-                    print("所有奖励已领取完毕。")
-                    break
-
-                receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
-                receive_bubble.click()
-                print(f"点击了领取按钮，更新剩余次数：{current+1}/{total}")
-
-                if not handle_display_page(driver, wait, width, height):  # 处理展示页的逻辑
-                    return False
-
-                time.sleep(random.randint(1, 5))
-
-                # 输出循环用时
-                elapsed_time = round(time.time() - start_time, 2)
-                print(f"用时: {elapsed_time} 秒")
-
-            except StaleElementReferenceException:
-                print("元素不再存在于 DOM 中，重新获取元素。")
-                continue
-
-    except (TimeoutException, NoSuchElementException):
-        print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
-        return False
     return True
 
 # 展示页
