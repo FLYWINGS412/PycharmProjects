@@ -461,6 +461,9 @@ def main():
     )
     print("首次加载页面已完成")
 
+    # 检查并处理可能出现的弹窗
+    check_and_handle_popups(driver)
+
     # 获取屏幕大小
     size = driver.get_window_size()
     width = size['width']
