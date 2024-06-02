@@ -13,7 +13,7 @@ def handle_display_page(driver, wait, width, height):
     try:
         start_time = time.time()
         timeout = 120
-        popup_texts = ["放弃福利", "残忍离开", "放弃奖励离开"]
+        popup_texts = ["放弃", "离开"]
         handled_popup = False
 
         while time.time() - start_time < timeout:
@@ -21,13 +21,13 @@ def handle_display_page(driver, wait, width, height):
                 for text in popup_texts:
                     try:
                         xpath_expression = f"//*[contains(@text, '{text}')]"
-                        popup_button = WebDriverWait(driver, 1).until(
+                        popup_button = WebDriverWait(driver, 0).until(
                             EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
                         )
                         time.sleep(random.randint(2, 5))
                         popup_button.click()
                         print(f"关闭了‘{text}’弹窗。")
-                        time.sleep(1)  # 点击后等待页面可能的自动刷新
+                        # time.sleep(1)  # 点击后等待页面可能的自动刷新
                         handled_popup = True
                         break
                     except (TimeoutException, NoSuchElementException):
@@ -66,7 +66,7 @@ def handle_display_page(driver, wait, width, height):
                     element_to_wait = (MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
 
                 if element_to_wait:
-                    WebDriverWait(driver, 5).until(EC.invisibility_of_element_located(element_to_wait))
+                    WebDriverWait(driver, 0).until(EC.invisibility_of_element_located(element_to_wait))
                 print("倒计时结束。")
                 break
             except TimeoutException:
@@ -76,7 +76,7 @@ def handle_display_page(driver, wait, width, height):
             print("未找到任何弹窗。")
 
         # 调用点击元素函数
-        if not retry_click_right_top_button(driver, wait):
+        if not retry_click_right_top_button(driver, wait, width, height):
             return False
 
     except TimeoutException as e:
@@ -88,7 +88,7 @@ def handle_display_page(driver, wait, width, height):
     return True
 
 # 点击元素
-def retry_click_right_top_button(driver, wait):
+def retry_click_right_top_button(driver, wait, width, height):
     attempts = 0
     while attempts < 5:
         # 检查是否当前在桌面
@@ -97,15 +97,15 @@ def retry_click_right_top_button(driver, wait):
             return False  # 这将提示 main 函数重新启动应用
 
         try:
-            button = find_right_top_button(driver)
+            button = find_right_top_button(driver, wait, width, height)  # 调用时传递屏幕尺寸
             if button:
-                WebDriverWait(driver, 1).until(EC.element_to_be_clickable(button))
+                WebDriverWait(driver, 0).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
 
                 # 检测是否已成功回到激励广告页
                 try:
-                    WebDriverWait(driver, 2).until(
+                    WebDriverWait(driver, 0).until(
                         EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_progress"))
                     )
                     print("检查到转盘")
@@ -119,42 +119,69 @@ def retry_click_right_top_button(driver, wait):
         except NoSuchElementException:
             print("未能定位到元素，可能页面已更新。")
         except Exception as e:
-            print(f"尝试点击右上角关闭按钮时发生错误")
+            print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
         attempts += 1
     print("尝试多次后仍未成功点击按钮。")
     return False
 
 # 获取元素
-def find_right_top_button(driver):
-    try:
-        time.sleep(1)  # 间隔等待再次尝试
-        elements = []
+def find_right_top_button(driver, wait, width, height):
+    attempts = 0
+    min_distance = float('inf')
+    right_top_button = None
 
-        # 等待并查找 关闭按钮 元素
-        try:
-            elements = WebDriverWait(driver, 120).until(lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
-                                                                  d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
-                                                                  d.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout") +
-                                                                  d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
-                                                                  d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]"))
-        except TimeoutException:
-            print("等待 关闭按钮 超时")
+    while attempts < 3 and not right_top_button:  # 尝试次数限制
+        start_time = time.time()  # 记录查找开始时间
 
-        right_top_button = None
-        min_distance = float('inf')
+        # 等待并查找关闭按钮元素，优先查找ImageView
+        elements = WebDriverWait(driver, 0).until(
+            lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
+                      d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
+                      d.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
+            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
+        )
 
-        # 遍历找到的元素，选择最符合条件的右上角按钮
         for element in elements:
-            if element.size['width'] < 100 and element.size['height'] < 100:
-                distance = (element.location['x'] - driver.get_window_size()['width'])**2 + element.location['y']**2
+            try:
+                # 先进行尺寸过滤，如果元素的宽度或高度大于等于100，则跳过该元素
+                if element.size['width'] >= 100 or element.size['height'] >= 100:
+                    continue
+
+                # 计算元素右上角到屏幕右上角的距离
+                x_right_top = element.location['x'] + element.size['width']
+                y_right_top = element.location['y']
+
+                # 过滤掉不在右上角范围内的元素
+                if x_right_top < width * 0.75 or y_right_top > height * 0.25:
+                    continue
+
+                # 优先检查元素是否可见和可点击，如果不可见或不可点击，则跳过该元素
+                if not (element.is_displayed() and element.is_enabled()):
+                    continue
+
+                # 计算元素右上角到屏幕右上角的距离
+                distance = ((width - x_right_top) ** 2 + y_right_top ** 2) ** 0.5
+
+                # 如果距离更近，更新最小距离和右上角按钮
                 if distance < min_distance:
                     min_distance = distance
                     right_top_button = element
+            except StaleElementReferenceException:
+                print("元素状态已改变，正在重新获取元素。")
+                break  # 退出内部循环，将触发外部循环重新获取元素
 
-        return right_top_button
-    except Exception as e:
-        print(f"获取右上角按钮时发生错误: {str(e)}")
-        return None
+        attempts += 1
+
+        elapsed_time = round(time.time() - start_time, 2)
+        print(f"本次查找用时: {elapsed_time} 秒")
+
+    if right_top_button:
+        print(f"找到最合适的右上角关闭按钮：类别-{right_top_button.get_attribute('className')}, 位置-{right_top_button.location}, 大小-{right_top_button.size}")
+    else:
+        print("未能找到合适的右上角关闭按钮。")
+
+    return right_top_button
 
 def main():
     desired_caps = {
@@ -163,8 +190,8 @@ def main():
         'deviceName': 'localhost:7555 device',
         # "appPackage": "com.xiangshi.bjxsgc",
         # "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
-        'settings[waitForIdleTimeout]': 100,
-        'settings[waitForSelectorTimeout]': 100,
+        'settings[waitForIdleTimeout]': 10,
+        'settings[waitForSelectorTimeout]': 10,
         # 'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
         'noReset': True
     }
@@ -178,6 +205,8 @@ def main():
     height = size['height']
 
     while True:
+        start_time = time.time()  # 记录循环开始时间
+
         # 检查激励广告
         try:
             reward_layer = WebDriverWait(driver, 5).until(
@@ -207,7 +236,7 @@ def main():
         except Exception as e:
             print("未找到或不可点击激励广告。")
 
-        # 执行滑动操作
+        执行滑动操作
         start_x = random.randint(width // 3, width * 2 // 3)
         start_y = random.randint(height * 2 // 3, height * 4 // 5)
         end_x = random.randint(width // 3, width * 2 // 3)
@@ -217,11 +246,16 @@ def main():
         action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
         print(f"Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
 
-        # time.sleep(random.randint(2, 5))
+        time.sleep(random.randint(2, 5))
 
-    # driver.quit()
+        # 输出循环用时
+        elapsed_time = round(time.time() - start_time, 2)
+        print(f"用时: {elapsed_time} 秒")
+
+    driver.quit()
     print("驱动已关闭，应用退出。")
 
 if __name__ == "__main__":
     while not main():
         print("操作失败，重新尝试。")
+        time.sleep(5)

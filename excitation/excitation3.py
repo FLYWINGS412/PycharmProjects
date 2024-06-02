@@ -138,8 +138,8 @@ def find_right_top_button(driver, wait, width, height):
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
                       d.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
-            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
-            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
+                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
         )
 
         for element in elements:
