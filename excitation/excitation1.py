@@ -239,7 +239,7 @@ def main():
                     driver.press_keycode(3)  # 3 是 Android 的 Home 键代码
                     break
                 except TimeoutException:
-                    print("未检测到'每日'文本，继续执行。")
+                    print("未检测到'每日20次'文本，继续执行。")
             except TimeoutException:
                 print("检查到头像，继续执行滑动操作。")
         except Exception as e:
