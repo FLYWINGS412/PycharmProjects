@@ -46,7 +46,7 @@ def handle_display_page(driver, wait, width, height):
                 element_width = size['width']
                 element_height = size['height']
 
-                if element_width < 100 and element_height < 100:
+                if element_width < 50 and element_height < 50:
                     start_x = random.randint(width // 3, width * 2 // 3)
                     start_y = random.randint(height * 2 // 3, height * 4 // 5)
                     end_x = random.randint(width // 3, width * 2 // 3)
@@ -138,8 +138,8 @@ def find_right_top_button(driver, wait, width, height):
 
         for element in elements:
             try:
-                # 先进行尺寸过滤，如果元素的宽度或高度大于等于100，则跳过该元素
-                if element.size['width'] >= 100 or element.size['height'] >= 100:
+                # 先进行尺寸过滤，如果元素的宽度或高度大于等于50，则跳过该元素
+                if element.size['width'] >= 50 or element.size['height'] >= 50:
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离

@@ -22,7 +22,7 @@ def filter_elements(elements, attribute_type):
             size = element.size
             class_name = element.get_attribute("class")  # 获取元素的类名
 
-            if (location['x'] == 0 and location['y'] == 0) or (size['width'] > 100 or size['height'] > 100) or class_name in ["android.view.View", "android.widget.Image"]:
+            if (location['x'] == 0 and location['y'] == 0) or (size['width'] > 50 or size['height'] > 50) or class_name in ["android.view.View", "android.widget.Image"]:
                 continue
 
             if attribute_type == "class":
