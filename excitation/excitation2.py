@@ -225,11 +225,21 @@ def main():
 
             # 检查头像是否消失
             try:
-                WebDriverWait(driver, 0).until(
+                WebDriverWait(driver, 3).until(
                     EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                 )
                 print("没检查到头像，加载展示页。")
                 handle_display_page(driver, wait, width, height)
+                # 检查是否存在包含“每日”文本的元素
+                try:
+                    WebDriverWait(driver, 5).until(
+                        EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
+                    )
+                    print("检测到'每日'文本，程序终止并退出到系统桌面。")
+                    driver.press_keycode(3)  # 3 是 Android 的 Home 键代码
+                    break
+                except TimeoutException:
+                    print("未检测到'每日20次'文本，继续执行。")
             except TimeoutException:
                 print("检查到头像，继续执行滑动操作。")
         except Exception as e:
@@ -257,6 +267,4 @@ def main():
     print("驱动已关闭，应用退出。")
 
 if __name__ == "__main__":
-    while not main():
-        print("操作失败，重新尝试。")
-        time.sleep(5)
+    main()
