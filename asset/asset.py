@@ -257,7 +257,7 @@ def click_miss_bubble(driver, wait, width, height):
         return False
     return True
 
-# 股东分红和整点红包
+# 整点红包
 def handle_hourly_bonus(driver, wait, width, height):
     try:
         # 检测是整点红包
