@@ -6,7 +6,7 @@ desired_caps = dict()
 
 # 手机参数
 desired_caps['platformName'] = 'Android'
-desired_caps['platformVersion'] = '9'
+desired_caps['platformVersion'] = '12'
 desired_caps['deviceName'] = '192.168.0.34:5555 device'
 
 # 应用参数
