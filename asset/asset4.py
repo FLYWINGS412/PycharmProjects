@@ -257,7 +257,7 @@ def click_miss_bubble(driver, wait, width, height):
         return False
     return True
 
-# 股东分红和整点红包
+# 整点红包
 def handle_hourly_bonus(driver, wait, width, height):
     try:
         # 检测是整点红包
@@ -350,11 +350,13 @@ def main():
         'platformName': 'Android',
         'platformVersion': '12',
         'deviceName': 'localhost:7555 device',
-        "appPackage": "com.xiangshi.bjxsgc",
-        "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
+        'appPackage': 'com.xiangshi.bjxsgc',
+        'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
-        # 'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
+        'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
+        'unicodeKeyboard': True,
+        'resetKeyboard': True,
         'noReset': True
     }
 

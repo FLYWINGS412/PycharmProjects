@@ -188,14 +188,14 @@ def main():
         'platformName': 'Android',
         'platformVersion': '12',
         'deviceName': 'localhost:7555 device',
-        # "appPackage": "com.xiangshi.bjxsgc",
-        # "appActivity": "com.xiangshi.bjxsgc.activity.LauncherActivity",
+        # 'appPackage': 'com.xiangshi.bjxsgc',
+        # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
-        # 'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
-        "unicodeKeyboard": True,
-        "resetKeyboard": True,
-        "noReset": True
+        'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
+        'unicodeKeyboard': True,
+        'resetKeyboard': True,
+        'noReset': True
     }
 
     driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)

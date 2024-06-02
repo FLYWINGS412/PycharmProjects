@@ -354,9 +354,9 @@ def main():
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
-        # 'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
+        'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
         'unicodeKeyboard': True,
-        "resetKeyboard": True,
+        'resetKeyboard': True,
         'noReset': True
     }
 
