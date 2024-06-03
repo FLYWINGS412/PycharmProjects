@@ -67,12 +67,8 @@ def handle_display_page(driver, wait, width, height):
 
                 if element_to_wait:
                     WebDriverWait(driver, 0).until(EC.invisibility_of_element_located(element_to_wait))
-                    print("倒计时结束。")
-                    break
-                else:
-                    print("没有找到倒计时元素，等待60秒。")
-                    time.sleep(60)  # 等待60秒后退出循环
-
+                print("倒计时结束。")
+                break
             except TimeoutException:
                 continue
 
