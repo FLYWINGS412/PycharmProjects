@@ -363,6 +363,7 @@ def retry_click_right_top_button(driver, wait, width, height):
                 WebDriverWait(driver, 0).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
+                time.sleep(random.randint(2, 5))
 
                 # 检测是否已成功回到资产页
                 if is_on_assets_page(driver, wait, width, height):
@@ -391,10 +392,10 @@ def find_right_top_button(driver, wait, width, height):
         # 等待并查找关闭按钮元素，优先查找ImageView
         elements = WebDriverWait(driver, 0).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
-                      d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView") +
+                      d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+                      d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]") +
                       d.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
-            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
-            # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
+            # d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView")
         )
 
         for element in elements:
