@@ -24,8 +24,8 @@ def filter_elements(elements, attribute_type):
             class_name = element.get_attribute("class")
 
             # 过滤掉坐标为[0,0] 或宽度或高度大于40的元素 以及android.view.View和android.widget.Image元素
-            # if (location['x'] == 0 and location['y'] == 0) or (size['width'] > 40 or size['height'] > 40) or class_name in ["android.view.View", "android.widget.Image"]:
-            if (location['x'] == 0 and location['y'] == 0) or class_name in ["android.view.View", "android.widget.Image"]:
+            if (location['x'] == 0 and location['y'] == 0) or (size['width'] > 40 or size['height'] > 40) or class_name in ["android.view.View", "android.widget.Image"]:
+            # if (location['x'] == 0 and location['y'] == 0) or class_name in ["android.view.View", "android.widget.Image"]:
                 continue
 
             if attribute_type == "xpath":
@@ -162,8 +162,8 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '12',
     'deviceName': 'localhost:7555 device',
-    'appPackage': 'com.xiangshi.bjxsgc',
-    'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+    # 'appPackage': 'com.xiangshi.bjxsgc',
+    # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
     # 'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
