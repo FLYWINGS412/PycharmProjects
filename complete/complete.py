@@ -319,8 +319,8 @@ def handle_display_page(driver, wait, width, height):
             try:
                 element_to_wait = None
 
-                if driver.find_elements(MobileBy.XPATH, "//*[contains(@text, '秒后')]"):
-                    element_to_wait = (MobileBy.XPATH, "//*[contains(@text, '秒后')]")
+                if driver.find_elements(MobileBy.XPATH, "//*[contains(@text, '后')]"):
+                    element_to_wait = (MobileBy.XPATH, "//*[contains(@text, '后')]")
                 elif driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"):
                     element_to_wait = (MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
                 elif driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[@width < 50 and @height < 50]"):
