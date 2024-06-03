@@ -323,8 +323,8 @@ def handle_display_page(driver, wait, width, height):
                     element_to_wait = (MobileBy.XPATH, "//*[contains(@text, '秒后')]")
                 elif driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"):
                     element_to_wait = (MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
-                elif driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[@width < 30 and @height < 30]"):
-                    element_to_wait = (MobileBy.XPATH, "//android.widget.TextView[@width < 30 and @height < 30]")
+                elif driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[@width < 50 and @height < 50]"):
+                    element_to_wait = (MobileBy.XPATH, "//android.widget.TextView[@width < 50 and @height < 50]")
 
                 if element_to_wait:
                     WebDriverWait(driver, 0).until(EC.invisibility_of_element_located(element_to_wait))
@@ -399,8 +399,8 @@ def find_right_top_button(driver, wait, width, height):
 
         for element in elements:
             try:
-                # 先进行尺寸过滤，如果元素的宽度或高度大于等于30，则跳过该元素
-                if element.size['width'] >= 30 and element.size['height'] >= 30:
+                # 先进行尺寸过滤，如果元素的宽度或高度大于等于50，则跳过该元素
+                if element.size['width'] >= 50 and element.size['height'] >= 50:
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离
