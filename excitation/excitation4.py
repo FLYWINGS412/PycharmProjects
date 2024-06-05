@@ -311,9 +311,9 @@ def handle_display_page(driver, wait, width, height):
                     element_height = size['height']
                     if element_width < 50 and element_height < 50:
                         start_x = random.randint(width // 3, width * 2 // 3)
-                        start_y = random.randint(height * 2 // 3, height * 4 // 5)
+                        start_y = random.randint(height * 8 // 10, height * 9 // 10)
                         end_x = random.randint(width // 3, width * 2 // 3)
-                        end_y = random.randint(height // 5, height // 3)
+                        end_y = random.randint(height * 1 // 10, height * 2 // 10)
                         duration = random.randint(200, 500)
                         action = TouchAction(driver)
                         action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
@@ -428,7 +428,7 @@ def find_right_top_button(driver, wait, width, height):
         start_time = time.time()  # 记录查找开始时间
 
         # 等待并查找关闭按钮元素，优先查找ImageView
-        elements = WebDriverWait(driver, 0).until(
+        elements = WebDriverWait(driver, 3).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
                       d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]") +
