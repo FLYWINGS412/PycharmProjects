@@ -439,11 +439,11 @@ def find_right_top_button(driver, wait, width, height):
         for element in elements:
             try:
                 # 输出元素的基本信息
-                print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
+                # print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
 
                 # 先进行尺寸过滤，如果元素的宽度或高度大于等于50，则跳过该元素
                 if element.size['width'] >= 50 and element.size['height'] >= 50:
-                    print("跳过元素：尺寸超过限制")
+                    # print("跳过元素：尺寸超过限制")
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离
@@ -452,12 +452,12 @@ def find_right_top_button(driver, wait, width, height):
 
                 # 过滤掉不在屏幕顶部范围内的元素
                 if y_right_top > height * 0.25:
-                    print("跳过元素：不在顶部范围内")
+                    # print("跳过元素：不在顶部范围内")
                     continue
 
                 # 优先检查元素是否可见和可点击，如果不可见或不可点击，则跳过该元素
                 if not (element.is_displayed() and element.is_enabled()):
-                    print("跳过元素：不可见或不可点击")
+                    # print("跳过元素：不可见或不可点击")
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离

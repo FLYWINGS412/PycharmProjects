@@ -215,8 +215,8 @@ def logout(driver, wait, width, height):
 
         # 检查是否在个性设置页
         current_activity = get_current_activity()
-        expected_Setting_activity = "com.xiangshi.main.activity.SettingActivity"
-        if expected_main_activity not in current_activity:
+        expected_setting_activity = "com.xiangshi.main.activity.SettingActivity"
+        if expected_setting_activity not in current_activity:
             print("未能加载到个性设置，退出登出流程。")
             return False
         print("个性设置页。")
@@ -243,9 +243,9 @@ def main():
     desired_caps = {
         'platformName': 'Android',
         'platformVersion': '12',
-        # 'deviceName': 'localhost:7555 device',
-        # 'appPackage': 'com.xiangshi.bjxsgc',
-        # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+        'deviceName': 'localhost:7555 device',
+        'appPackage': 'com.xiangshi.bjxsgc',
+        'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
         'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
@@ -265,9 +265,9 @@ def main():
 
     try:
         # 登陆操作
-        # if not login(driver, wait, width, height):
-        #     print("登录错误，程序终止。")
-        #     return False
+        if not login(driver, wait, width, height):
+            print("登录错误，程序终止。")
+            return False
 
         # 退出操作
         if not logout(driver, wait, width, height):
