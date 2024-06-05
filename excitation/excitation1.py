@@ -1,3 +1,4 @@
+import re
 import time
 import random
 from appium import webdriver
@@ -60,17 +61,56 @@ def handle_display_page(driver, wait, width, height):
             try:
                 element_to_wait = None
 
+                # 检查包含'后'的元素
                 if driver.find_elements(MobileBy.XPATH, "//*[contains(@text, '后')]"):
                     element_to_wait = (MobileBy.XPATH, "//*[contains(@text, '后')]")
+
+                # 检查具有特定ID的元素
                 elif driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"):
                     element_to_wait = (MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+
                 elif driver.find_elements(MobileBy.CLASS_NAME, "//android.widget.TextView[@width < 50 and @height < 50]"):
                     element_to_wait = (MobileBy.CLASS_NAME, "//android.widget.TextView[@width < 50 and @height < 50]")
 
-                if element_to_wait:
+                # 如果以上特定元素未找到，查找动态倒计时的 TextView
+                elif driver.find_elements(MobileBy.XPATH, "//android.widget.TextView"):
+                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView")
+                    countdown_candidate = None
+                    for text_view in text_views:
+                        # 更新正则表达式以匹配一位或两位数字后跟一个空格和's'
+                        if re.match(r'\d{1,2}\s*s', text_view.text.strip()):  # 匹配形如 "12 s" 或 "8 s" 的文本
+                            countdown_candidate = text_view
+                            # 检查是否真的是倒计时元素（可以基于其他属性如位置、是否可点击等）
+                            if text_view.is_enabled() and not text_view.is_selected():  # 示例条件
+                                element_to_wait = text_view
+
+                # if element_to_wait:
+                if isinstance(element_to_wait, tuple):
                     WebDriverWait(driver, 0).until(EC.invisibility_of_element_located(element_to_wait))
 
-                time.sleep(5)
+                # 输出类名、坐标和大小
+                try:
+                    element_to_wait = None
+
+                    # 检查包含'后'的元素
+                    elements = driver.find_elements(By.XPATH, "//*[contains(@text, '后')]")
+                    if elements:
+                        element_to_wait = elements[0]
+                        print(f"找到包含'后'的元素：{element_to_wait.get_attribute('class')} at {element_to_wait.location}")
+
+                    # 检查具有特定ID的元素
+                    elif driver.find_elements(By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"):
+                        element_to_wait = driver.find_element(By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+                        print(f"找到具有特定ID的元素：{element_to_wait.get_attribute('class')} at {element_to_wait.location}")
+
+                    # 输出类名、坐标和大小
+                    if element_to_wait:
+                        print(f"Element CLASS_NAME: {element_to_wait.get_attribute('class')}, Location: {element_to_wait.location}, Size: {element_to_wait.size}")
+                    else:
+                        print("未找到任何相关元素。")
+                except Exception as e:
+                    print(f"处理时发生错误: {e}")
+
                 print("倒计时结束。")
                 break
             except TimeoutException:
