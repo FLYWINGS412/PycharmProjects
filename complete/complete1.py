@@ -428,7 +428,7 @@ def find_right_top_button(driver, wait, width, height):
         start_time = time.time()  # 记录查找开始时间
 
         # 等待并查找关闭按钮元素，优先查找ImageView
-        elements = WebDriverWait(driver, 0).until(
+        elements = WebDriverWait(driver, 3).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
                       d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]") +
