@@ -169,7 +169,7 @@ def find_right_top_button(driver, wait, width, height):
         start_time = time.time()  # 记录查找开始时间
 
         # 等待并查找关闭按钮元素，优先查找ImageView
-        elements = WebDriverWait(driver, 0).until(
+        elements = WebDriverWait(driver, 3).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
                       d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]") +
@@ -179,8 +179,12 @@ def find_right_top_button(driver, wait, width, height):
 
         for element in elements:
             try:
+                # 输出元素的基本信息
+                print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
+
                 # 先进行尺寸过滤，如果元素的宽度或高度大于等于50，则跳过该元素
                 if element.size['width'] >= 50 and element.size['height'] >= 50:
+                    print("跳过元素：尺寸超过限制")
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离
@@ -188,11 +192,13 @@ def find_right_top_button(driver, wait, width, height):
                 y_right_top = element.location['y']
 
                 # 过滤掉不在屏幕顶部范围内的元素
-                if y_right_top > height * 0.15:
+                if y_right_top > height * 0.25:
+                    print("跳过元素：不在顶部范围内")
                     continue
 
                 # 优先检查元素是否可见和可点击，如果不可见或不可点击，则跳过该元素
                 if not (element.is_displayed() and element.is_enabled()):
+                    print("跳过元素：不可见或不可点击")
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离
@@ -202,6 +208,7 @@ def find_right_top_button(driver, wait, width, height):
                 if distance < min_distance:
                     min_distance = distance
                     right_top_button = element
+                    print("更新最合适的右上角按钮")
             except StaleElementReferenceException:
                 print("元素状态已改变，正在重新获取元素。")
                 break  # 退出内部循环，将触发外部循环重新获取元素
