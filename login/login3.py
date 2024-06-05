@@ -11,6 +11,7 @@ from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 
+# 获取当前页
 def get_current_activity():
     try:
         # 执行ADB命令，获取窗口管理的详细信息
@@ -23,23 +24,30 @@ def get_current_activity():
                 match = re.search(r'([a-zA-Z0-9_.]+)/([a-zA-Z0-9_.]+)\b', line)
                 if match:
                     full_activity_name = match.group(1) + match.group(2)
+                    print("当前页面为:", full_activity_name)  # 在控制台输出获取到的当前页面
                     return full_activity_name
+        print("未能获取当前页面信息。")
         return "无法获取当前页面"
     except subprocess.CalledProcessError as e:
         print(f"获取当前页面失败：{str(e)}")
         return None
 
-def login(driver, wait, phone='13883122290', password='412412'):
-    time.sleep(5)
-    current_activity = get_current_activity()
-    expected_activity = "com.xiangshi.bjxsgc.activity.LauncherActivity"
-    if expected_activity not in current_activity:
-        print("检查登陆页面失败，正在退出登录过程。")
-        return False
-    else:
-        print("检查登陆页面正常。")
-
+# 自动登陆
+def login(driver, wait, width, height, phone='13883122290', password='412412'):
     try:
+        # 等待页面加载
+        time.sleep(15)
+
+        # 检查是否在启动页
+        current_activity = get_current_activity()
+        expected_launcher_activity = "com.xiangshi.bjxsgc.activity.LauncherActivity"
+        if expected_launcher_activity not in current_activity:
+            print("未在启动页，可能已登录。等待30秒后尝试注销。")
+            time.sleep(30)  # 等待一段时间，可能是因为应用刚启动需要时间加载
+            if not logout(driver, wait, width, height):
+                print("注销尝试失败。")
+            return False
+
         # 勾选协议
         login_check_button = wait.until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_login_check"))
@@ -54,7 +62,25 @@ def login(driver, wait, phone='13883122290', password='412412'):
         )
         confirm_button.click()
         print("点击同意")
+
+    except TimeoutException as e:
+        print(f"超时异常：{str(e)}")
+        return False
+    except Exception as e:
+        print(f"登录前半部分出现异常：{str(e)}")
+        return False
+
+    try:
+        # 等待页面加载
         time.sleep(30)
+
+        # 检查是否在主界面
+        current_activity = get_current_activity()
+        expected_main_activity = "com.xiangshi.main.activity.MainActivity"
+        if expected_main_activity not in current_activity:
+            print("未能加载到主界面，退出登录流程。")
+            return False
+        print("已加载主界面。")
 
         # 点击头像
         confirm_button = wait.until(
@@ -63,6 +89,14 @@ def login(driver, wait, phone='13883122290', password='412412'):
         confirm_button.click()
         print("点击头像")
         time.sleep(random.randint(2, 5))
+
+        # 检查是否在登陆页
+        current_activity = get_current_activity()
+        expected_login_activity = "com.xiangshi.main.activity.LoginActivity"
+        if expected_login_activity not in current_activity:
+            print("未能加载到登录页，退出登录流程。")
+            return False
+        print("已加载登录页。")
 
         # 输入电话号码
         phone_input = wait.until(
@@ -96,50 +130,56 @@ def login(driver, wait, phone='13883122290', password='412412'):
         print("点击立即登录")
         time.sleep(random.randint(2, 5))
 
+        # 等待页面加载
+        time.sleep(5)
+
         # 确认是否登录成功
         login_success_indicator = wait.until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_progress"))
         )
-
         if login_success_indicator:
             print("登录成功！")
             return True
         else:
+            print("登录未成功。")
             return False
+
     except TimeoutException as e:
         print(f"在登录过程中出现超时：{str(e)}")
         return False
     except Exception as e:
-        print(f"其他错误：{str(e)}")
+        print(f"登录过程中出现异常：{str(e)}")
         return False
 
+# 自动退出
 def logout(driver, wait, width, height):
-    # 检查当前页面名
-    # current_activity = get_current_activity()
-    # if current_activity != "com.xiangshi.main.activity.MainActivity":
-    #     print("当前不在主页面，尝试使用返回键回到主页面")
-    #     # 初始化返回尝试计数器
-    #     attempts = 0
-    #     max_attempts = 5  # 最多尝试5次
-    #     # 发送返回键命令尝试回到主页面
-    #     while current_activity != "com.xiangshi.main.activity.MainActivity" and attempts < max_attempts:
-    #         driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
-    #         time.sleep(2)  # 增加等待时间到2秒，确保页面有足够的响应时间
-    #         current_activity = get_current_activity()  # 更新当前页面名
-    #         attempts += 1  # 更新尝试次数
-    #         if current_activity == "com.xiangshi.main.activity.MainActivity":
-    #             print("已成功回到主页面")
-    #             break
-    #         print(f"第 {attempts} 次尝试返回")
-    #     if attempts == max_attempts:
-    #         print("尝试返回主页面失败，请手动检查")
-    # else:
-    #     print("已在主页面")
-
-
     try:
+        # 等待页面加载
+        time.sleep(5)
+
+        # 获取当前活动并检查是否已经在主界面
+        current_activity = get_current_activity()
+        expected_main_activity = "com.xiangshi.main.activity.MainActivity"
+        print(f"当前页面为: {current_activity}")
+
+        # 如果不在主界面，则尝试返回到主界面
+        if current_activity != expected_main_activity:
+            print("不在主界面，尝试返回到主界面。")
+            max_attempts = 5
+            attempts = 0
+            while current_activity != expected_main_activity and attempts < max_attempts:
+                driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
+                time.sleep(2)  # 等待2秒以观察效果
+                current_activity = get_current_activity()  # 再次获取当前活动
+                attempts += 1
+                print(f"尝试 {attempts}: 当前页面为 {current_activity}")
+            if attempts == max_attempts:
+                print("尝试返回主界面失败，请手动检查")
+                return False
+        else:
+            print("已在主界面，无需返回。")
+
         # 个人页面
-        # 使用expected_conditions来等待元素可见并获取该元素
         my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
         my_tab.click()
         print("点击我的")
@@ -171,21 +211,30 @@ def logout(driver, wait, width, height):
                 break  # 成功找到，退出循环
             except TimeoutException:
                 print("未找到个性设置，再次尝试滑动")
+
+        # 检查是否在个性设置页
+        current_activity = get_current_activity()
+        expected_Setting_activity = "com.xiangshi.main.activity.SettingActivity"
+        if expected_main_activity not in current_activity:
+            print("未能加载到个性设置，退出登出流程。")
+            return False
+        print("个性设置页。")
+
+        # 退出登录
+        logout_button = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']")))
+        logout_button.click()
+        print("点击退出登录")
+        time.sleep(random.randint(2, 5))
+
+        # 继续退出
+        continue_to_exit_button = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
+        continue_to_exit_button.click()
+        print("继续退出")
+        time.sleep(random.randint(2, 5))
+
     except Exception as e:
         print(f"处理注销时发生错误: {str(e)}")
         return False
-
-    # 退出登录
-    logout_button = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']")))
-    logout_button.click()
-    print("点击退出登录")
-    time.sleep(random.randint(2, 5))
-
-    # 继续退出
-    continue_to_exit_button = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
-    continue_to_exit_button.click()
-    print("继续退出")
-    time.sleep(random.randint(2, 5))
 
     return True
 
@@ -194,8 +243,8 @@ def main():
         'platformName': 'Android',
         'platformVersion': '12',
         # 'deviceName': 'localhost:7555 device',
-        'appPackage': 'com.xiangshi.bjxsgc',
-        'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+        # 'appPackage': 'com.xiangshi.bjxsgc',
+        # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
         'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
@@ -215,26 +264,36 @@ def main():
 
     try:
         # 登陆操作
-        if not login(driver, wait):
-            print("登录错误，程序终止。")
-            return False
+        # if not login(driver, wait, width, height):
+        #     print("登录错误，程序终止。")
+        #     return False
 
         # 退出操作
         if not logout(driver, wait, width, height):
             print("退出登录失败，程序终止。")
             return False
+
+    except Exception as e:
+        print(f"处理时发生错误: {str(e)}")
+        return False
     finally:
         # 关闭应用
-        driver.close_app()
-        print("应用已关闭")
-
-        # 结束驱动会话，清理资源
-        driver.quit()
-        print("驱动会话已结束")
+        if 'driver' in locals():
+            driver.close_app()
+            print("应用已关闭")
+            # 结束驱动会话，清理资源
+            driver.quit()
+            print("驱动会话已结束")
 
     return True
 
 if __name__ == "__main__":
+    retry_count = 0
+    max_retries = 5  # 设置最大重试次数
     while not main():
+        retry_count += 1
+        if retry_count > max_retries:
+            print("多次操作失败，停止重试。")
+            break
         print("操作失败，重新尝试。")
         time.sleep(10)  # 在重试前暂停10秒

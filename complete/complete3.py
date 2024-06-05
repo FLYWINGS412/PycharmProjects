@@ -19,9 +19,9 @@ def perform_swipe_and_check(driver, wait, width, height):
 
             # 执行滑动操作
             start_x = random.randint(width // 3, width * 2 // 3)
-            start_y = random.randint(height * 2 // 3, height * 4 // 5)
+            start_y = random.randint(height * 8 // 10, height * 9 // 10)
             end_x = random.randint(width // 3, width * 2 // 3)
-            end_y = random.randint(height // 5, height // 3)
+            end_y = random.randint(height * 1 // 10, height * 2 // 10)
             duration = random.randint(200, 500)
             action = TouchAction(driver)
             action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
@@ -481,7 +481,7 @@ def main():
     desired_caps = {
         'platformName': 'Android',
         'platformVersion': '12',
-        # 'deviceName': 'localhost:7555 device',
+        'deviceName': 'localhost:7555 device',
         'appPackage': 'com.xiangshi.bjxsgc',
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'settings[waitForIdleTimeout]': 10,

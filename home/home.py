@@ -72,9 +72,9 @@ def main():
 
         # 执行滑动操作
         start_x = random.randint(width // 3, width * 2 // 3)
-        start_y = random.randint(height * 2 // 3, height * 4 // 5)
+        start_y = random.randint(height * 8 // 10, height * 9 // 10)
         end_x = random.randint(width // 3, width * 2 // 3)
-        end_y = random.randint(height // 5, height // 3)
+        end_y = random.randint(height * 1 // 10, height * 2 // 10)
         duration = random.randint(200, 500)
         action = TouchAction(driver)
         action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
