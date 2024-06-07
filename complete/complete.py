@@ -11,7 +11,7 @@ from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 
-# 首页滑屏
+# 滑屏翻页
 def perform_swipe_and_check(driver, wait, width, height):
     try:
         while True:
@@ -76,7 +76,7 @@ def perform_swipe_and_check(driver, wait, width, height):
 
     return True
 
-# 首页弹窗
+# 弹窗红包
 def check_and_handle_popups(driver):
     found_and_handled = False  # 初始化标记，假定没有找到或处理弹窗
     try:
@@ -113,7 +113,7 @@ def navigate_to_assets_page(driver, wait, width, height):
     attempts = 0
     while attempts < max_attempts:
         try:
-            assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '资产')]")))
+            assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
             assets_element.click()
             print("已找到并点击‘资产’。")
             time.sleep(random.randint(2, 5))
@@ -311,9 +311,9 @@ def handle_display_page(driver, wait, width, height):
                     element_height = size['height']
                     if element_width < 50 and element_height < 50:
                         start_x = random.randint(width // 3, width * 2 // 3)
-                        start_y = random.randint(height * 2 // 3, height * 4 // 5)
+                        start_y = random.randint(height * 8 // 10, height * 9 // 10)
                         end_x = random.randint(width // 3, width * 2 // 3)
-                        end_y = random.randint(height // 5, height // 3)
+                        end_y = random.randint(height * 1 // 10, height * 2 // 10)
                         duration = random.randint(200, 500)
                         action = TouchAction(driver)
                         action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
@@ -323,7 +323,6 @@ def handle_display_page(driver, wait, width, height):
             # 检查倒计时是否消失
             try:
                 element_to_wait = None
-
                 if driver.find_elements(MobileBy.XPATH, "//*[contains(@text, '后')]"):
                     element_to_wait = (MobileBy.XPATH, "//*[contains(@text, '后')]")
                     WebDriverWait(driver, 2).until(EC.invisibility_of_element_located(element_to_wait))
@@ -340,8 +339,8 @@ def handle_display_page(driver, wait, width, height):
                             element_to_wait = text_view
                             break
                     if element_to_wait and isinstance(element_to_wait, WebElement):
-                        # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
-                        WebDriverWait(driver, 2).until(lambda driver: element_to_wait.text == '0 s')
+                        print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                        WebDriverWait(driver, 2).until(lambda driver: element_to_wait.text in ['0 s', '0s'])
                         print("倒计时结束。")
                         break  # 结束while循环
 

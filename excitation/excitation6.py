@@ -15,43 +15,117 @@ def handle_display_page(driver, wait, width, height):
     try:
         start_time = time.time()
         timeout = 70
-        popup_texts = ["放弃", "离开"]
+        popup_texts = ["放弃", "离开", "取消"]
+        handled_popup = False
 
         while time.time() - start_time < timeout:
-            # 检查倒计时是否消失
-            if not check_countdown_disappeared(driver, height):
-                print("倒计时全部结束")
-                break
-
             # 检查弹窗
-            if not handle_popups(driver, popup_texts):
-                continue
+            if not handled_popup:
+                for text in popup_texts:
+                    try:
+                        xpath_expression = f"//*[contains(@text, '{text}')]"
+                        popup_button = WebDriverWait(driver, 2).until(
+                            EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
+                        )
+                        time.sleep(random.randint(2, 5))
+                        popup_button.click()
+                        print(f"关闭了‘{text}’弹窗。")
+                        handled_popup = True
+                        break
+                    except (TimeoutException, NoSuchElementException):
+                        continue
+                    except StaleElementReferenceException:
+                        print("遇到过时元素，正在重试。")
+                        continue
 
             # 检查是否有返回按钮
             elements = driver.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
             if elements:
                 for element in elements:
-                    try:
-                        size = element.size
-                        element_width = size['width']
-                        element_height = size['height']
-                        if element_width < 50 and element_height < 50:
-                            start_x = random.randint(width // 3, width * 2 // 3)
-                            start_y = random.randint(height * 8 // 10, height * 9 // 10)
-                            end_x = random.randint(width // 3, width * 2 // 3)
-                            end_y = random.randint(height * 1 // 10, height * 2 // 10)
-                            duration = random.randint(200, 500)
-                            action = TouchAction(driver)
-                            action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
-                            print(f"检查到返回按钮，Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
-                            break
-                    except StaleElementReferenceException:
-                        print("遇到过时元素，正在重试。")
-                        continue
+                    size = element.size
+                    element_width = size['width']
+                    element_height = size['height']
+                    if element_width < 50 and element_height < 50:
+                        start_x = random.randint(width // 3, width * 2 // 3)
+                        start_y = random.randint(height * 8 // 10, height * 9 // 10)
+                        end_x = random.randint(width // 3, width * 2 // 3)
+                        end_y = random.randint(height * 1 // 10, height * 2 // 10)
+                        duration = random.randint(200, 500)
+                        action = TouchAction(driver)
+                        action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
+                        print(f"检查到返回按钮，Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
+                        break
 
-        # 最后再检查一次弹窗
-        if not handle_popups(driver, popup_texts):
-            print("最后一次检查弹窗时未找到弹窗，继续执行。")
+            # 检查倒计时是否消失
+            try:
+                element_to_wait = None
+
+                # 第一种检查倒计时的方法
+                if driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]"):
+                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
+                    for text_view in text_views:
+                        location = text_view.location
+                        size = text_view.size
+                        top_y = location['y']
+                        # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
+                        if top_y < height * 0.15:
+                            element_to_wait = text_view
+                            break
+
+                    if element_to_wait and isinstance(element_to_wait, WebElement):
+                        # 使用正则表达式匹配 '0 s' 或 '0s'
+                        print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                        WebDriverWait(driver, 3).until(lambda driver: re.match(r"0\s*s", element_to_wait.text) is not None)
+                        print("倒计时结束。")
+                        break  # 结束while循环
+
+                # 第二种检查倒计时的方法（长度为1或2的纯数字倒计时）
+                elif driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]"):
+                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]")
+                    for text_view in text_views:
+                        location = text_view.location
+                        size = text_view.size
+                        top_y = location['y']
+                        # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
+                        if top_y < height * 0.15:
+                            element_to_wait = text_view
+                            print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                            break
+
+                    if element_to_wait and isinstance(element_to_wait, WebElement):
+                        print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                        WebDriverWait(driver, 2).until(lambda driver: element_to_wait.text == '0')
+                        print("倒计时结束。")
+                        break
+
+            # 检查其他可能的倒计时元素
+                elif driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"):
+                    element_to_wait = (MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+                    WebDriverWait(driver, 2).until(EC.invisibility_of_element_located(element_to_wait))
+                    print("特定ID的倒计时元素已消失。")
+                    break
+
+            except TimeoutException:
+                continue
+
+        # 检查弹窗
+        if not handled_popup:
+            for text in popup_texts:
+                try:
+                    xpath_expression = f"//*[contains(@text, '{text}')]"
+                    popup_button = WebDriverWait(driver, 2).until(
+                        EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
+                    )
+                    time.sleep(random.randint(2, 5))
+                    popup_button.click()
+                    print(f"关闭了‘{text}’弹窗。")
+                    handled_popup = True
+                    break
+                except (TimeoutException, NoSuchElementException):
+                    continue
+                except StaleElementReferenceException:
+                    print("遇到过时元素，正在重试。")
+                    continue
 
         # 调用点击元素函数
         if not retry_click_right_top_button(driver, wait, width, height):
@@ -60,92 +134,10 @@ def handle_display_page(driver, wait, width, height):
     except TimeoutException as e:
         print("处理展示页时发生超时异常: ", str(e))
         return False
-    except StaleElementReferenceException as e:
-        print("处理展示页时发生过时元素异常: ", str(e))
-        return False
     except Exception as e:
         print("处理展示页时发生错误: ", str(e))
         return False
     return True
-
-# 检查倒计时
-def check_countdown_disappeared(driver, height):
-    try:
-        element_to_wait = None
-
-        # 第一种检查倒计时的方法
-        text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
-        if text_views:
-            for text_view in text_views:
-                try:
-                    location = text_view.location
-                    size = text_view.size
-                    top_y = location['y']
-                    print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
-                    if top_y < height * 0.15:
-                        element_to_wait = text_view
-                        print(f"等待倒计时元素消失前的状态: 文本='{element_to_wait.text}'")
-                        WebDriverWait(driver, 10).until(
-                            lambda d: any(x in element_to_wait.text for x in ['0 s', '0s']) or not element_to_wait.is_displayed()
-                        )
-                        print(f"倒计时元素当前状态: 文本='{element_to_wait.text}', 是否显示={element_to_wait.is_displayed()}")
-                        print("倒计时结束。")
-                        return True
-                except StaleElementReferenceException:
-                    print("遇到过时元素，正在重试。")
-                    continue
-
-        # 第二种检查倒计时的方法（长度为1或2的纯数字倒计时）
-        text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) = 1 or string-length(@text) = 2]")
-        if text_views:
-            for text_view in text_views:
-                try:
-                    location = text_view.location
-                    size = text_view.size
-                    top_y = location['y']
-                    print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
-                    if top_y < height * 0.15:
-                        element_to_wait = text_view
-                        print(f"等待倒计时元素消失前的状态: 文本='{element_to_wait.text}'")
-                        WebDriverWait(driver, 10).until(
-                            lambda d: '0' in element_to_wait.text or not element_to_wait.is_displayed()
-                        )
-                        print(f"倒计时元素当前状态: 文本='{element_to_wait.text}', 是否显示={element_to_wait.is_displayed()}")
-                        print("倒计时结束。")
-                        return True
-                except StaleElementReferenceException:
-                    print("遇到过时元素，正在重试。")
-                    continue
-
-        # 检查其他可能的倒计时元素
-        element_to_wait = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
-        if element_to_wait:
-            WebDriverWait(driver, 10).until(EC.invisibility_of_element_located(element_to_wait))
-            print("特定ID的倒计时元素已消失。")
-            return True
-
-    except TimeoutException:
-        print("等待倒计时元素消失超时")
-        return False
-    return False
-
-def handle_popups(driver, popup_texts):
-    for text in popup_texts:
-        try:
-            xpath_expression = f"//*[contains(@text, '{text}')]"
-            popup_button = WebDriverWait(driver, 2).until(
-                EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
-            )
-            time.sleep(random.randint(2, 5))
-            popup_button.click()
-            print(f"关闭了‘{text}’弹窗。")
-            return True
-        except (TimeoutException, NoSuchElementException):
-            continue
-        except StaleElementReferenceException:
-            print("遇到过时元素，正在重试。")
-            continue
-    return False
 
 # 点击元素
 def retry_click_right_top_button(driver, wait, width, height):
@@ -159,13 +151,13 @@ def retry_click_right_top_button(driver, wait, width, height):
         try:
             button = find_right_top_button(driver, wait, width, height)  # 调用时传递屏幕尺寸
             if button:
-                WebDriverWait(driver, 0).until(EC.element_to_be_clickable(button))
+                WebDriverWait(driver, 2).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
 
                 # 检测是否已成功回到激励广告页
                 try:
-                    WebDriverWait(driver, 1).until(
+                    WebDriverWait(driver, 2).until(
                         EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                     )
                     print("检查到头像")
