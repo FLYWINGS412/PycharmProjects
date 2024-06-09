@@ -197,12 +197,6 @@ def navigate_to_assets_page(driver, wait, width, height):
             print("已找到并点击‘资产’。")
             time.sleep(random.randint(2, 5))
 
-            if popups.hourly_bonus(driver, wait, width, height):
-                print("已领取整点红包")
-                return True
-            else:
-                print("领取整点红包后未成功到达资产页")
-
             if is_on_assets_page(driver, wait, width, height):
                 return True
             else:

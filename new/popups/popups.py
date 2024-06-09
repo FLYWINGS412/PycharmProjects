@@ -48,13 +48,35 @@ def home_video_bonus(driver):
 
 # 每日股东分红
 def daily_dividend_distribution():
-    # 未来实现处理股东红包的逻辑
-    pass
+    try:
+        # 检测每日股东分红
+        try:
+            receive_button = WebDriverWait(driver, 2).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_watch_ad"))
+            )
+            time.sleep(random.randint(2, 5))
+            receive_button.click()
+            print("点击了立即领取。")
+
+            # 处理展示页
+            if not handle_display_page(driver, wait, width, height):
+                print("处理展示页时出错。")
+                return False
+
+        except TimeoutException:
+            print("未找到每日股东分红，跳过此部分。")
+
+    except Exception as e:
+        print(f"处理活动时发生异常")
+        return False
+
+    # 检测是否已成功回到资产页
+    return utils.is_on_assets_page(driver, wait, width, height)
 
 # 整点红包
 def hourly_bonus(driver, wait, width, height):
     try:
-        # 检测是整点红包
+        # 检测整点红包
         try:
             receive_button = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))

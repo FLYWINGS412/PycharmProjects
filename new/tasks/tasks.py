@@ -70,24 +70,38 @@ def handle_home_page_video(driver, wait, width, height):
 
     return True
 
-# 点击领取
-def click_to_collect(driver, wait, width, height):
+# 领取奖励
+def collect_rewards(driver, wait, width, height):
+    # 跳转到资产页
+    return utils.navigate_to_assets_page(driver, wait, width, height)
+
+    # 每日股东分红
+    if popups.hourly_bonus(driver, wait, width, height):
+        print("已领取每日股东分红")
+        return True
+
+    # 点击领取
     try:
-        while True:  # 使用无限循环，直到所有奖励被领取或发生异常
+        while True:
             start_time = time.time()  # 记录循环开始时间
+
+            # 整点红包
+            if popups.hourly_bonus(driver, wait, width, height):
+                print("已领取整点红包")
+                return True
+
             try:
                 miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
-                click_to_collect_text = click_to_collect_element.text
+                click_to_collect_text = miss_bubble_element.text
                 current, total = map(int, click_to_collect_text.replace(" ", "").strip('()').split('/'))
-                # print(f"当前状态：{current}/{total}")
 
                 if current >= total:
-                    print("所有奖励已领取完毕。")
+                    print("所有任务奖励已领取完毕。")
                     break
 
                 receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
                 receive_bubble.click()
-                print(f"点击了领取按钮，更新剩余次数：{current+1}/{total}")
+                print(f"点击了领取按钮，更新剩余次数：{current + 1}/{total}")
 
                 if not handle_display_page(driver, wait, width, height):  # 处理展示页的逻辑
                     return False
@@ -104,11 +118,8 @@ def click_to_collect(driver, wait, width, height):
 
     except (TimeoutException, NoSuchElementException):
         print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
-        return False
-    return True
 
-# 领取奖励
-def collect_rewards(driver, wait, width, height):
+    # 领取奖励
     base_xpaths = [
         "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/androidx.viewpager.widget.ViewPager/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView",
         "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView"
@@ -117,6 +128,12 @@ def collect_rewards(driver, wait, width, height):
     last_successful_index = 1  # 从最后一次成功的位置开始
     while True:
         start_time = time.time()  # 记录循环开始时间
+
+        # 整点红包
+        if popups.hourly_bonus(driver, wait, width, height):
+            print("已领取整点红包")
+            return True
+
         found = False
         for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
             for base_xpath in base_xpaths:
@@ -139,8 +156,9 @@ def collect_rewards(driver, wait, width, height):
                     print(f"尝试点击位于 {i} 的领取奖励时发生异常，路径：{xpath}")
             if found:
                 break  # 成功点击后退出外循环
+
         if not found:
-            print("未找到任何选中的‘领取奖励’按钮或已完成所有奖励领取。")
+            print("未找到任何选中的‘领取奖励’按钮，所有奖励领取完毕。")
             break
 
         time.sleep(random.randint(1, 5))
@@ -152,6 +170,18 @@ def collect_rewards(driver, wait, width, height):
 
 # 好友互助
 def handle_friend_assistance(driver, wait, width, height):
+    # 个人页面
+    my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
+    my_tab.click()
+    print("点击我的")
+    time.sleep(random.randint(2, 5))
+
+    # 点击关注
+    follow_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
+    follow_tab.click()
+    print("点击关注")
+    time.sleep(random.randint(2, 5))
+
     while True:
         start_time = time.time()  # 记录循环开始时间
 
