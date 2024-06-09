@@ -275,13 +275,13 @@ def logout(driver, wait, width, height):
 
 # 保存帐号进度
 def save_current_index(index):
-    with open("current_account_index.txt", "w") as file:
+    with open("account.txt", "w") as file:
         file.write(str(index))
 
 # 获取帐号进度
 def get_current_index():
-    if os.path.exists("current_account_index.txt"):
-        with open("current_account_index.txt", "r") as file:
+    if os.path.exists("account.txt"):
+        with open("account.txt", "r") as file:
             content = file.read().strip()
             if content.isdigit():  # 确保内容是数字
                 return int(content)

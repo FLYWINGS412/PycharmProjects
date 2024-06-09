@@ -279,7 +279,7 @@ def handle_display_page(driver, wait, width, height):
     try:
         start_time = time.time()
         timeout = 70
-        popup_texts = ["放弃", "离开"]
+        popup_texts = ["放弃", "离开", "取消"]
         handled_popup = False
 
         while time.time() - start_time < timeout:
@@ -331,29 +331,29 @@ def handle_display_page(driver, wait, width, height):
                         location = text_view.location
                         size = text_view.size
                         top_y = location['y']
-                        print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
+                        # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
                         if top_y < height * 0.15:
                             element_to_wait = text_view
-                            print(f"等待倒计时元素消失前的状态: 文本='{element_to_wait.text}'")
                             break
 
                     if element_to_wait and isinstance(element_to_wait, WebElement):
+                        # 使用正则表达式匹配 '0 s' 或 '0s'
                         print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
-                        WebDriverWait(driver, 2).until(lambda driver: element_to_wait.text in ['0 s', '0s'])
+                        WebDriverWait(driver, 3).until(lambda driver: re.match(r"0\s*s", element_to_wait.text) is not None)
                         print("倒计时结束。")
-                        break
+                        break  # 结束while循环
 
                 # 第二种检查倒计时的方法（长度为1或2的纯数字倒计时）
-                elif driver.find_elements(MobileBy.XPATH, r"//android.widget.TextView[regex(@text, '^\d{1,2}$')]"):
-                    text_views = driver.find_elements(MobileBy.XPATH, r"//android.widget.TextView[regex(@text, '^\d{1,2}$')]")
+                elif driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]"):
+                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]")
                     for text_view in text_views:
                         location = text_view.location
                         size = text_view.size
                         top_y = location['y']
-                        print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
+                        # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
                         if top_y < height * 0.15:
                             element_to_wait = text_view
-                            print(f"等待倒计时元素消失前的状态: 文本='{element_to_wait.text}'")
+                            print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
                             break
 
                     if element_to_wait and isinstance(element_to_wait, WebElement):
@@ -390,8 +390,6 @@ def handle_display_page(driver, wait, width, height):
                 except StaleElementReferenceException:
                     print("遇到过时元素，正在重试。")
                     continue
-        else:
-            print("未找到任何弹窗。")
 
         # 调用点击元素函数
         if not retry_click_right_top_button(driver, wait, width, height):
@@ -417,7 +415,7 @@ def retry_click_right_top_button(driver, wait, width, height):
         try:
             button = find_right_top_button(driver, wait, width, height)  # 调用时传递屏幕尺寸
             if button:
-                WebDriverWait(driver, 0).until(EC.element_to_be_clickable(button))
+                WebDriverWait(driver, 2).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
 
@@ -507,8 +505,8 @@ def main():
         'platformName': 'Android',
         'platformVersion': '12',
         'deviceName': 'localhost:7555 device',
-        'appPackage': 'com.xiangshi.bjxsgc',
-        'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+        # 'appPackage': 'com.xiangshi.bjxsgc',
+        # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
         'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
@@ -519,7 +517,7 @@ def main():
 
     driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
     wait = WebDriverWait(driver, 10)
-    time.sleep(30)  # 等待APP完全加载
+    # time.sleep(30)  # 等待APP完全加载
 
     # 等待页面完成加载
     WebDriverWait(driver, 60).until(
@@ -536,16 +534,16 @@ def main():
     height = size['height']
 
     try:
-        # 首页滑屏
-        if not perform_swipe_and_check(driver, wait, width, height):
-            print("首页滑屏错误，程序终止。")
-            return False
-
-        # 跳转资产页
-        time.sleep(random.randint(2, 5))
-        if not navigate_to_assets_page(driver, wait, width, height):
-            print("未能导航到资产页面，程序终止。")
-            return False
+        # # 首页滑屏
+        # if not perform_swipe_and_check(driver, wait, width, height):
+        #     print("首页滑屏错误，程序终止。")
+        #     return False
+        #
+        # # 跳转资产页
+        # time.sleep(random.randint(2, 5))
+        # if not navigate_to_assets_page(driver, wait, width, height):
+        #     print("未能导航到资产页面，程序终止。")
+        #     return False
 
         # 点击领取
         time.sleep(random.randint(2, 5))

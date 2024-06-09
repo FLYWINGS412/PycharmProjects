@@ -11,7 +11,7 @@ from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 
-# 首页滑屏
+# 滑屏翻页
 def perform_swipe_and_check(driver, wait, width, height):
     try:
         while True:
@@ -76,7 +76,7 @@ def perform_swipe_and_check(driver, wait, width, height):
 
     return True
 
-# 首页弹窗
+# 弹窗红包
 def check_and_handle_popups(driver):
     found_and_handled = False  # 初始化标记，假定没有找到或处理弹窗
     try:
@@ -113,7 +113,7 @@ def navigate_to_assets_page(driver, wait, width, height):
     attempts = 0
     while attempts < max_attempts:
         try:
-            assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '资产')]")))
+            assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
             assets_element.click()
             print("已找到并点击‘资产’。")
             time.sleep(random.randint(2, 5))
@@ -203,7 +203,7 @@ def click_miss_bubble(driver, wait, width, height):
                 miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
                 miss_bubble_text = miss_bubble_element.text
                 current, total = map(int, miss_bubble_text.replace(" ", "").strip('()').split('/'))
-                print(f"当前状态：{current}/{total}")
+                # print(f"当前状态：{current}/{total}")
 
                 if current >= total:
                     print("所有奖励已领取完毕。")
@@ -279,86 +279,130 @@ def handle_display_page(driver, wait, width, height):
     try:
         start_time = time.time()
         timeout = 70
-        popup_texts = ["放弃", "离开"]
+        popup_texts = ["放弃", "离开", "取消"]
         handled_popup = False
 
         while time.time() - start_time < timeout:
-            # 检查弹窗
+            # 检查并处理弹窗
             if not handled_popup:
                 for text in popup_texts:
                     try:
                         xpath_expression = f"//*[contains(@text, '{text}')]"
                         popup_button = WebDriverWait(driver, 2).until(
-                            EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
+                            EC.presence_of_element_located((By.XPATH, xpath_expression))
                         )
                         time.sleep(random.randint(2, 5))
                         popup_button.click()
                         print(f"关闭了‘{text}’弹窗。")
                         handled_popup = True
                         break
-                    except (TimeoutException, NoSuchElementException):
-                        continue
-                    except StaleElementReferenceException:
-                        print("遇到过时元素，正在重试。")
+                    except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
                         continue
 
             # 检查是否有返回按钮
-            elements = driver.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
-            if elements:
-                for element in elements:
-                    size = element.size
-                    element_width = size['width']
-                    element_height = size['height']
-                    if element_width < 50 and element_height < 50:
-                        start_x = random.randint(width // 3, width * 2 // 3)
-                        start_y = random.randint(height * 2 // 3, height * 4 // 5)
-                        end_x = random.randint(width // 3, width * 2 // 3)
-                        end_y = random.randint(height // 5, height // 3)
-                        duration = random.randint(200, 500)
-                        action = TouchAction(driver)
-                        action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
-                        print(f"检查到返回按钮，Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
-                        break
+            # elements = driver.find_elements(By.CLASS_NAME, "android.widget.RelativeLayout")
+            # if elements:
+            #     for element in elements:
+            #         size = element.size
+            #         element_width = size['width']
+            #         element_height = size['height']
+            #         if element_width < 50 and element_height < 50:
+            #             start_x = random.randint(width // 3, width * 2 // 3)
+            #             start_y = random.randint(height * 8 // 10, height * 9 // 10)
+            #             end_x = random.randint(width // 3, width * 2 // 3)
+            #             end_y = random.randint(height * 1 // 10, height * 2 // 10)
+            #             duration = random.randint(200, 500)
+            #             action = TouchAction(driver)
+            #             action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
+            #             print(f"检查到返回按钮，Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
+            #             break
 
             # 检查倒计时是否消失
             try:
                 element_to_wait = None
+                # print("开始检查倒计时...")
 
-                if driver.find_elements(MobileBy.XPATH, "//*[contains(@text, '后')]"):
-                    element_to_wait = (MobileBy.XPATH, "//*[contains(@text, '后')]")
-                    WebDriverWait(driver, 2).until(EC.invisibility_of_element_located(element_to_wait))
-                    print("包含'后'的倒计时元素已消失。")
-                    break
-
-                elif driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]"):
-                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
+                # 第一种检查倒计时的方法
+                text_views = driver.find_elements(By.XPATH, "//android.widget.TextView[contains(@text, 's')]")
+                if text_views:
                     for text_view in text_views:
                         location = text_view.location
                         size = text_view.size
                         top_y = location['y']
-                        if top_y < height * 0.15 and text_view.is_displayed():
+                        # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
+                        if top_y < height * 0.15:
                             element_to_wait = text_view
+                            # print(f"找到倒计时元素: {element_to_wait.text}")
                             break
+
                     if element_to_wait and isinstance(element_to_wait, WebElement):
-                        # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
                         try:
-                            WebDriverWait(driver, 2).until(lambda driver: element_to_wait.text == '0 s')
+                            # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                            WebDriverWait(driver, 3).until(
+                                lambda driver: not element_to_wait.is_displayed() or re.match(r"0\s*s?", element_to_wait.text) is not None
+                            )
+                            print("倒计时结束。")
+                            break  # 结束while循环
                         except TimeoutException:
-                            WebDriverWait(driver, 2).until(lambda driver: element_to_wait.text == '0s')
-                        print("倒计时结束。")
-                        break  # 结束while循环
+                            # print("等待倒计时结束超时（第一种方法）。")
+                            continue  # 继续while循环
+                        except StaleElementReferenceException:
+                            # print("倒计时元素在DOM中已不可访问。")
+                            break  # 结束while循环
 
-                elif driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"):
-                    element_to_wait = (MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
-                    WebDriverWait(driver, 2).until(EC.invisibility_of_element_located(element_to_wait))
-                    print("特定ID的倒计时元素已消失。")
-                    break
+                else:
+                    # 第二种检查倒计时的方法（长度为1或2的纯数字倒计时）
+                    text_views = driver.find_elements(By.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]")
+                    if text_views:
+                        for text_view in text_views:
+                            location = text_view.location
+                            size = text_view.size
+                            top_y = location['y']
+                            # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
+                            if top_y < height * 0.15:
+                                element_to_wait = text_view
+                                # print(f"找到倒计时元素: {element_to_wait.text}")
+                                break
 
-            except TimeoutException:
-                continue
-            except StaleElementReferenceException:
-                print("遇到过时元素，正在重新获取元素。")
-                continue
+                        if element_to_wait and isinstance(element_to_wait, WebElement):
+                            try:
+                                # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                                WebDriverWait(driver, 3).until(
+                                    lambda driver: not element_to_wait.is_displayed() or element_to_wait.text == '0'
+                                )
+                                print("倒计时结束。")
+                                break  # 结束while循环
+                            except TimeoutException:
+                                # print("等待倒计时结束超时（第二种方法）。")
+                                continue  # 继续while循环
+                            # except StaleElementReferenceException:
+                            #     print("倒计时元素在DOM中已不可访问。")
+                                break  # 结束while循环
+
+                    else:
+                        # 检查其他可能的倒计时元素
+                        countdown_element = driver.find_elements(By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+                        if countdown_element:
+                            element_to_wait = countdown_element[0]
+                            try:
+                                WebDriverWait(driver, 3).until(EC.invisibility_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")))
+                                print("特定ID的倒计时元素已消失。")
+                                break  # 结束while循环
+                            except TimeoutException:
+                                # print("等待特定ID倒计时元素消失超时。")
+                                continue  # 继续while循环
+                                # 如果所有检查方法都未找到倒计时元素，跳出while循环
+
+                if element_to_wait is None:
+                    print("未找到倒计时元素，可能页面已刷新。")
+                    break  # 结束while循环
+
+            except NoSuchElementException:
+                print("未找到倒计时元素。")
+                continue  # 继续while循环
+            except Exception as e:
+                print(f"发生错误: {str(e)}")
+                break  # 结束while循环
 
         # 检查弹窗
         if not handled_popup:
@@ -366,20 +410,15 @@ def handle_display_page(driver, wait, width, height):
                 try:
                     xpath_expression = f"//*[contains(@text, '{text}')]"
                     popup_button = WebDriverWait(driver, 2).until(
-                        EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
+                        EC.presence_of_element_located((By.XPATH, xpath_expression))
                     )
                     time.sleep(random.randint(2, 5))
                     popup_button.click()
                     print(f"关闭了‘{text}’弹窗。")
                     handled_popup = True
                     break
-                except (TimeoutException, NoSuchElementException):
+                except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
                     continue
-                except StaleElementReferenceException:
-                    print("遇到过时元素，正在重试。")
-                    continue
-        else:
-            print("未找到任何弹窗。")
 
         # 调用点击元素函数
         if not retry_click_right_top_button(driver, wait, width, height):
@@ -405,7 +444,7 @@ def retry_click_right_top_button(driver, wait, width, height):
         try:
             button = find_right_top_button(driver, wait, width, height)  # 调用时传递屏幕尺寸
             if button:
-                WebDriverWait(driver, 0).until(EC.element_to_be_clickable(button))
+                WebDriverWait(driver, 2).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
 
@@ -473,9 +512,9 @@ def find_right_top_button(driver, wait, width, height):
                 if distance < min_distance:
                     min_distance = distance
                     right_top_button = element
-                    print("更新最合适的右上角按钮")
+                    # print("更新最合适的右上角按钮")
             except StaleElementReferenceException:
-                print("元素状态已改变，正在重新获取元素。")
+                # print("元素状态已改变，正在重新获取元素。")
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
         attempts += 1
@@ -484,7 +523,8 @@ def find_right_top_button(driver, wait, width, height):
         print(f"本次查找用时: {elapsed_time} 秒")
 
     if right_top_button:
-        print(f"找到最合适的右上角关闭按钮：类别-{right_top_button.get_attribute('className')}, 位置-{right_top_button.location}, 大小-{right_top_button.size}")
+        # print(f"找到最合适的右上角关闭按钮：类别-{right_top_button.get_attribute('className')}, 位置-{right_top_button.location}, 大小-{right_top_button.size}")
+        pass
     else:
         print("未能找到合适的右上角关闭按钮。")
 
@@ -497,9 +537,10 @@ def main():
         'deviceName': 'localhost:7555 device',
         'appPackage': 'com.xiangshi.bjxsgc',
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+        'automationName': 'UiAutomator2',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
-        'newCommandTimeout': 300,  # 设置新的命令超时时间为300秒
+        'newCommandTimeout': 300,
         'unicodeKeyboard': True,
         'resetKeyboard': True,
         'noReset': True
