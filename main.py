@@ -7,6 +7,8 @@ from tasks import tasks
 # 执行任务
 def execute_task(driver, wait, width, height, task_function, account):
     try:
+        print(f"账号 {account['phone']} 开始任务")
+
         # 自动登陆
         if not auth.auto_login(driver, wait, width, height, account['phone'], account['password']):
             print(f"登录账号 {account['phone']} 错误，程序继续。")
