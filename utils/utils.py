@@ -266,11 +266,17 @@ def get_and_store_points(driver, account):
         if os.path.exists(file_name):
             with open(file_name, "r") as file:
                 for line in file:
-                    parts = line.strip().split("，")
-                    phone = parts[0].split("：")[1]
-                    coin = parts[1].split("：")[1]
-                    point = parts[2].split("：")[1]
-                    points_data[phone] = (coin, point)
+                    try:
+                        parts = line.strip().split("，")
+                        if len(parts) == 3:
+                            phone = parts[0].split("：")[1]
+                            coin = parts[1].split("：")[1]
+                            point = parts[2].split("：")[1]
+                            points_data[phone] = (coin, point)
+                        else:
+                            print(f"忽略格式错误的行: {line}")
+                    except IndexError as e:
+                        print(f"解析行时发生错误: {line}, 错误: {e}")
 
         # 更新当前账号的值
         points_data[account['phone']] = (my_coin, my_point)
