@@ -74,7 +74,7 @@ def handle_home_page_video(driver, wait, width, height):
     return True
 
 # 资产页奖励任务
-def collect_rewards(driver, wait, width, height):
+def collect_rewards(driver, wait, width, height, account):
     # 首页红包
     popups.home_video_bonus(driver)
 

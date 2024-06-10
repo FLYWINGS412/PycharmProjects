@@ -15,7 +15,7 @@ def execute_task(driver, wait, width, height, task_function, account):
             return False
 
         # 执行任务
-        task_function(driver, wait, width, height)
+        task_function(driver, wait, width, height, account)
 
         # 自动退出
         if not auth.auto_logout(driver, wait, width, height):
