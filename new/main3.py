@@ -111,9 +111,9 @@ def main():
     ]
 
     tasks_list = [
-        {'function': tasks.handle_home_page_video, 'name': '首页视频'},
-        {'function': tasks.collect_rewards, 'name': '资产页奖励'},
-        {'function': tasks.mutual_assistance_reward, 'name': '互助奖励'}
+        {'function': tasks.handle_home_page_video, 'name': '首页视频奖励'},
+        {'function': tasks.collect_rewards, 'name': '资产页广告奖励'},
+        {'function': tasks.mutual_assistance_reward, 'name': '好友互助奖励'}
     ]
 
     print("请选择任务类型:")

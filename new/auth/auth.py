@@ -200,6 +200,9 @@ def auto_logout(driver, wait, width, height):
         # 首页红包
         popups.home_video_bonus(driver)
 
+        # 整点红包
+        popups.hourly_bonus(driver, wait, width, height)
+
         # 如果不在主界面，则尝试返回到主界面
         if current_activity != expected_main_activity:
             print("不在主界面，尝试返回到主界面。")
