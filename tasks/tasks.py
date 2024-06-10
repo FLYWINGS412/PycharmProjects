@@ -135,9 +135,7 @@ def collect_rewards(driver, wait, width, height, account):
         start_time = time.time()  # 记录循环开始时间
 
         # 整点红包
-        if popups.hourly_bonus(driver, wait, width, height):
-            print("已领取整点红包")
-            # return True
+        popups.hourly_bonus(driver, wait, width, height)
 
         found = False
         for i in range(last_successful_index, 7):  # 假设有6个奖励按钮

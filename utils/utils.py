@@ -264,14 +264,14 @@ def get_and_store_points(driver, account):
         # 读取现有内容
         points_data = {}
         if os.path.exists(file_name):
-            with open(file_name, "r") as file:
+            with open(file_name, "r", encoding='utf-8') as file:
                 for line in file:
                     try:
                         parts = line.strip().split("，")
                         if len(parts) == 3:
-                            phone = parts[0].split("：")[1]
-                            coin = parts[1].split("：")[1]
-                            point = parts[2].split("：")[1]
+                            phone = parts[0].split("：")[1].strip()
+                            coin = parts[1].split("：")[1].strip()
+                            point = parts[2].split("：")[1].strip()
                             points_data[phone] = (coin, point)
                         else:
                             print(f"忽略格式错误的行: {line}")
@@ -281,10 +281,16 @@ def get_and_store_points(driver, account):
         # 更新当前账号的值
         points_data[account['phone']] = (my_coin, my_point)
 
+        # 确定最长的电话长度以确保对齐
+        max_phone_length = max(len(phone) for phone in points_data.keys())
+
         # 覆盖写入新的内容，确保字段对齐
-        with open(file_name, "w") as file:
+        with open(file_name, "w", encoding='utf-8') as file:
             for phone, (coin, point) in points_data.items():
-                file.write(f"帐号：{phone.ljust(15, '　')}享币：{coin.ljust(15, '　')}享点：{point.ljust(15, '　')}\n")
+                phone_field = f"帐号：{phone}".ljust(max_phone_length + 4)
+                coin_field = f"享币：{coin}".ljust(20)
+                point_field = f"享点：{point}".ljust(20)
+                file.write(f"{phone_field}，{coin_field}，{point_field}\n")
 
         print(f"已成功获取并存储 {account['phone']} 的享币和享点")
         return True
