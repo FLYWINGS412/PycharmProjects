@@ -1,21 +1,16 @@
 import re
-import os
 import time
 import random
-import threading
-import subprocess
-from time import sleep
-from appium import webdriver
 from selenium.webdriver.common.by import By
 from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
-from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
-from new.utils import utils
-from new.popups import popups
+from utils import utils
+from popups import popups
+
 
 # 首页视频任务
 def handle_home_page_video(driver, wait, width, height):
@@ -291,6 +286,9 @@ def mutual_assistance_reward(driver, wait, width, height):
                 print("检查到头像，继续执行滑动操作。")
         except Exception as e:
             print("未找到或不可点击激励广告。")
+
+        # 首页红包
+        popups.home_video_bonus(driver)
 
         # 执行滑动操作
         utils.swipe_to_scroll(driver, width, height)

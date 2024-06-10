@@ -1,23 +1,8 @@
-import re
-import os
-import time
-import random
-import threading
-import subprocess
-from time import sleep
 from appium import webdriver
-from selenium.webdriver.common.by import By
-from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
-from appium.webdriver.common.touch_action import TouchAction
-from selenium.webdriver.support import expected_conditions as EC
-from appium.webdriver.extensions.android.nativekey import AndroidKey
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
-from new.auth import auth
-from new.tasks import tasks
-from new.utils import utils
-from new.popups import popups
+from auth import auth
+from tasks import tasks
+
 
 # 执行任务
 def execute_task(driver, wait, width, height, task_function, account):
