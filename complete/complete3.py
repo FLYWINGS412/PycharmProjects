@@ -535,8 +535,8 @@ def main():
         'platformName': 'Android',
         'platformVersion': '12',
         'deviceName': 'localhost:7555 device',
-        'appPackage': 'com.xiangshi.bjxsgc',
-        'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+        # 'appPackage': 'com.xiangshi.bjxsgc',
+        # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'automationName': 'UiAutomator2',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
@@ -548,7 +548,7 @@ def main():
 
     driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
     wait = WebDriverWait(driver, 10)
-    time.sleep(30)  # 等待APP完全加载
+    # time.sleep(30)  # 等待APP完全加载
 
     # 等待页面完成加载
     WebDriverWait(driver, 60).until(

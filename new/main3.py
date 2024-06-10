@@ -51,8 +51,9 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
     task_index, account_index = start_task_index, start_account_index
 
     while task_index < len(tasks_list):
-        task_function = tasks_list[task_index]
-        print(f"当前任务 {task_function.__name__} 开始账号索引为: {account_index + 1}")
+        task_function = tasks_list[task_index]['function']
+        task_name = tasks_list[task_index]['name']
+        print(f"当前任务 {task_name} 开始账号索引为: {account_index + 1}")
 
         while account_index < len(accounts):
             account = accounts[account_index]
@@ -107,7 +108,11 @@ def main():
         {'phone': '16623490422', 'password': '412412'},
     ]
 
-    tasks_list = [tasks.handle_home_page_video, tasks.collect_rewards, tasks.mutual_assistance_reward]
+    tasks_list = [
+        {'function': tasks.handle_home_page_video, 'name': '首页视频'},
+        {'function': tasks.collect_rewards, 'name': '资产页奖励'},
+        {'function': tasks.mutual_assistance_reward, 'name': '互助奖励'}
+    ]
 
     print("请选择任务类型:")
     print("1. 单任务")
@@ -117,7 +122,7 @@ def main():
     if task_type == '1':
         print("请选择任务:")
         for index, task in enumerate(tasks_list):
-            print(f"{index + 1}. {task.__name__}")
+            print(f"{index + 1}. {task['name']}")
         task_choice = input("请输入任务序号，或按回车键继续从上次的任务开始: ")
         if task_choice.isdigit():
             start_task_index = int(task_choice) - 1
@@ -136,7 +141,7 @@ def main():
     elif task_type == '2':
         print("请选择任务:")
         for index, task in enumerate(tasks_list):
-            print(f"{index + 1}. {task.__name__}")
+            print(f"{index + 1}. {task['name']}")
         task_choice = input("请输入任务序号，或按回车键继续从上次的任务开始: ")
         if task_choice.isdigit():
             start_task_index = int(task_choice) - 1

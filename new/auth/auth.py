@@ -15,6 +15,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from new.utils import utils
+from new.popups import popups
 
 # 保存当前任务和帐号进度
 def save_progress(task_index, account_index):
@@ -110,6 +111,9 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
             return False
         print("已加载主界面。")
 
+        # 首页红包
+        popups.home_video_bonus(driver)
+
         # 点击头像
         confirm_button = wait.until(
             EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
@@ -158,6 +162,9 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
         print("点击立即登录")
         time.sleep(random.randint(2, 5))
 
+        # 首页红包
+        popups.home_video_bonus(driver)
+
         # 等待页面加载
         time.sleep(5)
 
@@ -189,6 +196,9 @@ def auto_logout(driver, wait, width, height):
         current_activity = utils.get_current_activity()
         expected_main_activity = "com.xiangshi.main.activity.MainActivity"
         print(f"当前页面为: {current_activity}")
+
+        # 首页红包
+        popups.home_video_bonus(driver)
 
         # 如果不在主界面，则尝试返回到主界面
         if current_activity != expected_main_activity:

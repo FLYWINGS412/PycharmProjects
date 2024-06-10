@@ -1,17 +1,25 @@
 import re
+import os
 import time
 import random
+import threading
+import subprocess
+from time import sleep
+from appium import webdriver
 from selenium.webdriver.common.by import By
 from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
+from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
+from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from new.utils import utils
 from new.popups import popups
 
-# 首页视频
+# 首页视频任务
 def handle_home_page_video(driver, wait, width, height):
+    # 首页红包
     popups.home_video_bonus(driver)
 
     try:
@@ -70,15 +78,19 @@ def handle_home_page_video(driver, wait, width, height):
 
     return True
 
-# 领取奖励
+# 资产页奖励任务
 def collect_rewards(driver, wait, width, height):
+    # 首页红包
+    popups.home_video_bonus(driver)
+
     # 跳转到资产页
-    return utils.navigate_to_assets_page(driver, wait, width, height)
+    assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
+    assets_element.click()
+    print("已找到并点击‘资产’。")
+    time.sleep(random.randint(2, 5))
 
     # 每日股东分红
-    if popups.hourly_bonus(driver, wait, width, height):
-        print("已领取每日股东分红")
-        return True
+    popups.daily_dividend_distribution(driver, wait, width, height)
 
     # 点击领取
     try:
@@ -86,9 +98,7 @@ def collect_rewards(driver, wait, width, height):
             start_time = time.time()  # 记录循环开始时间
 
             # 整点红包
-            if popups.hourly_bonus(driver, wait, width, height):
-                print("已领取整点红包")
-                return True
+            popups.hourly_bonus(driver, wait, width, height)
 
             try:
                 miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
@@ -132,7 +142,7 @@ def collect_rewards(driver, wait, width, height):
         # 整点红包
         if popups.hourly_bonus(driver, wait, width, height):
             print("已领取整点红包")
-            return True
+            # return True
 
         found = False
         for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
@@ -168,8 +178,33 @@ def collect_rewards(driver, wait, width, height):
         print(f"用时: {elapsed_time} 秒")
     return True
 
-# 好友互助
-def handle_friend_assistance(driver, wait, width, height):
+# 互助奖励任务
+def mutual_assistance_reward(driver, wait, width, height):
+    # 首页红包
+    popups.home_video_bonus(driver)
+
+    # 获取当前活动并检查是否已经在主界面
+    current_activity = utils.get_current_activity()
+    expected_main_activity = "com.xiangshi.main.activity.MainActivity"
+    print(f"当前页面为: {current_activity}")
+
+    # 如果不在主界面，则尝试返回到主界面
+    if current_activity != expected_main_activity:
+        print("不在主界面，尝试返回到主界面。")
+        max_attempts = 5
+        attempts = 0
+        while current_activity != expected_main_activity and attempts < max_attempts:
+            driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
+            time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
+            current_activity = utils.get_current_activity()  # 再次获取当前活动
+            attempts += 1
+            print(f"尝试 {attempts}: 当前页面为 {current_activity}")
+        if attempts == max_attempts:
+            print("尝试返回主界面失败，请手动检查")
+            return False
+    else:
+        print("已在主界面，无需返回。")
+
     # 个人页面
     my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
     my_tab.click()
@@ -180,6 +215,38 @@ def handle_friend_assistance(driver, wait, width, height):
     follow_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
     follow_tab.click()
     print("点击关注")
+    time.sleep(random.randint(2, 5))
+
+    # 检查是否在我的关注
+    current_activity = utils.get_current_activity()
+    expected_setting_activity = "com.xiangshi.main.activity.FollowActivity"
+    if expected_setting_activity not in current_activity:
+        print("未能加载到我的关注，退出登出流程。")
+        return False
+    print("我的关注")
+
+    # 我的关注
+    my_following = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='罗亿凡（万股）']")))
+    my_following.click()
+    print("选择罗亿凡")
+    time.sleep(random.randint(2, 5))
+
+    # 检查是否在用户主页
+    current_activity = utils.get_current_activity()
+    expected_setting_activity = "com.xiangshi.main.activity.UserHomeActivity"
+    if expected_setting_activity not in current_activity:
+        print("未能加载到用户主页，退出登出流程。")
+        return False
+    print("用户主页")
+
+    # 选择作品
+    portfolio_elements = wait.until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb")))
+    if portfolio_elements:
+        selected_element = random.choice(portfolio_elements)
+        selected_element.click()
+        print("随机点击一个作品")
+    else:
+        print("未找到任何作品元素")
     time.sleep(random.randint(2, 5))
 
     while True:
@@ -230,8 +297,7 @@ def handle_friend_assistance(driver, wait, width, height):
         elapsed_time = round(time.time() - start_time, 2)
         print(f"用时: {elapsed_time} 秒")
 
-    driver.quit()
-    print("驱动已关闭，应用退出。")
+    return True
 
 # 展示页
 def handle_display_page(driver, wait, width, height):
@@ -239,11 +305,10 @@ def handle_display_page(driver, wait, width, height):
         start_time = time.time()
         timeout = 70
         popup_texts = ["放弃", "离开", "取消"]
-        handled_popup = False
 
         while time.time() - start_time < timeout:
             # 展示页弹窗
-            handled_popup = popups.handle_popup(driver, popup_texts)
+            popups.display_page_popup(driver, popup_texts)
 
             # 检查返回按钮
             # utils.check_back_button(driver, width, height)
@@ -336,7 +401,7 @@ def handle_display_page(driver, wait, width, height):
                 break  # 结束while循环
 
         # 展示页弹窗
-        handled_popup = popups.handle_popup(driver, popup_texts)
+        popups.display_page_popup(driver, popup_texts)
 
         # 调用点击元素函数
         if not utils.click_close_button(driver, wait, width, height):

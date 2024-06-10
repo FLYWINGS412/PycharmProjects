@@ -14,6 +14,7 @@ from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from new.tasks import tasks
 from new.utils import utils
 
 # 首页视频红包
@@ -47,7 +48,7 @@ def home_video_bonus(driver):
     return found_and_handled
 
 # 每日股东分红
-def daily_dividend_distribution():
+def daily_dividend_distribution(driver, wait, width, height):
     try:
         # 检测每日股东分红
         try:
@@ -56,10 +57,10 @@ def daily_dividend_distribution():
             )
             time.sleep(random.randint(2, 5))
             receive_button.click()
-            print("点击了立即领取。")
+            print("已领取每日股东分红。")
 
             # 处理展示页
-            if not handle_display_page(driver, wait, width, height):
+            if not tasks.handle_display_page(driver, wait, width, height):
                 print("处理展示页时出错。")
                 return False
 
@@ -76,17 +77,16 @@ def daily_dividend_distribution():
 # 整点红包
 def hourly_bonus(driver, wait, width, height):
     try:
-        # 检测整点红包
         try:
             receive_button = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
             )
             time.sleep(random.randint(2, 5))
             receive_button.click()
-            print("点击了立即领取。")
+            print("已领取整点红包。")
 
             # 处理展示页
-            if not handle_display_page(driver, wait, width, height):
+            if not tasks.handle_display_page(driver, wait, width, height):
                 print("处理展示页时出错。")
                 return False
 
