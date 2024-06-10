@@ -106,6 +106,8 @@ def main():
         {'phone': '18908361223', 'password': '412412'},
         {'phone': '16623393179', 'password': '412412'},
         {'phone': '16623490422', 'password': '412412'},
+        {'phone': '13983801809', 'password': 'xxf851101'},
+        {'phone': '15683627751', 'password': 'xxf851101'},
     ]
 
     tasks_list = [
