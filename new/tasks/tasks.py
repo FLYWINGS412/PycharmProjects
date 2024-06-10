@@ -176,6 +176,10 @@ def collect_rewards(driver, wait, width, height):
         # 输出循环用时
         elapsed_time = round(time.time() - start_time, 2)
         print(f"用时: {elapsed_time} 秒")
+
+    # 获取并存储“我的享币”和“我的享点”
+    utils.get_and_store_points(driver, account)
+
     return True
 
 # 互助奖励任务

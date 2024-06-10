@@ -19,13 +19,18 @@ from new.popups import popups
 
 # 保存当前任务和帐号进度
 def save_progress(task_index, account_index):
-    with open("progress.txt", "w") as file:
+    directory = os.path.join("record")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    file_path = os.path.join(directory, "progress.txt")
+    with open(file_path, "w") as file:
         file.write(f"{task_index},{account_index}")
 
 # 获取当前任务和帐号进度
 def get_progress():
-    if os.path.exists("progress.txt"):
-        with open("progress.txt", "r") as file:
+    file_path = os.path.join("record", "progress.txt")
+    if os.path.exists(file_path):
+        with open(file_path, "r") as file:
             content = file.read().strip()
             if content:
                 task_index, account_index = map(int, content.split(","))

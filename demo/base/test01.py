@@ -57,7 +57,7 @@ while True:
                 # new Uiselector().text()：
                 # new UiSelector().className()：
                 # new UiSelector().resourceId()：
-        driver.find_element(appiumBy.ANDROID_UIAUTOMATOR,'new UiSelector().txt("申请独家号")').click()
+        driver.find_element(appiumBy.ANDROID_UIAUTOMATOR,'new UiSelector().record("申请独家号")').click()
 
 
         # driver.find_element(AppiumBy.ID,'io.manong.developerdaily:id/btn_primary').click()    #点击申请独家号

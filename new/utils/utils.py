@@ -249,3 +249,46 @@ def is_on_ad_page(driver, wait, width, height):
     except TimeoutException:
         print("未成功到达互助视频页")
         return False
+
+# 获取我的享币和享点
+def get_and_store_points(driver, account):
+    try:
+        # 获取“我的享币”
+        coin_element = driver.find_element(MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_coin")
+        my_coin = coin_element.text
+
+        # 获取“我的享点”
+        point_element = driver.find_element(MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_point")
+        my_point = point_element.text
+
+        # 构造文件路径
+        directory = os.path.join("record")
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file_name = os.path.join(directory, "points.txt")
+
+        # 读取现有内容
+        points_data = {}
+        if os.path.exists(file_name):
+            with open(file_name, "r") as file:
+                for line in file:
+                    parts = line.strip().split("，")
+                    phone = parts[0].split("：")[1]
+                    coin = parts[1].split("：")[1]
+                    point = parts[2].split("：")[1]
+                    points_data[phone] = (coin, point)
+
+        # 更新当前账号的值
+        points_data[account['phone']] = (my_coin, my_point)
+
+        # 覆盖写入新的内容，确保字段对齐
+        with open(file_name, "w") as file:
+            for phone, (coin, point) in points_data.items():
+                file.write(f"帐号：{phone.ljust(15, '　')}享币：{coin.ljust(15, '　')}享点：{point.ljust(15, '　')}\n")
+
+        print(f"已成功获取并存储 {account['phone']} 的享币和享点")
+        return True
+
+    except Exception as e:
+        print(f"获取并存储 {account['phone']} 的享币和享点时发生异常：{str(e)}")
+        return False

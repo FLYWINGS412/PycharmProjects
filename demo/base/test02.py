@@ -38,7 +38,7 @@ driver = webdriver.Remote(server, device)
         # new UiSelector().className()：
         # new UiSelector().resourceId()：
 
-        # driver.find_element(appiumBy.ANDROID_UIAUTOMATOR,'new UiSelector().txt("申请独家号")').click()
+        # driver.find_element(appiumBy.ANDROID_UIAUTOMATOR,'new UiSelector().record("申请独家号")').click()
         # driver.find_element(AppiumBy.ID,'io.manong.developerdaily:id/btn_primary').click()    #点击申请独家号
         # driver.swipe(start_x=int(height/2),start_y=int(height*0.9),end_x=int(height/2),end_y=int(height*0.1),duration=100)
 
