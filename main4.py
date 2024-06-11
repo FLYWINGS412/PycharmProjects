@@ -59,7 +59,7 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
 
             # 检查并重置系统日期
             # if task_function == tasks.handle_home_page_video or task_function == tasks.mutual_assistance_reward:
-            utils.check_and_reset_system_date()
+            # utils.check_and_reset_system_date()
 
             while account_index < len(accounts):
                 account = accounts[account_index]
@@ -88,7 +88,7 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
                     'automationName': 'UiAutomator2',
                     'settings[waitForIdleTimeout]': 10,
                     'settings[waitForSelectorTimeout]': 10,
-                    'newCommandTimeout': 300,
+                    'newCommandTimeout': 21600,
                     'unicodeKeyboard': True,
                     'resetKeyboard': True,
                     'noReset': True
@@ -109,6 +109,14 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
             if is_single_task and account_index >= len(accounts):
                 print("单任务执行完成，程序退出。")
                 return
+
+            # 检查日期变化
+            if task_function == tasks.collect_rewards:
+                if utils.check_and_reset_system_date():
+                    print("日期已更改，立即执行下一次任务循环。")
+                else:
+                    print("日期未更改，任务循环暂停1小时。")
+                    time.sleep(3600)  # 暂停1小时
 
             # 重置账号索引，准备执行下一个任务
             account_index = 0

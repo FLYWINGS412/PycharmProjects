@@ -216,7 +216,7 @@ def is_on_assets_page(driver, wait, width, height):
         # 检查整点红包弹窗
         try:
             close_button = WebDriverWait(driver, 1).until(
-                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
             )
             close_button.click()
             print("关闭了整点红包弹窗。")
@@ -396,3 +396,5 @@ def check_and_reset_system_date():
             file.write(today_date)
 
         print("已重置任务完成记录")
+        return True  # 表示日期已更改
+    return False  # 表示日期未更改

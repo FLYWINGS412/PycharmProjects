@@ -84,6 +84,7 @@ def hourly_bonus(driver, wait, width, height):
             receive_button = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
             )
+            print("找到整点红包")
             time.sleep(random.randint(2, 5))
             receive_button.click()
             print("已领取整点红包。")

@@ -157,6 +157,10 @@ def mutual_assistance_reward(driver, wait, width, height, account):
 
         # 检查激励广告
         try:
+            # 首页红包
+            popups.home_video_bonus(driver)
+
+            # 激励广告
             reward_layer = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
