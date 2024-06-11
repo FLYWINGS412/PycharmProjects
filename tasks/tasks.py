@@ -234,7 +234,7 @@ def collect_rewards(driver, wait, width, height, account):
                 current, total = map(int, click_to_collect_text.replace(" ", "").strip('()').split('/'))
 
                 if current >= total:
-                    print("资产页广告奖励已领取完毕。")
+                    print("所有‘点击领取’已领取完毕。")
                     break
 
                 receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
@@ -294,7 +294,7 @@ def collect_rewards(driver, wait, width, height, account):
                 break  # 成功点击后退出外循环
 
         if not found:
-            print("未找到任何选中的‘领取奖励’按钮，所有奖励领取完毕。")
+            print("所有‘领取奖励’领取完毕。")
             break
 
         time.sleep(random.randint(2, 5))

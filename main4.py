@@ -58,8 +58,8 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
             print(f"当前任务 {task_name} 开始账号索引为: {account_index + 1}")
 
             # 检查并重置系统日期
-            if task_function == tasks.handle_home_page_video or task_function == tasks.mutual_assistance_reward:
-                utils.check_and_reset_system_date()
+            # if task_function == tasks.handle_home_page_video or task_function == tasks.mutual_assistance_reward:
+            utils.check_and_reset_system_date()
 
             while account_index < len(accounts):
                 account = accounts[account_index]
