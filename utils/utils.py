@@ -224,7 +224,6 @@ def is_on_ad_page(driver, wait, width, height):
         return True
     except TimeoutException:
         print("未成功到达互助视频页")
-        return False
 
 # 获取我的享币和享点
 def get_and_store_points(driver, account):
