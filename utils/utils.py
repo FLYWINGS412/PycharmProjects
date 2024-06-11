@@ -161,19 +161,6 @@ def get_current_activity():
     except Exception as e:
         return f"获取当前 Activity 时发生错误: {e}"
 
-# 菜单倒计时
-def handle_menu_countdown(prompt, timeout=10):
-    print(prompt)
-    timer = threading.Timer(timeout, lambda: print("\n输入时间已过，将自动从当前账号开始。"))
-    timer.start()
-    try:
-        user_input = input()
-        if user_input == '':
-            print("没有输入，将自动从当前账号开始。")
-        return user_input
-    finally:
-        timer.cancel()
-
 # 检查返回按钮
 def check_back_button(driver, width, height):
     elements = driver.find_elements(By.CLASS_NAME, "android.widget.RelativeLayout")
