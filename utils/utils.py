@@ -212,18 +212,7 @@ def is_on_assets_page(driver, wait, width, height):
         print("已成功到达资产页。")
         return True
     except TimeoutException:
-        print("尝试检查整点红包弹窗。")
-        # 检查整点红包弹窗
-        try:
-            close_button = WebDriverWait(driver, 1).until(
-                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
-            )
-            close_button.click()
-            print("关闭了整点红包弹窗。")
-            return True
-        except TimeoutException:
-            print("未成功到达资产页。")
-            return False
+        print("未成功到达资产页。")
 
 # 检查互助视频页
 def is_on_ad_page(driver, wait, width, height):

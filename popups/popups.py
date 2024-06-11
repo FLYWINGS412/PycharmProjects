@@ -74,9 +74,6 @@ def daily_dividend_distribution(driver, wait, width, height):
         print(f"处理活动时发生异常")
         return False
 
-    # 检测是否已成功回到资产页
-    return utils.is_on_assets_page(driver, wait, width, height)
-
 # 整点红包
 def hourly_bonus(driver, wait, width, height):
     try:
@@ -108,9 +105,6 @@ def hourly_bonus(driver, wait, width, height):
     except Exception as e:
         print(f"处理活动时发生异常")
         return False
-
-    # 检测是否已成功回到资产页
-    return utils.is_on_assets_page(driver, wait, width, height)
 
 # 展示页弹窗
 def display_page_popup(driver, popup_texts):

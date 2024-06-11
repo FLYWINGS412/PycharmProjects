@@ -250,6 +250,17 @@ def collect_rewards(driver, wait, width, height, account):
 
                 time.sleep(random.randint(2, 5))
 
+                # 检查整点红包弹窗
+                try:
+                    close_button = WebDriverWait(driver, 1).until(
+                        EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
+                    )
+                    close_button.click()
+                    print("关闭了整点红包弹窗。")
+                    return True
+                except TimeoutException:
+                    print("未发现整点红包弹窗。")
+
                 # 输出循环用时
                 elapsed_time = round(time.time() - start_time, 2)
                 print(f"用时: {elapsed_time} 秒")
