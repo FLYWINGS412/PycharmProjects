@@ -1,13 +1,23 @@
+import re
+import os
 import time
 import random
+import threading
+import subprocess
+from time import sleep
+from appium import webdriver
 from selenium.webdriver.common.by import By
 from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.remote.webelement import WebElement
+from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
+from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from auth import auth
 from tasks import tasks
 from utils import utils
-
+from popups import popups
 
 # 首页视频红包
 def home_video_bonus(driver):
@@ -50,6 +60,7 @@ def daily_dividend_distribution(driver, wait, width, height):
             time.sleep(random.randint(2, 5))
             receive_button.click()
             print("已领取每日股东分红。")
+            time.sleep(random.randint(2, 5))
 
             # 处理展示页
             if not tasks.handle_display_page(driver, wait, width, height):
@@ -86,9 +97,10 @@ def hourly_bonus(driver, wait, width, height):
             close_element = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
-            time.sleep(random.randint(1, 5))  # 随机等待1-5秒
+            time.sleep(random.randint(2, 5))
             close_element.click()
             print("点击了关闭弹窗")
+            time.sleep(random.randint(2, 5))
         except TimeoutException:
             print("未找到整点红包按钮，跳过此部分。")
 

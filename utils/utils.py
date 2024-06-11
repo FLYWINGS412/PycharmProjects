@@ -4,13 +4,20 @@ import time
 import random
 import threading
 import subprocess
+from time import sleep
+from appium import webdriver
 from selenium.webdriver.common.by import By
 from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
+from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
-
+from auth import auth
+from tasks import tasks
+from utils import utils
+from popups import popups
 
 # 点击关闭按钮
 def click_close_button(driver, wait, width, height):
@@ -62,10 +69,11 @@ def get_close_button(driver, wait, width, height):
         # 等待并查找关闭按钮元素，优先查找ImageView
         elements = WebDriverWait(driver, 3).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
-                      d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
-                      d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
+                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='跳过']") +
+                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='取消']")
+                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
                       # d.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
-                      # d.find_elements(MobileBy.CLASS_NAME, "android.widget.TextView")
         )
 
         for element in elements:
@@ -217,20 +225,18 @@ def is_on_assets_page(driver, wait, width, height):
         print("已成功到达资产页。")
         return True
     except TimeoutException:
-        print("未成功到达资产页。")
-        return False
-    # except TimeoutException:
-    #
-        # # 检查整点红包弹窗
-        # try:
-        #     hourly_bonus_popup = WebDriverWait(driver, 2).until(
-        #         EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
-        #     )
-        #     print("检测到整点红包弹窗。")
-        #     return True  # 如果检测到红包弹窗，则返回False
-        # except TimeoutException:
-        #     print("未成功到达资产页。")
-        #     return False
+        print("尝试检查整点红包弹窗。")
+        # 检查整点红包弹窗
+        try:
+            close_button = WebDriverWait(driver, 1).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+            )
+            close_button.click()
+            print("关闭了整点红包弹窗。")
+            return True
+        except TimeoutException:
+            print("未成功到达资产页。")
+            return False
 
 # 检查互助视频页
 def is_on_ad_page(driver, wait, width, height):
@@ -268,29 +274,32 @@ def get_and_store_points(driver, account):
                 for line in file:
                     try:
                         parts = line.strip().split("，")
-                        if len(parts) == 3:
-                            phone = parts[0].split("：")[1].strip()
-                            coin = parts[1].split("：")[1].strip()
-                            point = parts[2].split("：")[1].strip()
-                            points_data[phone] = (coin, point)
+                        if len(parts) == 4:
+                            name = parts[0].split("：")[1].strip()
+                            phone = parts[1].split("：")[1].strip()
+                            coin = parts[2].split("：")[1].strip()
+                            point = parts[3].split("：")[1].strip()
+                            points_data[phone] = (name, coin, point)
                         else:
                             print(f"忽略格式错误的行: {line}")
                     except IndexError as e:
                         print(f"解析行时发生错误: {line}, 错误: {e}")
 
         # 更新当前账号的值
-        points_data[account['phone']] = (my_coin, my_point)
+        points_data[account['phone']] = (account['name'], my_coin, my_point)
 
-        # 确定最长的电话长度以确保对齐
+        # 确定最长的电话长度和名字长度以确保对齐
         max_phone_length = max(len(phone) for phone in points_data.keys())
+        max_name_length = max(len(name) for name, _, _ in points_data.values())
 
         # 覆盖写入新的内容，确保字段对齐
         with open(file_name, "w", encoding='utf-8') as file:
-            for phone, (coin, point) in points_data.items():
+            for phone, (name, coin, point) in points_data.items():
+                name_field = f"名字：{name}".ljust(max_name_length + 4)
                 phone_field = f"帐号：{phone}".ljust(max_phone_length + 4)
                 coin_field = f"享币：{coin}".ljust(20)
                 point_field = f"享点：{point}".ljust(20)
-                file.write(f"{phone_field}，{coin_field}，{point_field}\n")
+                file.write(f"{name_field}，{phone_field}，{coin_field}，{point_field}\n")
 
         print(f"已成功获取并存储 {account['phone']} 的享币和享点")
         return True
@@ -298,3 +307,105 @@ def get_and_store_points(driver, account):
     except Exception as e:
         print(f"获取并存储 {account['phone']} 的享币和享点时发生异常：{str(e)}")
         return False
+
+# 首页视频奖励排除名单
+def log_handle_home_page_video(account):
+    try:
+        directory = os.path.join("record")
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file_name = os.path.join(directory, "handle_home_page_video.txt")
+
+        with open(file_name, "a", encoding='utf-8') as file:
+            file.write(f"账号：{account['phone']}\n")
+
+        print(f"已成功记录账号：{account['phone']} 的首页视频奖励完成")
+    except Exception as e:
+        print(f"记录账号 {account['phone']} 的首页视频奖励信息时发生异常：{str(e)}")
+
+# 检查是否已经完成首页视频奖励
+def has_completed_handle_home_page_video(account):
+    file_path = os.path.join("record", "handle_home_page_video.txt")
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding='utf-8') as file:
+            for line in file:
+                if account['phone'] in line:
+                    return True
+    return False
+
+# 好友互助奖励排除名单
+def log_mutual_assistance_reward(account):
+    try:
+        directory = os.path.join("record")
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        file_name = os.path.join(directory, "mutual_assistance_reward.txt")
+
+        with open(file_name, "a", encoding='utf-8') as file:
+            file.write(f"账号：{account['phone']}\n")
+
+        print(f"已成功记录账号：{account['phone']} 好友互助奖励完成")
+    except Exception as e:
+        print(f"记录账号 {account['phone']} 的好友互助奖励信息时发生异常：{str(e)}")
+
+# 检查是否已经完成好友互助奖励
+def has_completed_mutual_assistance_reward(account):
+    file_path = os.path.join("record", "mutual_assistance_reward.txt")
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding='utf-8') as file:
+            for line in file:
+                if account['phone'] in line:
+                    return True
+    return False
+
+# 初始化系统日期
+def initialize_system_date():
+    try:
+        # 定义记录目录
+        directory = "record"
+        # 如果记录目录不存在，则创建它
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        # 定义系统日期记录文件的路径
+        date_file_path = os.path.join(directory, "system_date.txt")
+        # 获取当前系统日期
+        today_date = time.strftime("%Y-%m-%d")
+
+        # 打开系统日期记录文件，并将当前日期写入文件
+        with open(date_file_path, "w", encoding='utf-8') as file:
+            file.write(today_date)
+            print(f"当前系统日期: {today_date} 已写入文件: {date_file_path}")
+
+    except Exception as e:
+        # 捕获并打印任何异常
+        print(f"初始化系统日期时发生错误: {str(e)}")
+
+# 检查并重置系统日期
+def check_and_reset_system_date():
+    # 定义记录目录和文件路径
+    directory = "record"
+    date_file_path = os.path.join(directory, "system_date.txt")
+    handle_home_page_video_file_path = os.path.join(directory, "handle_home_page_video.txt")
+    mutual_assistance_file_path = os.path.join(directory, "mutual_assistance_reward.txt")
+
+    # 获取当前系统日期
+    today_date = time.strftime("%Y-%m-%d")
+
+    # 读取上次记录的系统日期
+    with open(date_file_path, "r", encoding='utf-8') as file:
+        last_date = file.read().strip()
+
+    # 如果上次记录的系统日期与当前日期不一致
+    if last_date != today_date:
+        # 清空相关任务记录文件
+        with open(handle_home_page_video_file_path, "w", encoding='utf-8') as file:
+            file.write("")  # 清空文件内容
+        with open(mutual_assistance_file_path, "w", encoding='utf-8') as file:
+            file.write("")  # 清空文件内容
+
+        # 更新系统日期记录文件为当前日期
+        with open(date_file_path, "w", encoding='utf-8') as file:
+            file.write(today_date)
+
+        print("已重置任务完成记录")

@@ -19,6 +19,16 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
+# 检查是否已经完成互助奖励任务
+def has_completed_mutual_assistance_reward(account):
+    file_path = os.path.join("record", "mutual_assistance_reward.txt")
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding='utf-8') as file:
+            for line in file:
+                if account['phone'] in line:
+                    return True
+    return False
+
 # 执行任务
 def execute_task(driver, wait, width, height, task_function, account):
     try:
@@ -48,7 +58,7 @@ def execute_task(driver, wait, width, height, task_function, account):
         driver.quit()
         print(f"账号 {account['phone']} 处理完成，应用已关闭，驱动会话已结束。")
 
-# 开始任务
+# 开始任务循环
 def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=0, is_single_task=False):
     task_index, account_index = start_task_index, start_account_index
 
@@ -57,14 +67,11 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
         task_name = tasks_list[task_index]['name']
         print(f"当前任务 {task_name} 开始账号索引为: {account_index + 1}")
 
-        if task_function == tasks.mutual_assistance_reward:
-            utils.check_and_reset_system_date()
-
         while account_index < len(accounts):
             account = accounts[account_index]
 
             # 检查互助奖励任务是否已经完成
-            if task_function == tasks.mutual_assistance_reward and utils.has_completed_mutual_assistance_reward(account):
+            if task_function == tasks.mutual_assistance_reward and has_completed_mutual_assistance_reward(account):
                 print(f"账号 {account['phone']} 已完成今日的 {task_name}，跳过此任务。")
                 account_index += 1
                 continue
@@ -126,9 +133,6 @@ def main():
         {'function': tasks.collect_rewards, 'name': '资产页广告奖励'},
         {'function': tasks.mutual_assistance_reward, 'name': '好友互助奖励'}
     ]
-
-    # 初始化系统日期
-    utils.initialize_system_date()
 
     print("请选择任务类型:")
     print("1. 单任务")

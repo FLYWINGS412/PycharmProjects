@@ -1,19 +1,26 @@
 import re
+import os
 import time
 import random
+import threading
+import subprocess
+from time import sleep
+from appium import webdriver
 from selenium.webdriver.common.by import By
 from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
+from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from auth import auth
+from tasks import tasks
 from utils import utils
 from popups import popups
 
-
-# 首页视频任务
-def handle_home_page_video(driver, wait, width, height):
+# 首页视频奖励
+def handle_home_page_video(driver, wait, width, height, account):
     # 首页红包
     popups.home_video_bonus(driver)
 
@@ -66,6 +73,7 @@ def handle_home_page_video(driver, wait, width, height):
                 print(f"用时: {elapsed_time} 秒")
                 if not elements:
                     print("再次检查后仍未找到元素，退出循环")
+                    utils.log_handle_home_page_video(account)
                     break
     except Exception as e:
         print(f"在滑屏循环中发生错误：{e}")
@@ -73,110 +81,8 @@ def handle_home_page_video(driver, wait, width, height):
 
     return True
 
-# 资产页奖励任务
-def collect_rewards(driver, wait, width, height, account):
-    # 首页红包
-    popups.home_video_bonus(driver)
-
-    # 跳转到资产页
-    assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
-    assets_element.click()
-    print("已找到并点击‘资产’。")
-    time.sleep(random.randint(2, 5))
-
-    # 每日股东分红
-    popups.daily_dividend_distribution(driver, wait, width, height)
-
-    # 点击领取
-    try:
-        while True:
-            start_time = time.time()  # 记录循环开始时间
-
-            # 整点红包
-            popups.hourly_bonus(driver, wait, width, height)
-
-            try:
-                miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
-                click_to_collect_text = miss_bubble_element.text
-                current, total = map(int, click_to_collect_text.replace(" ", "").strip('()').split('/'))
-
-                if current >= total:
-                    print("所有任务奖励已领取完毕。")
-                    break
-
-                receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
-                receive_bubble.click()
-                print(f"点击了领取按钮，更新剩余次数：{current + 1}/{total}")
-
-                if not handle_display_page(driver, wait, width, height):  # 处理展示页的逻辑
-                    return False
-
-                time.sleep(random.randint(1, 5))
-
-                # 输出循环用时
-                elapsed_time = round(time.time() - start_time, 2)
-                print(f"用时: {elapsed_time} 秒")
-
-            except StaleElementReferenceException:
-                print("元素不再存在于 DOM 中，重新获取元素。")
-                continue
-
-    except (TimeoutException, NoSuchElementException):
-        print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
-
-    # 领取奖励
-    base_xpaths = [
-        "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/androidx.viewpager.widget.ViewPager/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView",
-        "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView"
-    ]
-
-    last_successful_index = 1  # 从最后一次成功的位置开始
-    while True:
-        start_time = time.time()  # 记录循环开始时间
-
-        # 整点红包
-        popups.hourly_bonus(driver, wait, width, height)
-
-        found = False
-        for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
-            for base_xpath in base_xpaths:
-                xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
-                try:
-                    reward = wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
-                    if reward.get_attribute("selected") == "true":
-                        reward.click()
-                        print(f"点击了位于 {i} 的领取奖励，使用的XPath为: {xpath}")
-                        if not handle_display_page(driver, wait, width, height):  # 处理展示页的逻辑
-                            return False
-                        last_successful_index = i + 1  # 更新最后成功的索引
-                        found = True
-                        break  # 成功点击后退出内循环
-                except TimeoutException:
-                    print(f"未能及时找到位于 {i} 的领取奖励，路径：{xpath}")
-                except NoSuchElementException:
-                    print(f"未能定位到位于 {i} 的领取奖励，路径：{xpath}")
-                except Exception as e:
-                    print(f"尝试点击位于 {i} 的领取奖励时发生异常，路径：{xpath}")
-            if found:
-                break  # 成功点击后退出外循环
-
-        if not found:
-            print("未找到任何选中的‘领取奖励’按钮，所有奖励领取完毕。")
-            break
-
-        time.sleep(random.randint(1, 5))
-
-        # 输出循环用时
-        elapsed_time = round(time.time() - start_time, 2)
-        print(f"用时: {elapsed_time} 秒")
-
-    # 获取并存储“我的享币”和“我的享点”
-    utils.get_and_store_points(driver, account)
-
-    return True
-
-# 互助奖励任务
-def mutual_assistance_reward(driver, wait, width, height):
+# 好友互助奖励
+def mutual_assistance_reward(driver, wait, width, height, account):
     # 首页红包
     popups.home_video_bonus(driver)
 
@@ -277,6 +183,7 @@ def mutual_assistance_reward(driver, wait, width, height):
                         EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
                     )
                     print("检测到'每日20次'文本，程序终止并退出到系统桌面。")
+                    utils.log_mutual_assistance_reward(account)
                     break
                 except TimeoutException:
                     print("未检测到'每日20次'文本，继续执行。")
@@ -296,6 +203,108 @@ def mutual_assistance_reward(driver, wait, width, height):
         # 输出循环用时
         elapsed_time = round(time.time() - start_time, 2)
         print(f"用时: {elapsed_time} 秒")
+
+    return True
+
+# 资产页广告奖励
+def collect_rewards(driver, wait, width, height, account):
+    # 首页红包
+    popups.home_video_bonus(driver)
+
+    # 跳转到资产页
+    assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
+    assets_element.click()
+    print("已找到并点击‘资产’。")
+    time.sleep(random.randint(2, 5))
+
+    # 每日股东分红
+    popups.daily_dividend_distribution(driver, wait, width, height)
+
+    # 点击领取
+    try:
+        while True:
+            start_time = time.time()  # 记录循环开始时间
+
+            # 整点红包
+            popups.hourly_bonus(driver, wait, width, height)
+
+            try:
+                miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
+                click_to_collect_text = miss_bubble_element.text
+                current, total = map(int, click_to_collect_text.replace(" ", "").strip('()').split('/'))
+
+                if current >= total:
+                    print("资产页广告奖励已领取完毕。")
+                    break
+
+                receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
+                receive_bubble.click()
+                print(f"点击了领取按钮，更新剩余次数：{current + 1}/{total}")
+
+                if not handle_display_page(driver, wait, width, height):
+                    return False
+
+                time.sleep(random.randint(2, 5))
+
+                # 输出循环用时
+                elapsed_time = round(time.time() - start_time, 2)
+                print(f"用时: {elapsed_time} 秒")
+
+            except StaleElementReferenceException:
+                print("元素不再存在于 DOM 中，重新获取元素。")
+                continue
+
+    except (TimeoutException, NoSuchElementException):
+        print("找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击。")
+
+    # 领取奖励
+    base_xpaths = [
+        "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/androidx.viewpager.widget.ViewPager/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView",
+        "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView"
+    ]
+
+    last_successful_index = 1  # 从最后一次成功的位置开始
+    while True:
+        start_time = time.time()  # 记录循环开始时间
+
+        # 整点红包
+        popups.hourly_bonus(driver, wait, width, height)
+
+        found = False
+        for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
+            for base_xpath in base_xpaths:
+                xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
+                try:
+                    reward = wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
+                    if reward.get_attribute("selected") == "true":
+                        reward.click()
+                        print(f"点击了位于 {i} 的领取奖励，使用的XPath为: {xpath}")
+                        if not handle_display_page(driver, wait, width, height):  # 处理展示页的逻辑
+                            return False
+                        last_successful_index = i + 1  # 更新最后成功的索引
+                        found = True
+                        break  # 成功点击后退出内循环
+                except TimeoutException:
+                    print(f"未能及时找到位于 {i} 的领取奖励，路径：{xpath}")
+                except NoSuchElementException:
+                    print(f"未能定位到位于 {i} 的领取奖励，路径：{xpath}")
+                except Exception as e:
+                    print(f"尝试点击位于 {i} 的领取奖励时发生异常，路径：{xpath}")
+            if found:
+                break  # 成功点击后退出外循环
+
+        if not found:
+            print("未找到任何选中的‘领取奖励’按钮，所有奖励领取完毕。")
+            break
+
+        time.sleep(random.randint(2, 5))
+
+        # 输出循环用时
+        elapsed_time = round(time.time() - start_time, 2)
+        print(f"用时: {elapsed_time} 秒")
+
+    # 获取并存储“我的享币”和“我的享点”
+    utils.get_and_store_points(driver, account)
 
     return True
 

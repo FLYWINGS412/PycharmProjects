@@ -1,23 +1,8 @@
-import re
-import os
-import time
-import random
-import threading
-import subprocess
-from time import sleep
 from appium import webdriver
-from selenium.webdriver.common.by import By
-from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
-from appium.webdriver.common.touch_action import TouchAction
-from selenium.webdriver.support import expected_conditions as EC
-from appium.webdriver.extensions.android.nativekey import AndroidKey
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from auth import auth
 from tasks import tasks
-from utils import utils
-from popups import popups
+
 
 # 执行任务
 def execute_task(driver, wait, width, height, task_function, account):
@@ -57,17 +42,8 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
         task_name = tasks_list[task_index]['name']
         print(f"当前任务 {task_name} 开始账号索引为: {account_index + 1}")
 
-        if task_function == tasks.mutual_assistance_reward:
-            utils.check_and_reset_system_date()
-
         while account_index < len(accounts):
             account = accounts[account_index]
-
-            # 检查互助奖励任务是否已经完成
-            if task_function == tasks.mutual_assistance_reward and utils.has_completed_mutual_assistance_reward(account):
-                print(f"账号 {account['phone']} 已完成今日的 {task_name}，跳过此任务。")
-                account_index += 1
-                continue
 
             # 提前保存当前任务和账号索引
             auth.save_progress(task_index, account_index)
@@ -126,9 +102,6 @@ def main():
         {'function': tasks.collect_rewards, 'name': '资产页广告奖励'},
         {'function': tasks.mutual_assistance_reward, 'name': '好友互助奖励'}
     ]
-
-    # 初始化系统日期
-    utils.initialize_system_date()
 
     print("请选择任务类型:")
     print("1. 单任务")
