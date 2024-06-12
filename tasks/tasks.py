@@ -73,7 +73,7 @@ def handle_home_page_video(driver, wait, width, height, account):
                 print(f"用时: {elapsed_time} 秒")
                 if not elements:
                     print("再次检查后仍未找到元素，退出循环")
-                    utils.log_handle_home_page_video(account)
+                    # utils.log_handle_home_page_video(account)
                     break
     except Exception as e:
         print(f"在滑屏循环中发生错误：{e}")
@@ -129,7 +129,7 @@ def mutual_assistance_reward(driver, wait, width, height, account):
     print("我的关注")
 
     # 我的关注
-    my_following = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='罗亿凡（万股）']")))
+    my_following = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[contains(@text, '罗亿凡')]")))
     my_following.click()
     print("选择罗亿凡")
     time.sleep(random.randint(2, 5))
@@ -180,7 +180,8 @@ def mutual_assistance_reward(driver, wait, width, height, account):
                     EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                 )
                 print("没检查到头像，加载展示页。")
-                handle_display_page(driver, wait, width, height)
+                if not handle_display_page(driver, wait, width, height):
+                    return False
                 # 检查是否存在包含“每日”文本的元素
                 try:
                     WebDriverWait(driver, 5).until(
