@@ -409,7 +409,9 @@ def handle_display_page(driver, wait, width, height):
 
             except NoSuchElementException:
                 print("未找到倒计时元素。")
-                continue  # 继续while循环
+                time.sleep(35)
+                break
+                # continue  # 继续while循环
             except Exception as e:
                 print(f"发生错误: {str(e)}")
                 break  # 结束while循环

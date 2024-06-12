@@ -139,6 +139,7 @@ def main():
         {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
         {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
         {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
+        {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
         {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
         {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
         {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
