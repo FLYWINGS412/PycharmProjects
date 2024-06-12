@@ -113,7 +113,7 @@ def display_page_popup(driver, popup_texts):
         try:
             xpath_expression = f"//*[contains(@text, '{text}')]"
             popup_button = WebDriverWait(driver, 2).until(
-                EC.presence_of_element_located((By.XPATH, xpath_expression))
+                EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
             )
             time.sleep(random.randint(2, 5))
             popup_button.click()

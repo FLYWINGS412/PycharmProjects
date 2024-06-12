@@ -333,7 +333,7 @@ def handle_display_page(driver, wait, width, height):
                 # print("开始检查倒计时...")
 
                 # 第一种检查倒计时的方法
-                text_views = driver.find_elements(By.XPATH, "//android.widget.TextView[contains(@text, 's')]")
+                text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
                 if text_views:
                     for text_view in text_views:
                         location = text_view.location
@@ -362,7 +362,7 @@ def handle_display_page(driver, wait, width, height):
 
                 else:
                     # 第二种检查倒计时的方法（长度为1或2的纯数字倒计时）
-                    text_views = driver.find_elements(By.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]")
+                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]")
                     if text_views:
                         for text_view in text_views:
                             location = text_view.location
@@ -391,7 +391,7 @@ def handle_display_page(driver, wait, width, height):
 
                     else:
                         # 检查其他可能的倒计时元素
-                        countdown_element = driver.find_elements(By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+                        countdown_element = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
                         if countdown_element:
                             element_to_wait = countdown_element[0]
                             try:

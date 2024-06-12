@@ -163,7 +163,7 @@ def get_current_activity():
 
 # 检查返回按钮
 def check_back_button(driver, width, height):
-    elements = driver.find_elements(By.CLASS_NAME, "android.widget.RelativeLayout")
+    elements = driver.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
     if elements:
         for element in elements:
             size = element.size
@@ -361,7 +361,7 @@ def check_and_reset_system_date():
     # 定义记录目录和文件路径
     directory = "record"
     date_file_path = os.path.join(directory, "system_date.txt")
-    handle_home_page_video_file_path = os.path.join(directory, "handle_home_page_video.txt")
+    # handle_home_page_video_file_path = os.path.join(directory, "handle_home_page_video.txt")
     mutual_assistance_file_path = os.path.join(directory, "mutual_assistance_reward.txt")
 
     # 获取当前系统日期
