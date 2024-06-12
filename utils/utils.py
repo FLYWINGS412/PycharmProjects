@@ -34,6 +34,7 @@ def click_close_button(driver, wait, width, height):
                 WebDriverWait(driver, 2).until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
+                time.sleep(random.randint(2, 5))
 
                 # 检测是否已成功回到资产页
                 if is_on_assets_page(driver, wait, width, height):

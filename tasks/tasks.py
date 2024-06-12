@@ -83,9 +83,6 @@ def handle_home_page_video(driver, wait, width, height, account):
 
 # 好友互助奖励
 def mutual_assistance_reward(driver, wait, width, height, account):
-    # 首页红包
-    popups.home_video_bonus(driver)
-
     # 获取当前活动并检查是否已经在主界面
     current_activity = utils.get_current_activity()
     expected_main_activity = "com.xiangshi.main.activity.MainActivity"
@@ -107,6 +104,9 @@ def mutual_assistance_reward(driver, wait, width, height, account):
             return False
     else:
         print("已在主界面，无需返回。")
+
+    # 首页红包
+    popups.home_video_bonus(driver)
 
     # 个人页面
     my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
@@ -164,7 +164,7 @@ def mutual_assistance_reward(driver, wait, width, height, account):
             reward_layer = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
-            time.sleep(random.randint(2, 5))
+            # time.sleep(random.randint(2, 5))
             reward_layer.click()
             print("点击了激励广告")
 
