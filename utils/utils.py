@@ -410,8 +410,8 @@ def check_and_reset_system_date():
     # 如果上次记录的系统日期与当前日期不一致
     if last_date != today_date:
         # 清空相关任务记录文件
-        with open(handle_home_page_video_file_path, "w", encoding='utf-8') as file:
-            file.write("")  # 清空文件内容
+        # with open(handle_home_page_video_file_path, "w", encoding='utf-8') as file:
+        #     file.write("")  # 清空文件内容
         with open(mutual_assistance_file_path, "w", encoding='utf-8') as file:
             file.write("")  # 清空文件内容
 
