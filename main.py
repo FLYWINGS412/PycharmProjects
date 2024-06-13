@@ -42,7 +42,8 @@ def execute_task(driver, wait, width, height, task_function, account):
         return True
 
     except Exception as e:
-        print(f"处理中发生异常：{str(e)}")
+        # print(f"处理中发生异常：{str(e)}")
+        print(f"处理中发生异常")
         return False
 
     finally:
@@ -117,8 +118,8 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
                 if utils.check_and_reset_system_date():
                     print("日期已更改，立即执行下一次任务循环。")
                 else:
-                    print("日期未更改，任务循环暂停1小时。")
-                    time.sleep(3600)  # 暂停1小时
+                    print("日期未更改，任务循环暂停半小时。")
+                    time.sleep(1800)  # 暂停半小时
 
             # 重置账号索引，准备执行下一个任务
             account_index = 0

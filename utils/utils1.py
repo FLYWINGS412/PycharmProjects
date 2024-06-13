@@ -36,34 +36,14 @@ def click_close_button(driver, wait, width, height):
                 button.click()
                 time.sleep(1)    # 等待加载页面
 
-                # 使用多线程同时检查资产页和互助视频页
-                assets_page_result = [False]
-                ad_page_result = [False]
-
-                def check_assets_page():
-                    assets_page_result[0] = is_on_assets_page(driver, wait, width, height)
-
-                def check_ad_page():
-                    ad_page_result[0] = is_on_ad_page(driver, wait, width, height)
-
-                assets_page_thread = threading.Thread(target=check_assets_page)
-                ad_page_thread = threading.Thread(target=check_ad_page)
-
-                assets_page_thread.start()
-                ad_page_thread.start()
-
-                assets_page_thread.join()
-                ad_page_thread.join()
-
-                assets_result = assets_page_result[0]
-                ad_result = ad_page_result[0]
-
-                if assets_result or ad_result:
-                    if assets_result:
-                        print("已成功到达资产页。")
-                    if ad_result:
-                        print("已成功到达互助视频页")
+                # 检测是否已成功回到资产页
+                if is_on_assets_page(driver, wait, width, height):
                     return True
+                # 检测是否已成功回到互助视频页
+                elif is_on_ad_page(driver, wait, width, height):
+                    return True
+                else:
+                    print("继续点击关闭按钮")
             else:
                 print("未找到符合条件的右上角关闭按钮。")
         except StaleElementReferenceException:
@@ -73,8 +53,7 @@ def click_close_button(driver, wait, width, height):
         except TimeoutException:
             print("元素不可点击，超时。")
         except Exception as e:
-            # print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
-            print(f"尝试点击右上角关闭按钮时发生错误")
+            print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
         attempts += 1
     print("尝试多次后仍未成功点击按钮。")
     return False
@@ -93,6 +72,8 @@ def get_close_button(driver, wait, width, height):
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='跳过']") +
                       d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='取消']")
+                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '跳过')]") +
+                      # d.find_elements(MobileBy.XPATH, "//*[contains(@text, '取消')]")
                       # d.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
         )
 
@@ -177,11 +158,9 @@ def get_current_activity():
         print("未找到当前焦点的 Activity。")
         return "无法获取当前页面"
     except subprocess.CalledProcessError as e:
-        # return f"执行 adb 命令时发生错误: {e}"
-        return f"执行 adb 命令时发生错误"
+        return f"执行 adb 命令时发生错误: {e}"
     except Exception as e:
         return f"获取当前 Activity 时发生错误: {e}"
-        return f"获取当前 Activity 时发生错误"
 
 # 检查返回按钮
 def check_back_button(driver, width, height):
@@ -202,30 +181,29 @@ def check_back_button(driver, width, height):
                 print(f"检查到返回按钮，Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
                 break
 
-# 跳转资产页
-def navigate_to_assets_page(driver, wait, width, height):
-    """尝试导航到资产页面，并关闭可能出现的弹窗。"""
-    max_attempts = 3
-    attempts = 0
-    while attempts < max_attempts:
-        try:
-            assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
-            assets_element.click()
-            print("已找到并点击‘资产’。")
-            time.sleep(random.randint(2, 5))
+# # 跳转资产页
+# def navigate_to_assets_page(driver, wait, width, height):
+#     """尝试导航到资产页面，并关闭可能出现的弹窗。"""
+#     max_attempts = 3
+#     attempts = 0
+#     while attempts < max_attempts:
+#         try:
+#             assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
+#             assets_element.click()
+#             print("已找到并点击‘资产’。")
+#             time.sleep(random.randint(2, 5))
+#
+#         except TimeoutException:
+#             print("未找到‘资产’元素或未成功到达资产页。")
+#         except Exception as e:
+#             print(f"检查‘资产’时发生错误: {e}")
+#         attempts += 1
+#         time.sleep(2)
+#
+#     print("尝试多次后仍未成功访问资产页。")
+#     return False
 
-        except TimeoutException:
-            print("未找到‘资产’元素或未成功到达资产页。")
-        except Exception as e:
-            # print(f"检查‘资产’时发生错误: {e}")
-            print(f"检查‘资产’时发生错误")
-        attempts += 1
-        time.sleep(2)
-
-    print("尝试多次后仍未成功访问资产页。")
-    return False
-
-# 检查资产广告页
+# 检查资产页
 def is_on_assets_page(driver, wait, width, height):
     try:
         # 尝试获取并点击关闭弹窗
@@ -235,29 +213,29 @@ def is_on_assets_page(driver, wait, width, height):
             )
             close_element.click()
         except TimeoutException:
+            # 如果未找到关闭弹窗按钮，则继续进行下一步操作
             pass
 
         # 检查是否存在资产页的特定元素
         WebDriverWait(driver, 1).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))
         )
-        # print("已成功到达资产广告页。")
+        print("已成功到达资产页。")
         return True
     except TimeoutException:
-        # print("未成功到达资产广告页页。")
-            pass
+        print("未成功到达资产页。")
 
-# 检查激励视频页
+# 检查互助视频页
 def is_on_ad_page(driver, wait, width, height):
     try:
         WebDriverWait(driver, 1).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
         )
-        # print("已成功到达激励视频页")
+        print("已成功到达互助视频页")
         return True
     except TimeoutException:
-        # print("未成功到达激励视频页")
-            pass
+        print("未成功到达互助视频页")
+
 # 获取我的享币和享点
 def get_and_store_points(driver, account):
     try:
@@ -313,11 +291,10 @@ def get_and_store_points(driver, account):
         return True
 
     except Exception as e:
-        # print(f"获取并存储 {account['phone']} 的享币和享点时发生异常：{str(e)}")
-        print(f"获取并存储 {account['phone']} 的享币和享点时发生异常")
+        print(f"获取并存储 {account['phone']} 的享币和享点时发生异常：{str(e)}")
         return False
 
-# # 首页红包奖励排除名单
+# # 首页视频奖励排除名单
 # def log_handle_home_page_video(account):
 #     try:
 #         directory = os.path.join("record")
@@ -328,11 +305,11 @@ def get_and_store_points(driver, account):
 #         with open(file_name, "a", encoding='utf-8') as file:
 #             file.write(f"账号：{account['phone']}\n")
 #
-#         print(f"已成功记录账号：{account['phone']} 的首页红包奖励完成")
+#         print(f"已成功记录账号：{account['phone']} 的首页视频奖励完成")
 #     except Exception as e:
-#         print(f"记录账号 {account['phone']} 的首页红包奖励信息时发生异常：{str(e)}")
+#         print(f"记录账号 {account['phone']} 的首页视频奖励信息时发生异常：{str(e)}")
 #
-# # 检查是否已经完成首页红包奖励
+# # 检查是否已经完成首页视频奖励
 # def has_completed_handle_home_page_video(account):
 #     file_path = os.path.join("record", "handle_home_page_video.txt")
 #     if os.path.exists(file_path):
@@ -342,7 +319,7 @@ def get_and_store_points(driver, account):
 #                     return True
 #     return False
 
-# 激励视频奖励排除名单
+# 好友互助奖励排除名单
 def log_mutual_assistance_reward(account):
     try:
         directory = os.path.join("record")
@@ -353,12 +330,11 @@ def log_mutual_assistance_reward(account):
         with open(file_name, "a", encoding='utf-8') as file:
             file.write(f"账号：{account['phone']}\n")
 
-        print(f"已成功记录账号：{account['phone']} 激励视频奖励完成")
+        print(f"已成功记录账号：{account['phone']} 好友互助奖励完成")
     except Exception as e:
-        # print(f"记录账号 {account['phone']} 的激励视频奖励信息时发生异常：{str(e)}")
-        print(f"记录账号 {account['phone']} 的激励视频奖励信息时发生异常")
+        print(f"记录账号 {account['phone']} 的好友互助奖励信息时发生异常：{str(e)}")
 
-# 检查是否已经完成激励视频奖励
+# 检查是否已经完成好友互助奖励
 def has_completed_mutual_assistance_reward(account):
     file_path = os.path.join("record", "mutual_assistance_reward.txt")
     if os.path.exists(file_path):
@@ -389,8 +365,7 @@ def initialize_system_date():
 
     except Exception as e:
         # 捕获并打印任何异常
-        # print(f"初始化系统日期时发生错误: {str(e)}")
-        print(f"初始化系统日期时发生错误")
+        print(f"初始化系统日期时发生错误: {str(e)}")
 
 # 检查并重置系统日期
 def check_and_reset_system_date():

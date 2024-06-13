@@ -19,7 +19,7 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
-# 首页视频红包
+# 首页视频红包奖励
 def home_video_bonus(driver):
     found_and_handled = False  # 初始化标记，假定没有找到或处理弹窗
     try:
@@ -52,7 +52,7 @@ def home_video_bonus(driver):
 # 每日股东分红
 def daily_dividend_distribution(driver, wait, width, height):
     try:
-        # 检测每日股东分红
+        # 检查每日股东分红
         try:
             receive_button = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_watch_ad"))
@@ -67,12 +67,33 @@ def daily_dividend_distribution(driver, wait, width, height):
                 print("处理展示页时出错。")
                 return False
 
+            # 检查并点击整点红包
+            try:
+                hourly_bonus_button = WebDriverWait(driver, 2).until(
+                    EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_the_hour"))
+                )
+                time.sleep(random.randint(2, 5))
+                hourly_bonus_button.click()
+                print("点击了整点红包。")
+
+                # 再次处理展示页
+                if not tasks.handle_display_page(driver, wait, width, height):
+                    print("处理展示页时出错。")
+                    return False
+
+            except TimeoutException:
+                print("未找到整点红包按钮，跳过此部分。")
+
         except TimeoutException:
             print("未找到每日股东分红，跳过此部分。")
+            return  # 直接退出函数，不执行后续代码
 
     except Exception as e:
+        # print(f"处理活动时发生异常：{str(e)}")
         print(f"处理活动时发生异常")
         return False
+
+    return True
 
 # 整点红包
 def hourly_bonus(driver, wait, width, height):
@@ -91,14 +112,14 @@ def hourly_bonus(driver, wait, width, height):
                 print("处理展示页时出错。")
                 return False
 
-            # 尝试获取并点击关闭弹窗
-            close_element = WebDriverWait(driver, 2).until(
-                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
-            )
-            time.sleep(random.randint(2, 5))
-            close_element.click()
-            print("点击了关闭弹窗")
-            time.sleep(random.randint(2, 5))
+            # # 尝试获取并点击关闭弹窗
+            # close_element = WebDriverWait(driver, 2).until(
+            #     EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+            # )
+            # time.sleep(random.randint(2, 5))
+            # close_element.click()
+            # print("点击了关闭弹窗")
+            # time.sleep(random.randint(2, 5))
         except TimeoutException:
             print("未找到整点红包按钮，跳过此部分。")
 

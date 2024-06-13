@@ -101,10 +101,12 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
         print("点击同意")
 
     except TimeoutException as e:
-        print(f"超时异常：{str(e)}")
+        # print(f"超时异常：{str(e)}")
+        print(f"超时异常")
         return False
     except Exception as e:
-        print(f"登录前半部分出现异常：{str(e)}")
+        # print(f"登录前半部分出现异常：{str(e)}")
+        print(f"登录前半部分出现异常")
         return False
 
     try:
@@ -119,7 +121,7 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
             return False
         print("已加载主界面。")
 
-        # 首页红包
+        # 首页红包奖励
         popups.home_video_bonus(driver)
 
         # 点击头像
@@ -170,7 +172,7 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
         print("点击立即登录")
         time.sleep(random.randint(2, 5))
 
-        # 首页红包
+        # 视频红包奖励
         popups.home_video_bonus(driver)
 
         # 等待页面加载
@@ -188,10 +190,12 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
             return False
 
     except TimeoutException as e:
-        print(f"在登录过程中出现超时：{str(e)}")
+        # print(f"在登录过程中出现超时：{str(e)}")
+        print(f"在登录过程中出现超时")
         return False
     except Exception as e:
-        print(f"登录过程中出现异常：{str(e)}")
+        # print(f"登录过程中出现异常：{str(e)}")
+        print(f"登录过程中出现异常")
         return False
 
 # 自动退出
@@ -282,7 +286,8 @@ def auto_logout(driver, wait, width, height):
         time.sleep(random.randint(2, 5))
 
     except Exception as e:
-        print(f"处理注销时发生错误: {str(e)}")
+        # print(f"处理注销时发生错误: {str(e)}")
+        print(f"处理注销时发生错误")
         return False
 
     return True

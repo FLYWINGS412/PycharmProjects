@@ -19,9 +19,9 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
-# 首页视频奖励
+# 首页红包奖励
 def handle_home_page_video(driver, wait, width, height, account):
-    # 首页红包
+    # 首页红包奖励
     popups.home_video_bonus(driver)
 
     try:
@@ -31,7 +31,7 @@ def handle_home_page_video(driver, wait, width, height, account):
             # 执行滑动操作
             utils.swipe_to_scroll(driver, width, height)
 
-            # 检查首页视频红包
+            # 检查首页红包奖励
             popups.home_video_bonus(driver)
 
             # 等待页面完成加载
@@ -45,7 +45,7 @@ def handle_home_page_video(driver, wait, width, height, account):
             print(f"等待 {random_sleep} 秒")
             time.sleep(random_sleep)
 
-            # 检查首页视频红包
+            # 检查首页红包奖励
             popups.home_video_bonus(driver)
 
             # 立即检查 layer_redbag 元素是否存在
@@ -61,7 +61,7 @@ def handle_home_page_video(driver, wait, width, height, account):
                 # 第一次未找到元素时，再次处理弹窗并重新检查
                 print("未找到元素，再次检查弹窗")
 
-                # 检查首页视频红包
+                # 检查首页红包奖励
                 popups.home_video_bonus(driver)
 
                 # 立即检查 layer_redbag 元素是否存在
@@ -76,12 +76,13 @@ def handle_home_page_video(driver, wait, width, height, account):
                     # utils.log_handle_home_page_video(account)
                     break
     except Exception as e:
-        print(f"在滑屏循环中发生错误：{e}")
+        # print(f"在滑屏循环中发生错误：{e}")
+        print(f"在滑屏循环中发生错误")
         return False
 
     return True
 
-# 好友互助奖励
+# 激励视频奖励
 def mutual_assistance_reward(driver, wait, width, height, account):
     # 获取当前活动并检查是否已经在主界面
     current_activity = utils.get_current_activity()
@@ -105,7 +106,7 @@ def mutual_assistance_reward(driver, wait, width, height, account):
     else:
         print("已在主界面，无需返回。")
 
-    # 首页红包
+    # 首页红包奖励
     popups.home_video_bonus(driver)
 
     # 个人页面
@@ -155,18 +156,18 @@ def mutual_assistance_reward(driver, wait, width, height, account):
     while True:
         start_time = time.time()  # 记录循环开始时间
 
-        # 检查激励广告
+        # 检查激励视频奖励
         try:
-            # 首页红包
+            # 首页红包奖励
             popups.home_video_bonus(driver)
 
-            # 激励广告
+            # 激励视频奖励
             reward_layer = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
             # time.sleep(random.randint(2, 5))
             reward_layer.click()
-            print("点击了激励广告")
+            print("点击了激励视频奖励")
 
             time.sleep(2)
             WebDriverWait(driver, 120).until(
@@ -197,7 +198,7 @@ def mutual_assistance_reward(driver, wait, width, height, account):
         except Exception as e:
             print("未找到或不可点击激励广告。")
 
-        # 首页红包
+        # 首页红包奖励
         popups.home_video_bonus(driver)
 
         # 执行滑动操作
@@ -213,7 +214,7 @@ def mutual_assistance_reward(driver, wait, width, height, account):
 
 # 资产页广告奖励
 def collect_rewards(driver, wait, width, height, account):
-    # 首页红包
+    # 首页红包奖励
     popups.home_video_bonus(driver)
 
     # 跳转到资产页
@@ -230,7 +231,7 @@ def collect_rewards(driver, wait, width, height, account):
         while True:
             start_time = time.time()  # 记录循环开始时间
 
-            # 整点红包
+            # 整点红包奖励
             popups.hourly_bonus(driver, wait, width, height)
 
             try:
@@ -413,7 +414,8 @@ def handle_display_page(driver, wait, width, height):
                 break
                 # continue  # 继续while循环
             except Exception as e:
-                print(f"发生错误: {str(e)}")
+                # print(f"发生错误: {str(e)}")
+                print(f"发生错误")
                 break  # 结束while循环
 
         # 展示页弹窗
@@ -424,9 +426,11 @@ def handle_display_page(driver, wait, width, height):
             return False
 
     except TimeoutException as e:
-        print("处理展示页时发生超时异常: ", str(e))
+        # print("处理展示页时发生超时异常: ", str(e))
+        print("处理展示页时发生超时异常: ")
         return False
     except Exception as e:
-        print("处理展示页时发生错误: ", str(e))
+        # print("处理展示页时发生错误: ", str(e))
+        print("处理展示页时发生错误: ")
         return False
     return True
