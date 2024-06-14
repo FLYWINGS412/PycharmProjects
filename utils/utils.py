@@ -62,7 +62,7 @@ def click_close_button(driver, wait, width, height):
                     if assets_result:
                         print("已成功到达资产页。")
                     if ad_result:
-                        print("已成功到达互助视频页")
+                        print("已成功到达激励视频页")
                     return True
             else:
                 print("未找到符合条件的右上角关闭按钮。")
