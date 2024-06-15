@@ -82,11 +82,11 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
                 # 提前保存当前任务和账号索引
                 auth.save_progress(task_index, account_index)
 
-                desired_caps = {
+                desired_caps1 = {
                     'platformName': 'Android',
                     'platformVersion': '12',
-                    'deviceName': 'localhost:7555 device',
-                    # 'udid': 'localhost:7555',
+                    'deviceName': 'localhost:16384 device',
+                    'udid': 'localhost:16384',
                     'appPackage': 'com.xiangshi.bjxsgc',
                     'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
                     'automationName': 'UiAutomator2',
@@ -98,7 +98,7 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
                     'noReset': True
                 }
 
-                driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+                driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps1)
                 wait = WebDriverWait(driver, 10)
 
                 # 获取设备的屏幕大小
@@ -143,10 +143,10 @@ def main():
         {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
         {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
         {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
-        {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
-        {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
-        {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
-        {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
+        # {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
+        # {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
+        # {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
+        # {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
     ]
 
     tasks_list = [

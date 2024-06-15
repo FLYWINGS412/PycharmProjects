@@ -74,15 +74,13 @@ def daily_dividend_distribution(driver, wait, width, height):
                 )
                 time.sleep(random.randint(2, 5))
                 hourly_bonus_button.click()
-                print("点击了整点红包。")
+                print("点击了整点红包图标。")
 
-                # 再次处理展示页
-                if not tasks.handle_display_page(driver, wait, width, height):
-                    print("处理展示页时出错。")
-                    return False
+                # 整点红包奖励
+                popups.hourly_bonus(driver, wait, width, height)
 
             except TimeoutException:
-                print("未找到整点红包按钮，跳过此部分。")
+                print("未找到整点红包图标，跳过此部分。")
 
         except TimeoutException:
             print("未找到每日股东分红，跳过此部分。")

@@ -158,13 +158,13 @@ def mutual_assistance_reward(driver, wait, width, height, account):
 
         # 检查激励视频奖励
         try:
-            # 首页红包奖励
-            popups.home_video_bonus(driver)
 
             # 激励视频奖励
             reward_layer = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
+            # 首页红包奖励
+            popups.home_video_bonus(driver)
             # time.sleep(random.randint(2, 5))
             reward_layer.click()
             print("点击了激励视频奖励")
@@ -183,6 +183,7 @@ def mutual_assistance_reward(driver, wait, width, height, account):
                 print("没检查到头像，加载展示页。")
                 if not handle_display_page(driver, wait, width, height):
                     return False
+
                 # 检查是否存在包含“每日”文本的元素
                 try:
                     WebDriverWait(driver, 5).until(

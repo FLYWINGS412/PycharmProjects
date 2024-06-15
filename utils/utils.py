@@ -147,9 +147,9 @@ def get_close_button(driver, wait, width, height):
 
 # 滑屏翻页
 def swipe_to_scroll(driver, width, height):
-    start_x = random.randint(width // 3, width * 2 // 3)
+    start_x = random.randint(width * 3 // 5, width * 4 // 5)
     start_y = random.randint(height * 8 // 10, height * 9 // 10)
-    end_x = random.randint(width // 3, width * 2 // 3)
+    end_x = random.randint(width * 3 // 5, width * 4 // 5)
     end_y = random.randint(height * 1 // 10, height * 2 // 10)
     duration = random.randint(200, 500)
     action = TouchAction(driver)
