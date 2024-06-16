@@ -48,23 +48,23 @@ def handle_home_page_video(driver, wait, width, height, account):
             # 检查首页红包奖励
             popups.home_video_bonus(driver)
 
-            # 立即检查 layer_redbag 元素是否存在
+            # 立即检查首页红包奖励是否存在
             elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
             if elements:
-                print("找到了元素，继续循环")
+                print("找到了首页红包奖励，继续循环")
 
                 # 输出循环用时
                 end_time = time.time()
                 elapsed_time = round(end_time - start_time, 2)
                 print(f"用时: {elapsed_time} 秒")
             else:
-                # 第一次未找到元素时，再次处理弹窗并重新检查
-                print("未找到元素，再次检查弹窗")
+                # 第一次未找到首页红包奖励时，再次处理弹窗并重新检查
+                print("未找到首页红包奖励，再次检查弹窗")
 
                 # 检查首页红包奖励
                 popups.home_video_bonus(driver)
 
-                # 立即检查 layer_redbag 元素是否存在
+                # 立即检查首页红包奖励是否存在
                 elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
 
                 # 输出循环用时
@@ -72,8 +72,7 @@ def handle_home_page_video(driver, wait, width, height, account):
                 elapsed_time = round(end_time - start_time, 2)
                 print(f"用时: {elapsed_time} 秒")
                 if not elements:
-                    print("再次检查后仍未找到元素，退出循环")
-                    # utils.log_handle_home_page_video(account)
+                    print("再次检查后仍未找到首页红包奖励，退出循环")
                     break
     except Exception as e:
         # print(f"在滑屏循环中发生错误：{e}")
@@ -84,30 +83,36 @@ def handle_home_page_video(driver, wait, width, height, account):
 
 # 激励视频奖励
 def mutual_assistance_reward(driver, wait, width, height, account):
-    # 获取当前活动并检查是否已经在主界面
-    current_activity = utils.get_current_activity()
-    expected_main_activity = "com.xiangshi.main.activity.MainActivity"
-    print(f"当前页面为: {current_activity}")
+    # # 获取当前活动并检查是否已经在主界面
+    # current_activity = utils.get_current_activity()
+    # expected_main_activity = "com.xiangshi.main.activity.MainActivity"
+    # print(f"当前页面为: {current_activity}")
+    #
+    # # 如果不在主界面，则尝试返回到主界面
+    # if current_activity != expected_main_activity:
+    #     print("不在主界面，尝试返回到主界面。")
+    #     max_attempts = 5
+    #     attempts = 0
+    #     while current_activity != expected_main_activity and attempts < max_attempts:
+    #         driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
+    #         time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
+    #         current_activity = utils.get_current_activity()  # 再次获取当前活动
+    #         attempts += 1
+    #         print(f"尝试 {attempts}: 当前页面为 {current_activity}")
+    #     if attempts == max_attempts:
+    #         print("尝试返回主界面失败，请手动检查")
+    #         return False
+    # else:
+    #     print("已在主界面，无需返回。")
 
-    # 如果不在主界面，则尝试返回到主界面
-    if current_activity != expected_main_activity:
-        print("不在主界面，尝试返回到主界面。")
-        max_attempts = 5
-        attempts = 0
-        while current_activity != expected_main_activity and attempts < max_attempts:
-            driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
-            time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
-            current_activity = utils.get_current_activity()  # 再次获取当前活动
-            attempts += 1
-            print(f"尝试 {attempts}: 当前页面为 {current_activity}")
-        if attempts == max_attempts:
-            print("尝试返回主界面失败，请手动检查")
-            return False
+    # 检查首页红包奖励是否完成
+    elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+    if elements:
+        print("首页红包奖励未完成，执行首页红包奖励任务")
+        handle_home_page_video(driver, wait, width, height, account)
+        print("首页红包奖励已完成，继续下一步")
     else:
-        print("已在主界面，无需返回。")
-
-    # 首页红包奖励
-    popups.home_video_bonus(driver)
+        print("首页红包奖励已完成，继续下一步")
 
     # 个人页面
     my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
@@ -158,14 +163,11 @@ def mutual_assistance_reward(driver, wait, width, height, account):
 
         # 检查激励视频奖励
         try:
-
             # 激励视频奖励
             reward_layer = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
-            # 首页红包奖励
-            popups.home_video_bonus(driver)
-            # time.sleep(random.randint(2, 5))
+            time.sleep(random.randint(2, 5))
             reward_layer.click()
             print("点击了激励视频奖励")
 
@@ -199,9 +201,6 @@ def mutual_assistance_reward(driver, wait, width, height, account):
         except Exception as e:
             print("未找到或不可点击激励广告。")
 
-        # 首页红包奖励
-        popups.home_video_bonus(driver)
-
         # 执行滑动操作
         utils.swipe_to_scroll(driver, width, height)
 
@@ -215,8 +214,14 @@ def mutual_assistance_reward(driver, wait, width, height, account):
 
 # 资产页广告奖励
 def collect_rewards(driver, wait, width, height, account):
-    # 首页红包奖励
-    popups.home_video_bonus(driver)
+    # 检查首页红包奖励是否完成
+    elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+    if elements:
+        print("首页红包奖励未完成，执行首页红包奖励任务")
+        handle_home_page_video(driver, wait, width, height, account)
+        print("首页红包奖励已完成，继续下一步")
+    else:
+        print("首页红包奖励已完成，继续下一步")
 
     # 跳转到资产页
     assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))

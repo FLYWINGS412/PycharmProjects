@@ -24,7 +24,7 @@ def home_video_bonus(driver):
     found_and_handled = False  # 初始化标记，假定没有找到或处理弹窗
     try:
         # 直接尝试获取接收弹窗元素
-        bg_element = WebDriverWait(driver, 2).until(
+        bg_element = WebDriverWait(driver, 1).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
         )
         time.sleep(random.randint(2, 5))  # 随机等待2-5秒

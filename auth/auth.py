@@ -111,7 +111,7 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
 
     try:
         # 等待页面加载
-        time.sleep(30)
+        time.sleep(15)
 
         # 检查是否在主界面
         current_activity = utils.get_current_activity()
@@ -175,15 +175,15 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
         # 视频红包奖励
         popups.home_video_bonus(driver)
 
-        # 等待页面加载
-        time.sleep(5)
-
         # 确认是否登录成功
         login_success_indicator = wait.until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_progress"))
         )
         if login_success_indicator:
             print("登录成功！")
+
+            # 等待页面加载
+            time.sleep(15)
             return True
         else:
             print("登录未成功。")

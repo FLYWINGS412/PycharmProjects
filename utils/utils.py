@@ -257,7 +257,7 @@ def is_on_ad_page(driver, wait, width, height):
         return True
     except TimeoutException:
         # print("未成功到达激励视频页")
-            pass
+        return False
 # 获取我的享币和享点
 def get_and_store_points(driver, account):
     try:
@@ -316,31 +316,6 @@ def get_and_store_points(driver, account):
         # print(f"获取并存储 {account['phone']} 的享币和享点时发生异常：{str(e)}")
         print(f"获取并存储 {account['phone']} 的享币和享点时发生异常")
         return False
-
-# # 首页红包奖励排除名单
-# def log_handle_home_page_video(account):
-#     try:
-#         directory = os.path.join("record")
-#         if not os.path.exists(directory):
-#             os.makedirs(directory)
-#         file_name = os.path.join(directory, "handle_home_page_video.txt")
-#
-#         with open(file_name, "a", encoding='utf-8') as file:
-#             file.write(f"账号：{account['phone']}\n")
-#
-#         print(f"已成功记录账号：{account['phone']} 的首页红包奖励完成")
-#     except Exception as e:
-#         print(f"记录账号 {account['phone']} 的首页红包奖励信息时发生异常：{str(e)}")
-#
-# # 检查是否已经完成首页红包奖励
-# def has_completed_handle_home_page_video(account):
-#     file_path = os.path.join("record", "handle_home_page_video.txt")
-#     if os.path.exists(file_path):
-#         with open(file_path, "r", encoding='utf-8') as file:
-#             for line in file:
-#                 if account['phone'] in line:
-#                     return True
-#     return False
 
 # 激励视频奖励排除名单
 def log_mutual_assistance_reward(account):

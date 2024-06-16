@@ -150,7 +150,7 @@ def main():
     ]
 
     tasks_list = [
-        {'function': tasks.handle_home_page_video, 'name': '首页红包奖励'},
+        # {'function': tasks.handle_home_page_video, 'name': '首页红包奖励'},
         {'function': tasks.mutual_assistance_reward, 'name': '激励视频奖励'},
         {'function': tasks.collect_rewards, 'name': '资产页广告奖励'}
     ]
