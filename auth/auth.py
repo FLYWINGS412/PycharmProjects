@@ -78,8 +78,8 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
         current_activity = utils.get_current_activity()
         expected_launcher_activity = "com.xiangshi.bjxsgc.activity.LauncherActivity"
         if expected_launcher_activity not in current_activity:
-            print("未在启动页，可能已登录。等待30秒后尝试注销。")
-            time.sleep(30)  # 等待一段时间，可能是因为应用刚启动需要时间加载
+            print("未在启动页，可能已登录。等待15秒后尝试注销。")
+            time.sleep(15)  # 等待一段时间，可能是因为应用刚启动需要时间加载
             if not auto_logout(driver, wait, width, height):
                 print("注销尝试失败。")
             return False
