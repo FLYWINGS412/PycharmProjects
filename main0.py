@@ -19,6 +19,32 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
+# 驱动参数
+def create_driver():
+    desired_caps = {
+        'platformName': 'Android',
+        'platformVersion': '12',
+        'deviceName': 'localhost:7555 device',
+        # 'udid': 'localhost:7555',
+        'appPackage': 'com.xiangshi.bjxsgc',
+        'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+        'automationName': 'UiAutomator2',
+        'settings[waitForIdleTimeout]': 10,
+        'settings[waitForSelectorTimeout]': 10,
+        'newCommandTimeout': 21600,
+        'unicodeKeyboard': True,
+        'resetKeyboard': True,
+        'noReset': True
+    }
+
+    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+    wait = WebDriverWait(driver, 10)
+    size = driver.get_window_size()
+    width = size['width']
+    height = size['height']
+
+    return driver, wait, width, height
+
 # 执行任务
 def execute_task(driver, wait, width, height, task_function, account, task_args=None):
     try:
@@ -30,9 +56,14 @@ def execute_task(driver, wait, width, height, task_function, account, task_args=
             return False
 
         # 执行任务
-        if not task_function(driver, wait, width, height, account, task_args):
-            print(f"{account['phone']} 执行任务失败，程序继续。")
-            return False
+        if task_args is not None:
+            if not task_function(driver, wait, width, height, account, *task_args):
+                print(f"{account['phone']} 执行任务失败，程序继续。")
+                return False
+        else:
+            if not task_function(driver, wait, width, height, account):
+                print(f"{account['phone']} 执行任务失败，程序继续。")
+                return False
 
         # 自动退出
         if not auth.auto_logout(driver, wait, width, height):
@@ -42,8 +73,7 @@ def execute_task(driver, wait, width, height, task_function, account, task_args=
         return True
 
     except Exception as e:
-        # print(f"处理中发生异常：{str(e)}")
-        print(f"处理中发生异常")
+        print(f"处理中发生异常: {type(e).__name__}, 信息: {str(e)}")
         return False
 
     finally:
@@ -51,13 +81,14 @@ def execute_task(driver, wait, width, height, task_function, account, task_args=
         driver.quit()
         print(f"账号 {account['phone']} 处理完成，应用已关闭，驱动会话已结束。")
 
-# 开始任务
+# 循环任务
 def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=0, is_single_task=False):
     while True:
         task_index, account_index = start_task_index, start_account_index
         while task_index < len(tasks_list):
             task_function = tasks_list[task_index]['function']
             task_name = tasks_list[task_index]['name']
+            task_args = tasks_list[task_index].get('task_args')
 
             print(f"当前任务 {task_name} 开始账号索引为: {account_index + 1}")
 
@@ -73,31 +104,9 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
                 # 提前保存当前任务和账号索引
                 auth.save_progress(task_index, account_index)
 
-                desired_caps = {
-                    'platformName': 'Android',
-                    'platformVersion': '12',
-                    'deviceName': 'localhost:7555 device',
-                    # 'udid': 'localhost:7555',
-                    'appPackage': 'com.xiangshi.bjxsgc',
-                    'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
-                    'automationName': 'UiAutomator2',
-                    'settings[waitForIdleTimeout]': 10,
-                    'settings[waitForSelectorTimeout]': 10,
-                    'newCommandTimeout': 21600,
-                    'unicodeKeyboard': True,
-                    'resetKeyboard': True,
-                    'noReset': True
-                }
+                driver, wait, width, height = create_driver()
 
-                driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
-                wait = WebDriverWait(driver, 10)
-
-                # 获取设备的屏幕大小
-                size = driver.get_window_size()
-                width = size['width']
-                height = size['height']
-
-                if execute_task(driver, wait, width, height, task_function, account):
+                if execute_task(driver, wait, width, height, task_function, account, task_args):
                     account_index += 1
 
             # 如果是单任务，在最后一个账号执行完成任务后退出应用并停止代码运行
@@ -121,78 +130,61 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
         start_task_index = 0
         start_account_index = 0
 
-# 关注任务
-def perform_follow_task(accounts, follow_list):
-    for account in accounts:
-        print(f"账号 {account['phone']} 开始关注任务")
-
-        desired_caps = {
-            'platformName': 'Android',
-            'platformVersion': '12',
-            'deviceName': 'localhost:7555 device',
-            # 'udid': 'localhost:7555',
-            'appPackage': 'com.xiangshi.bjxsgc',
-            'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
-            'automationName': 'UiAutomator2',
-            'settings[waitForIdleTimeout]': 10,
-            'settings[waitForSelectorTimeout]': 10,
-            'newCommandTimeout': 21600,
-            'unicodeKeyboard': True,
-            'resetKeyboard': True,
-            'noReset': True
-        }
-
-        driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
-        wait = WebDriverWait(driver, 10)
-
-        # 获取设备的屏幕大小
-        size = driver.get_window_size()
-        width = size['width']
-        height = size['height']
-
-        if not execute_task(driver, wait, width, height, tasks.follow, account, follow_list):
-            print(f"账号 {account['phone']} 执行关注任务失败，程序继续。")
-
 def main():
+    # 帐号列表
     accounts = [
-        # {'name': 'WY', 'phone': '13883122290', 'password': '412412'},
-        # {'name': 'WY', 'phone': '17782070003', 'password': '412412'},
+        {'name': 'WY', 'phone': '13883122290', 'password': '412412'},
+        {'name': 'WY', 'phone': '17782070003', 'password': '412412'},
         {'name': 'WY', 'phone': '19122094023', 'password': '412412'},
-        # {'name': 'WY', 'phone': '18996925404', 'password': '412412'},
-        # {'name': 'WY', 'phone': '13308322330', 'password': '412412'},
-        # {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
-        # {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
-        # {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
-        # {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
-        # {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
-        # {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
-        # {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
-        # {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
-        # {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
-        # {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
+        {'name': 'WY', 'phone': '18996925404', 'password': '412412'},
+        {'name': 'WY', 'phone': '13308322330', 'password': '412412'},
+        {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
+        {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
+        {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
+        {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
+        {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
+        {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
+        {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
+        {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
+        {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
+        {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
     ]
 
+    # 关注列表
     follow_list = ['323353', '123456', '789012']
 
+    # 任务菜单
     tasks_list = [
         # {'function': tasks.handle_home_page_video, 'name': '首页红包奖励'},
         {'function': tasks.mutual_assistance_reward, 'name': '激励视频奖励'},
         {'function': tasks.collect_rewards, 'name': '资产页广告奖励'},
-        {'function': tasks.like, 'name': '自动点赞'}
+        {'function': tasks.follow, 'name': '自动关注', 'task_args': [follow_list]},
+        {'function': tasks.like, 'name': '自动点赞', 'task_args': [follow_list]},
+        {'function': tasks.unfollow, 'name': '取消关注', 'task_args': [follow_list]}
     ]
 
     # 初始化系统日期
     utils.initialize_system_date()
 
+    # 任务菜单
+    menu_options = {
+        '1': {'desc': '单任务', 'is_single_task': True},
+        '2': {'desc': '循环任务', 'is_single_task': False},
+        '3': {'desc': '自动关注', 'is_single_task': True, 'task_index': 3},
+        '4': {'desc': '自动点赞', 'is_single_task': True, 'task_index': 4},
+        '5': {'desc': '取消关注', 'is_single_task': True, 'task_index': 5}
+    }
+
     print("请选择任务类型:")
-    print("1. 单任务")
-    print("2. 循环任务")
-    print("3. 自动关注")
+    for key, option in menu_options.items():
+        print(f"{key}. {option['desc']}")
     task_type = input("请输入任务类型序号: ")
 
-    if task_type == '1':
+    if task_type in ['1', '2']:
+        # 只显示前两个任务，并且只包括未注释的任务
+        available_tasks = [task for task in tasks_list[:2] if task.get('function')]
         print("请选择任务:")
-        for index, task in enumerate(tasks_list):
+        for index, task in enumerate(available_tasks):
             print(f"{index + 1}. {task['name']}")
         task_choice = input("请输入任务序号，或按回车键继续从上次的任务开始: ")
         if task_choice.isdigit():
@@ -207,29 +199,10 @@ def main():
         user_input = input("请输入开始的账号序号，或按回车键继续从上次的账号开始: ")
         if user_input.isdigit():
             start_account_index = int(user_input) - 1
-        perform_tasks(accounts, tasks_list, start_task_index, start_account_index, is_single_task=True)
-
-    elif task_type == '2':
-        print("请选择任务:")
-        for index, task in enumerate(tasks_list):
-            print(f"{index + 1}. {task['name']}")
-        task_choice = input("请输入任务序号，或按回车键继续从上次的任务开始: ")
-        if task_choice.isdigit():
-            start_task_index = int(task_choice) - 1
-            start_account_index = 0
-        else:
-            start_task_index, start_account_index = auth.get_progress()
-
-        print("请选择帐号开始:")
-        for index, account in enumerate(accounts):
-            print(f"{index + 1}: {account['phone']}")
-        user_input = input("请输入开始的账号序号，或按回车键继续从上次的账号开始: ")
-        if user_input.isdigit():
-            start_account_index = int(user_input) - 1
-        perform_tasks(accounts, tasks_list, start_task_index, start_account_index)
-
-    elif task_type == '3':
-        perform_follow_task(accounts, follow_list)
+        perform_tasks(accounts, available_tasks, start_task_index, start_account_index, is_single_task=menu_options[task_type]['is_single_task'])
+    elif task_type in ['3', '4', '5']:
+        task_index = menu_options[task_type]['task_index']
+        perform_tasks(accounts, [tasks_list[task_index]], 0, 0, is_single_task=menu_options[task_type]['is_single_task'])
 
 if __name__ == "__main__":
     main()

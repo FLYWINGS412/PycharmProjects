@@ -83,28 +83,6 @@ def handle_home_page_video(driver, wait, width, height, account):
 
 # 激励视频奖励
 def mutual_assistance_reward(driver, wait, width, height, account):
-    # # 获取当前活动并检查是否已经在主界面
-    # current_activity = utils.get_current_activity()
-    # expected_main_activity = "com.xiangshi.main.activity.MainActivity"
-    # print(f"当前页面为: {current_activity}")
-    #
-    # # 如果不在主界面，则尝试返回到主界面
-    # if current_activity != expected_main_activity:
-    #     print("不在主界面，尝试返回到主界面。")
-    #     max_attempts = 5
-    #     attempts = 0
-    #     while current_activity != expected_main_activity and attempts < max_attempts:
-    #         driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
-    #         time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
-    #         current_activity = utils.get_current_activity()  # 再次获取当前活动
-    #         attempts += 1
-    #         print(f"尝试 {attempts}: 当前页面为 {current_activity}")
-    #     if attempts == max_attempts:
-    #         print("尝试返回主界面失败，请手动检查")
-    #         return False
-    # else:
-    #     print("已在主界面，无需返回。")
-
     # 检查首页红包奖励是否完成
     elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
     if elements:
