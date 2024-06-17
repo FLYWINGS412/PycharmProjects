@@ -172,7 +172,7 @@ def auto_login(driver, wait, width, height, phone=None, password=None, accounts=
         print("点击立即登录")
         time.sleep(random.randint(2, 5))
 
-        # 视频红包奖励
+        # 首页红包奖励
         popups.home_video_bonus(driver)
 
         # 确认是否登录成功
