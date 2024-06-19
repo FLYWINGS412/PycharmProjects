@@ -1,6 +1,7 @@
 import re
 import os
 import time
+import uuid
 import random
 import threading
 import subprocess
@@ -20,7 +21,7 @@ from utils import utils
 from popups import popups
 
 # 首页红包奖励
-def handle_home_page_video(driver, wait, width, height, account):
+def handle_home_page_video(driver, account):
     # 首页红包奖励
     popups.home_video_bonus(driver)
 
@@ -29,7 +30,7 @@ def handle_home_page_video(driver, wait, width, height, account):
             start_time = time.time()  # 记录循环开始时间
 
             # 执行滑动操作
-            utils.swipe_to_scroll(driver, width, height)
+            utils.swipe_to_scroll(driver)
 
             # 检查首页红包奖励
             popups.home_video_bonus(driver)
@@ -75,37 +76,36 @@ def handle_home_page_video(driver, wait, width, height, account):
                     print("再次检查后仍未找到首页红包奖励，退出循环")
                     break
     except Exception as e:
-        # print(f"在滑屏循环中发生错误：{e}")
-        print(f"在滑屏循环中发生错误")
+        print(f"在滑屏循环中发生错误：{e}")
         return False
 
     return True
 
 # 激励视频奖励
-def mutual_assistance_reward(driver, wait, width, height, account):
+def mutual_assistance_reward(driver, account):
     # 检查首页红包奖励是否完成
     elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
     if elements:
         print("首页红包奖励未完成，执行首页红包奖励任务")
-        handle_home_page_video(driver, wait, width, height, account)
+        handle_home_page_video(driver, account)
         print("首页红包奖励已完成，继续下一步")
     else:
         print("首页红包奖励已完成，继续下一步")
 
     # 个人页面
-    my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
+    my_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
     my_tab.click()
     print("点击我的")
     time.sleep(random.randint(2, 5))
 
     # 点击关注
-    follow_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
+    follow_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
     follow_tab.click()
     print("点击关注")
     time.sleep(random.randint(2, 5))
 
     # 检查是否在我的关注
-    current_activity = utils.get_current_activity()
+    current_activity = utils.get_current_activity(driver)
     expected_setting_activity = "com.xiangshi.main.activity.FollowActivity"
     if expected_setting_activity not in current_activity:
         print("未能加载到我的关注，退出登出流程。")
@@ -113,21 +113,22 @@ def mutual_assistance_reward(driver, wait, width, height, account):
     print("我的关注")
 
     # 我的关注
-    my_following = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[contains(@text, '罗亿凡')]")))
+    my_following = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[contains(@text, '罗亿凡')]")))
     my_following.click()
     print("选择罗亿凡")
     time.sleep(random.randint(2, 5))
 
     # 检查是否在用户主页
-    current_activity = utils.get_current_activity()
+    current_activity = utils.get_current_activity(driver)
     expected_setting_activity = "com.xiangshi.main.activity.UserHomeActivity"
     if expected_setting_activity not in current_activity:
         print("未能加载到用户主页，退出登出流程。")
         return False
     print("用户主页")
+    time.sleep(10)
 
     # 选择作品
-    portfolio_elements = wait.until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb")))
+    portfolio_elements = driver.wait.until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb")))
     if portfolio_elements:
         # 点击第一排的第一个作品
         first_element = portfolio_elements[0]
@@ -135,7 +136,12 @@ def mutual_assistance_reward(driver, wait, width, height, account):
         print("点击了第一排的第一个作品")
     else:
         print("未找到任何作品元素")
-    time.sleep(random.randint(2, 5))
+    time.sleep(10)
+
+    driver.wait.until(
+        EC.invisibility_of_element_located((MobileBy.XPATH, "//*[contains(@text, '加载中')]"))
+    )
+    print("页面已正常加载")
 
     while True:
         start_time = time.time()  # 记录循环开始时间
@@ -143,7 +149,7 @@ def mutual_assistance_reward(driver, wait, width, height, account):
         # 检查激励视频奖励
         try:
             # 激励视频奖励
-            reward_layer = WebDriverWait(driver, 5).until(
+            reward_layer = driver.wait.until(
                 EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
             time.sleep(random.randint(2, 5))
@@ -151,37 +157,37 @@ def mutual_assistance_reward(driver, wait, width, height, account):
             print("点击了激励视频奖励")
 
             time.sleep(2)
-            WebDriverWait(driver, 120).until(
+            driver.wait.until(
                 EC.invisibility_of_element_located((MobileBy.XPATH, "//*[contains(@text, '加载中')]"))
             )
             print("页面已正常加载")
 
             # 检查头像是否消失
             try:
-                WebDriverWait(driver, 2).until(
+                driver.wait.until(
                     EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                 )
                 print("没检查到头像，加载展示页。")
-                if not handle_display_page(driver, wait, width, height):
+                if not handle_display_page(driver):
                     return False
 
                 # 检查是否存在包含“每日”文本的元素
                 try:
-                    WebDriverWait(driver, 5).until(
+                    driver.wait.until(
                         EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
                     )
-                    print("检测到'每日20次'文本，程序终止并退出到系统桌面。")
-                    utils.log_mutual_assistance_reward(account)
+                    print("检查到'每日20次'文本，程序终止并退出到系统桌面。")
+                    utils.log_mutual_assistance_reward(driver, account)
                     break
                 except TimeoutException:
-                    print("未检测到'每日20次'文本，继续执行。")
+                    print("未检查到'每日20次'文本，继续执行。")
             except TimeoutException:
                 print("检查到头像，继续执行滑动操作。")
         except Exception as e:
             print("未找到或不可点击激励广告。")
 
         # 执行滑动操作
-        utils.swipe_to_scroll(driver, width, height)
+        utils.swipe_to_scroll(driver)
 
         time.sleep(random.randint(2, 5))
 
@@ -192,25 +198,25 @@ def mutual_assistance_reward(driver, wait, width, height, account):
     return True
 
 # 资产页广告奖励
-def collect_rewards(driver, wait, width, height, account):
+def collect_rewards(driver, account):
     try:
         # 检查首页红包奖励是否完成
         elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")
-            handle_home_page_video(driver, wait, width, height, account)
+            handle_home_page_video(driver, account)
             print("首页红包奖励已完成，继续下一步")
         else:
             print("首页红包奖励已完成，继续下一步")
 
         # 跳转到资产页
-        assets_element = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
+        assets_element = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
         assets_element.click()
         print("已找到并点击‘资产’。")
         time.sleep(random.randint(2, 5))
 
         # 每日股东分红
-        popups.daily_dividend_distribution(driver, wait, width, height)
+        popups.daily_dividend_distribution(driver)
 
         # 点击领取
         try:
@@ -218,10 +224,10 @@ def collect_rewards(driver, wait, width, height, account):
                 start_time = time.time()  # 记录循环开始时间
 
                 # 整点红包奖励
-                popups.hourly_bonus(driver, wait, width, height)
+                popups.hourly_bonus(driver)
 
                 try:
-                    miss_bubble_element = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
+                    miss_bubble_element = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
                     click_to_collect_text = miss_bubble_element.text
                     current, total = map(int, click_to_collect_text.replace(" ", "").strip('()').split('/'))
 
@@ -229,11 +235,11 @@ def collect_rewards(driver, wait, width, height, account):
                         print("所有‘点击领取’已领取完毕。")
                         break
 
-                    receive_bubble = wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
+                    receive_bubble = driver.wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
                     receive_bubble.click()
                     print(f"点击了领取按钮，更新剩余次数：{current + 1}/{total}")
 
-                    if not handle_display_page(driver, wait, width, height):
+                    if not handle_display_page(driver):
                         return False
 
                     time.sleep(random.randint(2, 5))
@@ -263,18 +269,18 @@ def collect_rewards(driver, wait, width, height, account):
             start_time = time.time()  # 记录循环开始时间
 
             # 整点红包
-            popups.hourly_bonus(driver, wait, width, height)
+            popups.hourly_bonus(driver)
 
             found = False
             for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
                 for base_xpath in base_xpaths:
                     xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
                     try:
-                        reward = wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
+                        reward = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
                         if reward.get_attribute("selected") == "true":
                             reward.click()
                             print(f"点击了位于 {i} 的领取奖励，使用的XPath为: {xpath}")
-                            if not handle_display_page(driver, wait, width, height):  # 处理展示页的逻辑
+                            if not handle_display_page(driver):  # 处理展示页的逻辑
                                 return False
                             last_successful_index = i + 1  # 更新最后成功的索引
                             found = True
@@ -308,7 +314,7 @@ def collect_rewards(driver, wait, width, height, account):
         return False
 
 # 展示页
-def handle_display_page(driver, wait, width, height):
+def handle_display_page(driver):
     try:
         start_time = time.time()
         timeout = 70
@@ -317,9 +323,6 @@ def handle_display_page(driver, wait, width, height):
         while time.time() - start_time < timeout:
             # 展示页弹窗
             popups.display_page_popup(driver, popup_texts)
-
-            # 检查返回按钮
-            # utils.check_back_button(driver, width, height)
 
             # 检查倒计时是否消失
             try:
@@ -334,7 +337,7 @@ def handle_display_page(driver, wait, width, height):
                         size = text_view.size
                         top_y = location['y']
                         # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
-                        if top_y < height * 0.15:
+                        if top_y < driver.height * 0.15:
                             element_to_wait = text_view
                             # print(f"找到倒计时元素: {element_to_wait.text}")
                             break
@@ -363,7 +366,7 @@ def handle_display_page(driver, wait, width, height):
                             size = text_view.size
                             top_y = location['y']
                             # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
-                            if top_y < height * 0.15:
+                            if top_y < driver.height * 0.15:
                                 element_to_wait = text_view
                                 # print(f"找到倒计时元素: {element_to_wait.text}")
                                 break
@@ -415,7 +418,7 @@ def handle_display_page(driver, wait, width, height):
         popups.display_page_popup(driver, popup_texts)
 
         # 调用点击元素函数
-        if not utils.click_close_button(driver, wait, width, height):
+        if not utils.click_close_button(driver):
             return False
 
     except TimeoutException as e:
@@ -429,7 +432,7 @@ def handle_display_page(driver, wait, width, height):
     return True
 
 # 关注
-def follow(driver, wait, width, height, account, follow_list):
+def follow(driver, account, follow_list):
     # 首页红包奖励
     popups.home_video_bonus(driver)
 
@@ -437,21 +440,21 @@ def follow(driver, wait, width, height, account, follow_list):
     elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
     if elements:
         print("首页红包奖励未完成，执行首页红包奖励任务")
-        handle_home_page_video(driver, wait, width, height, account)
+        handle_home_page_video(driver, account)
         print("首页红包奖励已完成，继续下一步")
     else:
         print("首页红包奖励已完成，继续下一步")
 
     try:
         # 查找并点击搜索按钮
-        search_button = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_search")))
+        search_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_search")))
         search_button.click()
         print("点击了搜索按钮")
         time.sleep(random.randint(2, 5))
 
         for user_id in follow_list:
             # 查找并点击搜索框
-            search_box = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/edit")))
+            search_box = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/edit")))
             search_box.click()
             print("点击了搜索框")
             time.sleep(random.randint(2, 5))
@@ -462,13 +465,13 @@ def follow(driver, wait, width, height, account, follow_list):
             time.sleep(random.randint(2, 5))
 
             # 查找并点击关注按钮
-            follow_button = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_follow")))
+            follow_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_follow")))
             follow_button.click()
             print(f"点击了关注按钮 {user_id}")
             time.sleep(random.randint(2, 5))
 
         # 查找并点击返回按钮
-        back_button = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_back")))
+        back_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_back")))
         back_button.click()
         print("点击了返回按钮")
         time.sleep(random.randint(2, 5))
@@ -484,7 +487,7 @@ def follow(driver, wait, width, height, account, follow_list):
         print(f"执行关注操作时发生错误：{e}")
         return False
 
-def unfollow(driver, wait, width, height, account, follow_list):
+def unfollow(driver, account, follow_list):
     try:
         # 首页红包奖励
         popups.home_video_bonus(driver)
@@ -493,25 +496,25 @@ def unfollow(driver, wait, width, height, account, follow_list):
         elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")
-            handle_home_page_video(driver, wait, width, height, account)
+            handle_home_page_video(driver, account)
             print("首页红包奖励已完成，继续下一步")
         else:
             print("首页红包奖励已完成，继续下一步")
 
         # 个人页面
-        my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
+        my_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
         my_tab.click()
         print("点击我的")
         time.sleep(random.randint(2, 5))
 
         # 点击关注
-        follow_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
+        follow_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
         follow_tab.click()
         print("点击关注")
         time.sleep(random.randint(2, 5))
 
         # 检查是否在我的关注页面
-        current_activity = utils.get_current_activity()
+        current_activity = utils.get_current_activity(driver)
         expected_setting_activity = "com.xiangshi.main.activity.FollowActivity"
         if expected_setting_activity not in current_activity:
             print("未能加载到我的关注，退出流程。")
@@ -552,25 +555,25 @@ def unfollow(driver, wait, width, height, account, follow_list):
         return False
 
 # 点赞
-def like(driver, wait, width, height, account, follow_list):
+def like(driver, account, follow_list):
     try:
         # 检查首页红包奖励是否完成
         elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")
-            handle_home_page_video(driver, wait, width, height, account)
+            handle_home_page_video(driver, account)
             print("首页红包奖励已完成，继续下一步")
         else:
             print("首页红包奖励已完成，继续下一步")
 
         # 个人页面
-        my_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
+        my_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
         my_tab.click()
         print("点击我的")
         time.sleep(random.randint(2, 5))
 
         # 点击关注
-        follow_tab = wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
+        follow_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
         follow_tab.click()
         print("点击关注")
         time.sleep(random.randint(2, 5))
@@ -587,7 +590,7 @@ def like(driver, wait, width, height, account, follow_list):
             print(f"开始点赞 {user_id}")
             try:
                 # 我的关注
-                my_following = wait.until(EC.presence_of_element_located((MobileBy.XPATH, f"//android.widget.TextView[contains(@text, '{user_id}')]")))
+                my_following = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, f"//android.widget.TextView[contains(@text, '{user_id}')]")))
                 my_following.click()
                 print(f"选择 {user_id}")
                 time.sleep(random.randint(2, 5))
@@ -601,7 +604,7 @@ def like(driver, wait, width, height, account, follow_list):
                 print("用户主页")
 
                 # 选择作品
-                portfolio_elements = wait.until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb")))
+                portfolio_elements = driver.wait.until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb")))
                 if portfolio_elements:
                     # 点击第一排的第一个作品
                     first_element = portfolio_elements[0]
@@ -615,7 +618,7 @@ def like(driver, wait, width, height, account, follow_list):
                 while True:
                     try:
                         # 查找并点击点赞按钮
-                        like_button = wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_like")))
+                        like_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_like")))
                         like_button.click()
                         print("点击了点赞按钮")
                         time.sleep(random.randint(2, 5))
@@ -631,7 +634,7 @@ def like(driver, wait, width, height, account, follow_list):
                             pass
 
                         # 执行滑动操作
-                        utils.swipe_to_scroll(driver, width, height)
+                        utils.swipe_to_scroll(driver)
 
                         time.sleep(random.randint(2, 5))
                     except TimeoutException:
