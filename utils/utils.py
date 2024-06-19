@@ -162,7 +162,10 @@ def get_current_activity(driver):
         if driver is None:
             raise ValueError("Driver is None")
 
-        udid = driver.capabilities['udid']
+        udid = driver.capabilities.get('udid', '')
+        if not udid:
+            raise ValueError("UDID is not available in driver capabilities.")
+
         # 执行ADB命令，获取窗口管理的详细信息
         result = subprocess.run(["adb", "-s", udid, "shell", "dumpsys", "window", "windows"], capture_output=True, text=True)
         if result.returncode != 0:
@@ -173,6 +176,7 @@ def get_current_activity(driver):
         lines = result.stdout.splitlines()
         for line in lines:
             if 'mActivityRecord' in line or 'mCurrentFocus' in line:
+                # print("原始行:", line)  # 输出原始行以供检查
                 match = re.search(r'([^\s/]+)/([^\s/]+)', line)
                 if match:
                     package_name = match.group(1)
@@ -185,9 +189,9 @@ def get_current_activity(driver):
         print("未找到当前焦点的 Activity。")
         return "无法获取当前页面"
     except subprocess.CalledProcessError as e:
-        print(f"执行 adb 命令时发生错误: {e}")
+        return f"执行 adb 命令时发生错误: {e}"
     except Exception as e:
-        print(f"获取当前 Activity 时发生错误: {str(e)}")
+        return f"获取当前 Activity 时发生错误: {e}"
 
 # 检查资产广告页
 def is_on_assets_page(driver):

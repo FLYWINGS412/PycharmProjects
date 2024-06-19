@@ -43,7 +43,7 @@ def create_driver():
         'noReset': True
     }
 
-    driver = webdriver.Remote('http://localhost:4725/wd/hub', desired_caps)
+    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
     driver.wait = WebDriverWait(driver, 10)
     size = driver.get_window_size()
     driver.width = size['width']
@@ -149,11 +149,12 @@ def main():
         # {'name': 'WY', 'phone': '13883122290', 'password': '412412'},
         # {'name': 'WY', 'phone': '17782070003', 'password': '412412'},
         # {'name': 'WY', 'phone': '17788487195', 'password': '412412'},
-        # {'name': 'WY', 'phone': '18996925404', 'password': '412412'},
         # {'name': 'WY', 'phone': '13308322330', 'password': '412412'},
+        # {'name': 'WY', 'phone': '17330966207', 'password': '412412'},
         # {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
         # {'name': 'WY', 'phone': '19122094023', 'password': '412412'},
-        # {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
+        # {'name': 'WY', 'phone': '18996925404', 'password': '412412'},
+        {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
         {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
         {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
         {'name': 'WY', 'phone': '13508310332', 'password': '412412'},

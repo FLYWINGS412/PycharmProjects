@@ -230,7 +230,7 @@ def auto_logout(driver):
             while current_activity != expected_main_activity and attempts < max_attempts:
                 driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
                 time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
-                current_activity = utils.get_current_activity(driver.desired_capabilities['udid'])  # 再次获取当前活动
+                current_activity = utils.get_current_activity(driver)  # 再次获取当前活动，确保使用正确的参数
                 attempts += 1
                 print(f"尝试 {attempts}: 当前页面为 {current_activity}")
             if attempts == max_attempts:
