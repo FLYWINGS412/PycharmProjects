@@ -128,8 +128,8 @@ def perform_tasks(accounts, tasks_list, start_task_index=0, start_account_index=
                 if utils.check_and_reset_system_date(device_name):
                     print("日期已更改，立即执行下一次任务循环。")
                 # KEEP: else:
-                # KEEP:     print("日期未更改，任务循环暂停半小时。")
-                # KEEP:     time.sleep(1800)  # 暂停半小时
+                #    print("日期未更改，任务循环暂停半小时。")
+                #    time.sleep(1800)  # 暂停半小时
 
             # 重置账号索引，准备执行下一个任务
             account_index = 0
@@ -154,14 +154,14 @@ def main():
         {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
         {'name': 'WY', 'phone': '19122094023', 'password': '412412'},
         {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
-        # KEEP:  {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
-        # KEEP:  {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
-        # KEEP:  {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
-        # KEEP:  {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
-        # KEEP:  {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
-        # KEEP:  {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
-        # KEEP:  {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
-        # KEEP:  {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
+        # {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
+        # {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
+        # {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
+        # {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
+        # {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
+        # {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
+        # {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
+        # {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
     ]
 
     # 关注列表
