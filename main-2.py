@@ -31,7 +31,7 @@ def create_driver():
         'platformName': 'Android',
         'platformVersion': '12',
         'deviceName': device_name,
-        'udid': 'localhost:16448',
+        'udid': 'localhost:16416',
         'appPackage': 'com.xiangshi.bjxsgc',
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'automationName': 'UiAutomator2',
