@@ -253,10 +253,10 @@ def auto_logout(driver):
 
         # 滑动菜单并点击了个性设置
         while True:
-            start_x = random.randint(driver.width * 6 // 10, driver.width * 9 // 10)
-            start_y = random.randint(driver.height * 8 // 10, driver.height * 9 // 10)
-            end_x = random.randint(driver.width * 6 // 10, driver.width * 9 // 10)
-            end_y = random.randint(driver.height * 1 // 10, driver.height * 2 // 10)
+            start_x = random.randint(driver.width * 7 // 10, driver.width * 8 // 10)
+            start_y = random.randint(driver.height * 9 // 10, driver.height * 9 // 10)
+            end_x = random.randint(driver.width * 8 // 10, driver.width * 9 // 10)
+            end_y = random.randint(driver.height * 1 // 10, driver.height * 1 // 10)
             duration = random.randint(200, 500)
             action = TouchAction(driver)
             action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
