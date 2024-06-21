@@ -40,12 +40,17 @@ def click_close_button(driver):
                 # 使用多线程同时检查资产页和互助视频页
                 assets_page_result = [False]
                 ad_page_result = [False]
+                event = threading.Event()
 
                 def check_assets_page():
                     assets_page_result[0] = is_on_assets_page(driver)
+                    if assets_page_result[0]:
+                        event.set()
 
                 def check_ad_page():
                     ad_page_result[0] = is_on_ad_page(driver)
+                    if ad_page_result[0]:
+                        event.set()
 
                 assets_page_thread = threading.Thread(target=check_assets_page)
                 ad_page_thread = threading.Thread(target=check_ad_page)
@@ -53,9 +58,10 @@ def click_close_button(driver):
                 assets_page_thread.start()
                 ad_page_thread.start()
 
-                assets_page_thread.join()
-                ad_page_thread.join()
+                # 等待任意一个结果为True
+                event.wait()
 
+                # 检查线程的结果
                 assets_result = assets_page_result[0]
                 ad_result = ad_page_result[0]
 
@@ -193,50 +199,12 @@ def get_current_activity(driver):
     except Exception as e:
         return f"获取当前 Activity 时发生错误: {e}"
 
-# # 获取当前页名
-# def get_current_activity(driver):
-#     try:
-#         # 确保 driver 不为 None
-#         if driver is None:
-#             raise ValueError("Driver is None")
-#
-#         udid = driver.capabilities.get('udid', '')
-#         if not udid:
-#             raise ValueError("UDID is not available in driver capabilities.")
-#
-#         # 执行ADB命令，获取窗口管理的详细信息
-#         result = subprocess.run(["adb", "-s", udid, "shell", "dumpsys", "window", "windows"], capture_output=True, text=True)
-#         if result.returncode != 0:
-#             print(f"ADB命令执行失败，返回码: {result.returncode}")
-#             print(f"错误信息: {result.stderr}")
-#             return "ADB命令执行失败"
-#
-#         lines = result.stdout.splitlines()
-#         for line in lines:
-#             if 'mActivityRecord' in line or 'mCurrentFocus' in line:
-#                 # print("原始行:", line)  # 输出原始行以供检查
-#                 match = re.search(r'([^\s/]+)/([^\s/]+)', line)
-#                 if match:
-#                     package_name = match.group(1)
-#                     activity_name = match.group(2)
-#                     if activity_name.startswith('.'):
-#                         activity_name = package_name + activity_name
-#                     full_activity_name = f"{activity_name}".replace('..', '.')
-#                     # print("当前页面为:", full_activity_name)  # 在控制台输出获取到的当前页面
-#                     return full_activity_name
-#         print("未找到当前焦点的 Activity。")
-#         return "无法获取当前页面"
-#     except subprocess.CalledProcessError as e:
-#         return f"执行 adb 命令时发生错误: {e}"
-#     except Exception as e:
-#         return f"获取当前 Activity 时发生错误: {e}"
-
 # 检查资产广告页
 def is_on_assets_page(driver):
     try:
         # 尝试获取并点击关闭弹窗
         try:
-            close_element = WebDriverWait(driver, 1).until(
+            close_element = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
             close_element.click()
@@ -244,7 +212,7 @@ def is_on_assets_page(driver):
             pass
 
         # 检查是否存在资产页的特定元素
-        WebDriverWait(driver, 1).until(
+        WebDriverWait(driver, 2).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))
         )
         # KEEP: print("已成功到达资产广告页。")
