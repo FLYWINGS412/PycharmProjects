@@ -101,7 +101,7 @@ def get_close_button(driver):
                 # KEEP: print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
 
                 # 先进行尺寸过滤，如果元素的宽度或高度大于等于50，则跳过该元素
-                if element.size['width'] >= 150 and element.size['height'] >= 50:
+                if element.size['width'] >= 120 and element.size['height'] >= 60:
                     # KEEP: print("跳过元素：尺寸超过限制")
                     continue
 
@@ -177,7 +177,7 @@ def get_current_activity(driver):
         for line in lines:
             if 'mActivityRecord' in line or 'mCurrentFocus' in line:
                 # print("原始行:", line)  # 输出原始行以供检查
-                match = re.search(r'([^\s/]+)/([^\s/]+)', line)
+                match = re.search(r'([^\s/]+)/([^\s/}]+)', line)
                 if match:
                     package_name = match.group(1)
                     activity_name = match.group(2)
@@ -192,6 +192,44 @@ def get_current_activity(driver):
         return f"执行 adb 命令时发生错误: {e}"
     except Exception as e:
         return f"获取当前 Activity 时发生错误: {e}"
+
+# # 获取当前页名
+# def get_current_activity(driver):
+#     try:
+#         # 确保 driver 不为 None
+#         if driver is None:
+#             raise ValueError("Driver is None")
+#
+#         udid = driver.capabilities.get('udid', '')
+#         if not udid:
+#             raise ValueError("UDID is not available in driver capabilities.")
+#
+#         # 执行ADB命令，获取窗口管理的详细信息
+#         result = subprocess.run(["adb", "-s", udid, "shell", "dumpsys", "window", "windows"], capture_output=True, text=True)
+#         if result.returncode != 0:
+#             print(f"ADB命令执行失败，返回码: {result.returncode}")
+#             print(f"错误信息: {result.stderr}")
+#             return "ADB命令执行失败"
+#
+#         lines = result.stdout.splitlines()
+#         for line in lines:
+#             if 'mActivityRecord' in line or 'mCurrentFocus' in line:
+#                 # print("原始行:", line)  # 输出原始行以供检查
+#                 match = re.search(r'([^\s/]+)/([^\s/]+)', line)
+#                 if match:
+#                     package_name = match.group(1)
+#                     activity_name = match.group(2)
+#                     if activity_name.startswith('.'):
+#                         activity_name = package_name + activity_name
+#                     full_activity_name = f"{activity_name}".replace('..', '.')
+#                     # print("当前页面为:", full_activity_name)  # 在控制台输出获取到的当前页面
+#                     return full_activity_name
+#         print("未找到当前焦点的 Activity。")
+#         return "无法获取当前页面"
+#     except subprocess.CalledProcessError as e:
+#         return f"执行 adb 命令时发生错误: {e}"
+#     except Exception as e:
+#         return f"获取当前 Activity 时发生错误: {e}"
 
 # 检查资产广告页
 def is_on_assets_page(driver):

@@ -22,16 +22,16 @@ from popups import popups
 
 # 全局变量
 driver = None
-device_name = 'main-1'
+device_name = 'huawei'
 
 # 驱动参数
 def create_driver():
     global driver
     desired_caps = {
         'platformName': 'Android',
-        'platformVersion': '12',
+        'platformVersion': '8',
         'deviceName': device_name,
-        'udid': 'localhost:7555',
+        'udid': '8RYBB18404152438',
         'appPackage': 'com.xiangshi.bjxsgc',
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'automationName': 'UiAutomator2',

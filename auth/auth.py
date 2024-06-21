@@ -80,7 +80,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
         return manage_accounts(driver, accounts)
     try:
         # 等待页面加载
-        time.sleep(20)
+        time.sleep(30)
 
         # 检查是否在启动页
         current_activity = utils.get_current_activity(driver)
@@ -118,7 +118,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
     try:
         # 等待页面加载
-        time.sleep(20)
+        time.sleep(30)
 
         # 检查是否在主界面
         current_activity = utils.get_current_activity(driver)
