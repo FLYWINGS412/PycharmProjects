@@ -25,9 +25,9 @@ def click_close_button(driver):
     attempts = 0
     while attempts < 5:
         # 检查是否当前在桌面
-        if ".launcher3.Launcher" in driver.current_activity:
-            print("检测到应用异常退回到桌面，需要重新开始。")
-            return False  # 这将提示 main 函数重新启动应用
+        # if ".launcher3.Launcher" in driver.current_activity:
+        #     print("检测到应用异常退回到桌面，需要重新开始。")
+        #     return False  # 这将提示 main 函数重新启动应用
 
         try:
             button = get_close_button(driver)  # 调用时传递driver
@@ -107,7 +107,7 @@ def get_close_button(driver):
                 # KEEP: print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
 
                 # 先进行尺寸过滤，如果元素的宽度或高度大于等于50，则跳过该元素
-                if element.size['width'] >= 120 and element.size['height'] >= 60:
+                if element.size['width'] >= 120 and element.size['height'] >= 80:
                     # KEEP: print("跳过元素：尺寸超过限制")
                     continue
 
