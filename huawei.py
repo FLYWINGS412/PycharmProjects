@@ -148,7 +148,7 @@ def main():
     accounts = [
         {'name': 'WY', 'phone': '13883122290', 'password': '412412'},
         {'name': 'WY', 'phone': '17782070003', 'password': '412412'},
-        # {'name': 'WY', 'phone': '17788487195', 'password': '412412'},
+        {'name': 'WY', 'phone': '17788487195', 'password': '412412'},
         # {'name': 'WY', 'phone': '13308322330', 'password': '412412'},
         # {'name': 'WY', 'phone': '17330966207', 'password': '412412'},
         # {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
