@@ -24,11 +24,6 @@ from popups import popups
 def click_close_button(driver):
     attempts = 0
     while attempts < 5:
-        # 检查是否当前在桌面
-        # if ".launcher3.Launcher" in driver.current_activity:
-        #     print("检测到应用异常退回到桌面，需要重新开始。")
-        #     return False  # 这将提示 main 函数重新启动应用
-
         try:
             button = get_close_button(driver)  # 调用时传递driver
             if button:
@@ -37,7 +32,6 @@ def click_close_button(driver):
                 button.click()
                 time.sleep(1)  # 等待加载页面
 
-                # 使用多线程同时检查资产页和互助视频页
                 assets_page_result = [False]
                 ad_page_result = [False]
                 event = threading.Event()
@@ -58,10 +52,9 @@ def click_close_button(driver):
                 assets_page_thread.start()
                 ad_page_thread.start()
 
-                # 等待任意一个结果为True
-                event.wait()
+                # 设置超时避免无限等待
+                event.wait(timeout=10)
 
-                # 检查线程的结果
                 assets_result = assets_page_result[0]
                 ad_result = ad_page_result[0]
 
@@ -71,6 +64,8 @@ def click_close_button(driver):
                     if ad_result:
                         print("已成功到达激励视频页")
                     return True
+                else:
+                    print("未成功到达任何预期页面。")
             else:
                 print("未找到符合条件的右上角关闭按钮。")
         except StaleElementReferenceException:
