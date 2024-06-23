@@ -317,7 +317,7 @@ def collect_rewards(driver, account):
 def handle_display_page(driver):
     try:
         start_time = time.time()
-        timeout = 70
+        timeout = 50
         popup_texts = ["放弃", "离开", "取消"]
 
         while time.time() - start_time < timeout:
