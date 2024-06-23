@@ -327,8 +327,6 @@ def handle_display_page(driver):
             # 检查倒计时是否消失
             try:
                 element_to_wait = None
-                # print("开始检查倒计时...")
-
                 # 第一种检查倒计时的方法
                 text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
                 if text_views:
@@ -345,7 +343,7 @@ def handle_display_page(driver):
                     if element_to_wait and isinstance(element_to_wait, WebElement):
                         try:
                             # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
-                            WebDriverWait(driver, 3).until(
+                            WebDriverWait(driver, 0).until(
                                 lambda driver: not element_to_wait.is_displayed() or re.match(r"0\s*s?", element_to_wait.text) is not None
                             )
                             print("倒计时结束。")
@@ -374,7 +372,7 @@ def handle_display_page(driver):
                         if element_to_wait and isinstance(element_to_wait, WebElement):
                             try:
                                 # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
-                                WebDriverWait(driver, 3).until(
+                                WebDriverWait(driver, 0).until(
                                     lambda driver: not element_to_wait.is_displayed() or element_to_wait.text == '0'
                                 )
                                 print("倒计时结束。")
@@ -392,7 +390,7 @@ def handle_display_page(driver):
                         if countdown_element:
                             element_to_wait = countdown_element[0]
                             try:
-                                WebDriverWait(driver, 3).until(EC.invisibility_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")))
+                                WebDriverWait(driver, 0).until(EC.invisibility_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")))
                                 print("特定ID的倒计时元素已消失。")
                                 break  # 结束while循环
                             except TimeoutException:
