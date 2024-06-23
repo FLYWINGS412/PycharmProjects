@@ -207,7 +207,7 @@ def is_on_assets_page(driver):
             pass
 
         # 检查是否存在资产页的特定元素
-        WebDriverWait(driver, 2).until(
+        WebDriverWait(driver, 1).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))
         )
         # KEEP: print("已成功到达资产广告页。")
