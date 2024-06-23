@@ -415,6 +415,8 @@ def handle_display_page(driver):
         # 展示页弹窗
         popups.display_page_popup(driver, popup_texts)
 
+        time.sleep(5)
+
         # 调用点击元素函数
         if not utils.click_close_button(driver):
             return False
