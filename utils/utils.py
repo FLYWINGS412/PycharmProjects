@@ -30,7 +30,6 @@ def click_close_button(driver):
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
-                time.sleep(1)  # 等待加载页面
 
                 assets_page_result = [False]
                 ad_page_result = [False]
@@ -219,7 +218,7 @@ def is_on_assets_page(driver):
 # 检查激励视频页
 def is_on_ad_page(driver):
     try:
-        WebDriverWait(driver, 1).until(
+        WebDriverWait(driver, 2).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
         )
         # print("已成功到达激励视频页")
