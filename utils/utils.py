@@ -22,7 +22,6 @@ from popups import popups
 
 # 点击关闭按钮
 def click_close_button(driver):
-    time.sleep(5)
     attempts = 0
     while attempts < 5:
         try:
