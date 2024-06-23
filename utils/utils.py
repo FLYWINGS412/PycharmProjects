@@ -89,7 +89,7 @@ def get_close_button(driver):
         start_time = time.time()  # 记录查找开始时间
 
         # 等待并查找关闭按钮元素，优先查找ImageView
-        elements = WebDriverWait(driver, 3).until(
+        elements = WebDriverWait(driver, 0).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='跳过']") +
                       d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='取消']")

@@ -62,7 +62,6 @@ def daily_dividend_distribution(driver):
             time.sleep(random.randint(2, 5))
             receive_button.click()
             print("已领取每日股东分红。")
-            time.sleep(random.randint(2, 5))
 
             # 处理展示页
             if not tasks.handle_display_page(driver):

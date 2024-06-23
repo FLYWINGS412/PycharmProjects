@@ -242,8 +242,6 @@ def collect_rewards(driver, account):
                     if not handle_display_page(driver):
                         return False
 
-                    time.sleep(random.randint(2, 5))
-
                     # 输出循环用时
                     elapsed_time = round(time.time() - start_time, 2)
                     print(f"用时: {elapsed_time} 秒")
@@ -297,8 +295,6 @@ def collect_rewards(driver, account):
             if not found:
                 print("所有‘领取奖励’领取完毕。")
                 break
-
-            time.sleep(random.randint(2, 5))
 
             # 输出循环用时
             elapsed_time = round(time.time() - start_time, 2)
@@ -423,12 +419,10 @@ def handle_display_page(driver):
             return False
 
     except TimeoutException as e:
-        # print("处理展示页时发生超时异常: ", str(e))
         print("处理展示页时发生超时异常: ")
         return False
     except Exception as e:
-        # print("处理展示页时发生错误: ", str(e))
-        print("处理展示页时发生错误: ")
+        print("处理展示页时发生错误: ", str(e))
         return False
     return True
 
