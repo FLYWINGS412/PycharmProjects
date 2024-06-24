@@ -101,7 +101,7 @@ def get_close_button(driver):
                 # KEEP: print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
 
                 # 先进行尺寸过滤，如果元素的宽度或高度不符合，则跳过该元素
-                if element.size['height'] > 70 or element.size['width'] > 110:
+                if element.size['height'] > 80 or element.size['width'] > 110:
                     # KEEP: print("跳过元素：尺寸超过限制")
                     continue
 
