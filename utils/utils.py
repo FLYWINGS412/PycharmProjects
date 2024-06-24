@@ -52,7 +52,7 @@ def click_close_button(driver):
                 ad_page_thread.start()
 
                 # 设置超时避免无限等待
-                event.wait(timeout=5)
+                event.wait(timeout=10)
 
                 assets_result = assets_page_result[0]
                 ad_result = ad_page_result[0]
