@@ -85,7 +85,7 @@ def get_close_button(driver):
     min_distance = float('inf')
     close_button = None
 
-    while attempts < 3 and not close_button:  # 尝试次数限制
+    while attempts < 5 and not close_button:  # 尝试次数限制
         start_time = time.time()  # 记录查找开始时间
 
         # 等待并查找关闭按钮元素，优先查找ImageView
