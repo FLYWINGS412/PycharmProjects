@@ -139,7 +139,7 @@ def mutual_assistance_reward(driver, account):
         print("未找到任何作品元素")
 
     # 等待页面完成加载
-    time.sleep(2)
+    time.sleep(1)
     WebDriverWait(driver, 60).until(
         EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
@@ -158,19 +158,8 @@ def mutual_assistance_reward(driver, account):
             reward_layer.click()
             print("点击了激励视频奖励")
 
-            # 等待页面完成加载
-            time.sleep(2)
-            WebDriverWait(driver, 60).until(
-                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-            )
-            print("页面已正常加载")
-
             # 检查头像是否消失
             try:
-                driver.wait.until(
-                    EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
-                )
-                print("没检查到头像，加载展示页。")
                 if not handle_display_page(driver):
                     return False
 
@@ -242,13 +231,6 @@ def collect_rewards(driver, account):
                     receive_bubble.click()
                     print(f"点击了领取按钮，更新剩余次数：{current + 1}/{total}")
 
-                    # 等待页面完成加载
-                    time.sleep(2)
-                    WebDriverWait(driver, 60).until(
-                        EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-                    )
-                    print("页面已正常加载")
-
                     if not handle_display_page(driver):
                         return False
 
@@ -289,13 +271,6 @@ def collect_rewards(driver, account):
                             reward.click()
                             print(f"点击了位于 {i} 的领取奖励，使用的XPath为: {xpath}")
 
-                            # 等待页面完成加载
-                            time.sleep(2)
-                            WebDriverWait(driver, 60).until(
-                                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-                            )
-                            print("页面已正常加载")
-
                             if not handle_display_page(driver):  # 处理展示页的逻辑
                                 return False
                             last_successful_index = i + 1  # 更新最后成功的索引
@@ -329,6 +304,12 @@ def collect_rewards(driver, account):
 
 # 展示页
 def handle_display_page(driver):
+    # 等待页面完成加载
+    time.sleep(1)
+    WebDriverWait(driver, 60).until(
+        EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+    )
+
     try:
         start_time = time.time()
         timeout = 35

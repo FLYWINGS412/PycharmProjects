@@ -25,7 +25,7 @@ def home_video_bonus(driver):
     found_and_handled = False  # 初始化标记，假定没有找到或处理弹窗
     try:
         # 直接尝试获取接收弹窗元素
-        bg_element = WebDriverWait(driver, 1).until(
+        bg_element = WebDriverWait(driver, 2).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
         )
         time.sleep(random.randint(2, 5))  # 随机等待2-5秒
@@ -61,13 +61,6 @@ def daily_dividend_distribution(driver):
             time.sleep(random.randint(2, 5))
             receive_button.click()
             print("已领取每日股东分红。")
-
-            # 等待页面完成加载
-            time.sleep(2)
-            WebDriverWait(driver, 60).until(
-                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-            )
-            print("页面已正常加载")
 
             # 处理展示页
             if not tasks.handle_display_page(driver):
@@ -110,13 +103,6 @@ def hourly_bonus(driver):
             time.sleep(random.randint(2, 5))
             receive_button.click()
             print("已领取整点红包。")
-
-            # 等待页面完成加载
-            time.sleep(2)
-            WebDriverWait(driver, 60).until(
-                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-            )
-            print("页面已正常加载")
 
             # 处理展示页
             if not tasks.handle_display_page(driver):
