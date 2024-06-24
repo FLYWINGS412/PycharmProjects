@@ -320,11 +320,10 @@ def handle_display_page(driver):
 
     try:
         start_time = time.time()
-        time.sleep(3)
-        timeout = 30
+        timeout = 35
         popup_texts = ["放弃", "离开", "取消"]
 
-        while time.time() - start_time < timeout:
+        while True:
             # 展示页弹窗
             popups.display_page_popup(driver, popup_texts)
 
@@ -403,18 +402,21 @@ def handle_display_page(driver):
                                 # 如果所有检查方法都未找到倒计时元素，跳出while循环
 
                 if element_to_wait is None:
-                    print("未找到倒计时元素，可能页面已刷新。")
-                    break  # 结束while循环
+                    remaining_time = start_time + timeout - time.time()
+                    if remaining_time > 0:
+                        print("未找到倒计时元素，可能页面已刷新，等待剩余时间后退出。")
+                        time.sleep(remaining_time)
+                    break
 
             except NoSuchElementException:
-                print("未找到倒计时元素。")
-                time.sleep(30)
+                print("未找到倒计时元素，等待剩余时间后退出。")
+                remaining_time = start_time + timeout - time.time()
+                if remaining_time > 0:
+                    time.sleep(remaining_time)
                 break
-                # continue  # 继续while循环
             except Exception as e:
-                # print(f"发生错误: {str(e)}")
                 print(f"发生错误")
-                break  # 结束while循环
+                break
 
         # 展示页弹窗
         popups.display_page_popup(driver, popup_texts)
