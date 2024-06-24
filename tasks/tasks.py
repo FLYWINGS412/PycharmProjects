@@ -158,8 +158,18 @@ def mutual_assistance_reward(driver, account):
             reward_layer.click()
             print("点击了激励视频奖励")
 
+            # 等待页面完成加载
+            time.sleep(1)
+            WebDriverWait(driver, 60).until(
+                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+            )
+
             # 检查头像是否消失
             try:
+                driver.wait.until(
+                    EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
+                )
+                print("没检查到头像，加载展示页。")
                 if not handle_display_page(driver):
                     return False
 
