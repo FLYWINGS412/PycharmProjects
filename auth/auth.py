@@ -47,37 +47,8 @@ def get_progress(device_name):
         print(f"获取进度时发生错误：{e}")
         return 0, 0  # 在异常情况下，从第一个任务和账号开始
 
-# 帐号管理
-def manage_accounts(accounts, current_account_index=0):
-    global driver
-    total_accounts = len(accounts)
-
-    while current_account_index < total_accounts:
-        account = accounts[current_account_index]
-        phone = account.get('phone')
-        password = account.get('password')
-        print(f"尝试登录账号: {phone}")
-
-        # 调用登录函数
-        if auth.auto_login(driver, phone, password):
-            print(f"账号 {phone} 登录成功！")
-            time.sleep(30)  # 保持登录状态一段时间，模拟用户操作
-            if auth.auto_logout(driver):
-                print(f"账号 {phone} 已成功登出。")
-                current_account_index += 1
-            else:
-                print(f"账号 {phone} 登出失败。")
-        else:
-            print(f"账号 {phone} 登录失败。")
-            current_account_index += 1
-        print(f"继续尝试下一个账号，当前账号索引: {current_account_index}")
-
-    return current_account_index
-
 # 自动登陆
 def auto_login(driver, phone=None, password=None, accounts=None):
-    if accounts:
-        return manage_accounts(driver, accounts)
     try:
         # 等待页面加载
         time.sleep(30)

@@ -181,8 +181,6 @@ def mutual_assistance_reward(driver, account):
         # 执行滑动操作
         utils.swipe_to_scroll(driver)
 
-        time.sleep(random.randint(2, 5))
-
         # 输出循环用时
         elapsed_time = round(time.time() - start_time, 2)
         print(f"用时: {elapsed_time} 秒")
