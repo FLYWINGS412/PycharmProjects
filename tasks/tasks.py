@@ -314,6 +314,7 @@ def handle_display_page(driver):
         start_time = time.time()
         timeout = 35
         popup_texts = ["放弃", "离开", "取消"]
+        time.sleep(1)
 
         while time.time() - start_time < timeout:
             # 展示页弹窗
@@ -410,8 +411,8 @@ def handle_display_page(driver):
         # 展示页弹窗
         popups.display_page_popup(driver, popup_texts)
 
-        # 等待关闭按钮出现
-        time.sleep(3)
+        # # 等待关闭按钮出现
+        # time.sleep(3)
 
         # 调用点击元素函数
         if not utils.click_close_button(driver):

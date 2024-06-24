@@ -91,8 +91,8 @@ def get_close_button(driver):
         # 等待并查找关闭按钮元素，优先查找ImageView
         elements = WebDriverWait(driver, 0).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
-                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='跳过']") +
-                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[@text='取消']")
+                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                      # d.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, '取消')]")
         )
 
         for element in elements:
@@ -101,7 +101,7 @@ def get_close_button(driver):
                 # KEEP: print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
 
                 # 先进行尺寸过滤，如果元素的宽度或高度不符合，则跳过该元素
-                if element.size['width'] >= 100 or element.size['height'] >= 80:
+                if element.size['height'] > 70 or element.size['width'] > 110:
                     # KEEP: print("跳过元素：尺寸超过限制")
                     continue
 
@@ -110,8 +110,7 @@ def get_close_button(driver):
                 y_right_top = element.location['y']
 
                 # 过滤掉不在屏幕顶部范围内的元素
-                if x_right_top < driver.width * 0.75  and y_right_top > driver.height * 0.15:
-                # if y_right_top > driver.height * 0.15:
+                if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.15:
                     # KEEP: print("跳过元素：不在顶部范围内")
                     continue
 

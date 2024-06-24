@@ -96,7 +96,7 @@ def daily_dividend_distribution(driver):
 def hourly_bonus(driver):
     try:
         try:
-            receive_button = WebDriverWait(driver, 2).until(
+            receive_button = WebDriverWait(driver, 1).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
             )
             print("找到整点红包")
@@ -125,7 +125,7 @@ def display_page_popup(driver, popup_texts):
             popup_button = WebDriverWait(driver, 0).until(
                 EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
             )
-            time.sleep(random.randint(2, 5))
+            time.sleep(random.randint(1, 3))
             popup_button.click()
             print(f"关闭了‘{text}’弹窗。")
             handled_popup = True
