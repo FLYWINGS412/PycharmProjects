@@ -320,8 +320,8 @@ def handle_display_page(driver):
 
     try:
         start_time = time.time()
-        timeout = 30
         time.sleep(3)
+        timeout = 30
         popup_texts = ["放弃", "离开", "取消"]
 
         while time.time() - start_time < timeout:
@@ -408,7 +408,7 @@ def handle_display_page(driver):
 
             except NoSuchElementException:
                 print("未找到倒计时元素。")
-                time.sleep(35)
+                time.sleep(30)
                 break
                 # continue  # 继续while循环
             except Exception as e:
