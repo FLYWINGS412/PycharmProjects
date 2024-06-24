@@ -406,10 +406,11 @@ def handle_display_page(driver):
                                 # 如果所有检查方法都未找到倒计时元素，跳出while循环
 
                 if element_to_wait is None:
-                    remaining_time = start_time + timeout - time.time()
-                    if remaining_time > 0:
-                        print("未找到倒计时元素，可能页面已刷新，等待剩余时间后退出。")
-                        time.sleep(remaining_time)
+                    # remaining_time = start_time + timeout - time.time()
+                    # if remaining_time > 0:
+                    #     print("未找到倒计时元素，可能页面已刷新，等待剩余时间后退出。")
+                    #     time.sleep(remaining_time)
+                    print("未找到倒计时元素，可能页面已刷新。")
                     break
 
             except NoSuchElementException:
