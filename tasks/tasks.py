@@ -257,9 +257,14 @@ def collect_rewards(driver, account):
             print(f"找不到 txt_miss_bubble 或 txt_receive_bubble 元素，无法点击：{e}")
 
         # 领取奖励
-        base_xpaths = [
-            "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/androidx.viewpager.widget.ViewPager/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView",
-            "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView"
+        # 定义一个通用的 XPath 模板，其中 {group} 和 {i} 是将要动态替换的部分
+        base_xpath_template = "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/{group}/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView"
+
+        # 定义不同的视图组，这些是之前由不同的路径指定的不同部分
+        view_groups = [
+            "androidx.viewpager.widget.ViewPager",  # 原来的第一条路径中的组
+            "android.view.ViewGroup/android.view.ViewGroup",  # 原来的第二条路径中的组
+            "android.view.ViewGroup"  # 原来的第三条路径中的组
         ]
 
         last_successful_index = 1  # 从最后一次成功的位置开始
@@ -271,8 +276,8 @@ def collect_rewards(driver, account):
 
             found = False
             for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
-                for base_xpath in base_xpaths:
-                    xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
+                for group in view_groups:
+                    xpath = base_xpath_template.format(group=group, i=i)  # 动态生成每个按钮的 XPath
                     try:
                         reward = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
                         if reward.get_attribute("selected") == "true":
