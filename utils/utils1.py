@@ -83,9 +83,7 @@ def click_close_button(driver):
 def get_close_button(driver):
     attempts = 0
     min_distance = float('inf')
-    second_min_distance = float('inf')
     close_button = None
-    second_close_button = None
 
     while attempts < 5 and not close_button:  # 尝试次数限制
         start_time = time.time()  # 记录查找开始时间
@@ -94,12 +92,17 @@ def get_close_button(driver):
         elements = WebDriverWait(driver, 0).until(
             lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
                       d.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                      # d.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, '取消')]")
         )
 
         for element in elements:
             try:
                 # 输出元素的基本信息
+                # KEEP: print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
+
+                # 先进行尺寸过滤，如果元素的宽度或高度不符合，则跳过该元素
                 if element.size['height'] > 80 or element.size['width'] > 120:
+                    # KEEP: print("跳过元素：尺寸超过限制")
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离
@@ -108,38 +111,33 @@ def get_close_button(driver):
 
                 # 过滤掉不在屏幕顶部范围内的元素
                 if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.15:
+                    # KEEP: print("跳过元素：不在顶部范围内")
                     continue
 
-                # 优先检查元素是否可见和可点击
+                # 优先检查元素是否可见和可点击，如果不可见或不可点击，则跳过该元素
                 if not (element.is_displayed() and element.is_enabled()):
+                    # KEEP: print("跳过元素：不可见或不可点击")
                     continue
 
+                # 计算元素右上角到屏幕右上角的距离
                 distance = ((driver.width - x_right_top) ** 2 + y_right_top ** 2) ** 0.5
 
-                # 更新最近和次近的元素
+                # 如果距离更近，更新最小距离和右上角按钮
                 if distance < min_distance:
-                    second_min_distance = min_distance
-                    second_close_button = close_button
                     min_distance = distance
                     close_button = element
-                elif distance < second_min_distance:
-                    second_min_distance = distance
-                    second_close_button = element
-
+                    # KEEP: print("更新最合适的右上角按钮")
             except StaleElementReferenceException:
+                # print("元素状态已改变，正在重新获取元素。")
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
         attempts += 1
 
-    # 最终选择，考虑两个元素X坐标相同的情况
-    if close_button and second_close_button:
-        if (close_button.location['x'] == second_close_button.location['x'] and
-                close_button.location['y'] < second_close_button.location['y']):
-            close_button = second_close_button
-            print("元素替换Y坐标较大的元素")
+        elapsed_time = round(time.time() - start_time, 2)
+        print(f"本次查找用时: {elapsed_time} 秒")
 
     if close_button:
-        # print(f"找到最合适的右上角关闭按钮：类别-{close_button.get_attribute('className')}, 位置-{close_button.location}, 大小-{close_button.size}")
+        # KEEP: print(f"找到最合适的右上角关闭按钮：类别-{close_button.get_attribute('className')}, 位置-{close_button.location}, 大小-{close_button.size}")
         pass
     else:
         print("未能找到合适的右上角关闭按钮。")
