@@ -201,6 +201,7 @@ def is_on_assets_page(driver):
             close_element = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((By.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
+            time.sleep(random.randint(2, 5))
             close_element.click()
         except TimeoutException:
             pass
