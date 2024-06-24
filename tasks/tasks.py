@@ -321,8 +321,8 @@ def handle_display_page(driver):
     try:
         start_time = time.time()
         timeout = 30
+        time.sleep(3)
         popup_texts = ["放弃", "离开", "取消"]
-        time.sleep(2)
 
         while time.time() - start_time < timeout:
             # 展示页弹窗
