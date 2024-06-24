@@ -275,7 +275,7 @@ def collect_rewards(driver, account):
                 for idx, base_xpath in enumerate(base_xpaths):
                     xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
                     try:
-                        reward = WebDriverWait(driver, 10).until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
+                        reward = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
                         if reward.get_attribute("selected") == "true":
                             reward.click()
                             print(f"点击了位于 {i} 的领取奖励，使用的第 {idx + 1} 种XPath")
@@ -291,8 +291,8 @@ def collect_rewards(driver, account):
                         print(f"未能定位到位于 {i} 的领取奖励，使用的第 {idx + 1} 种XPath")
                     except Exception as e:
                         print(f"尝试点击位于 {i} 的领取奖励时发生异常，使用的第 {idx + 1} 种XPath，异常：{e}")
-            if found:
-                break  # 成功点击后退出外循环
+                if found:
+                    break  # 成功点击后退出外循环
 
             if not found:
                 print("所有‘领取奖励’领取完毕。")
