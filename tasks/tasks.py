@@ -274,7 +274,7 @@ def collect_rewards(driver, account):
             for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
                 for idx, base_xpath in enumerate(base_xpaths):
                     xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
-                    print(f"正在尝试第 {idx + 1} 种XPath：{xpath}")  # 添加调试信息
+                    # print(f"正在尝试第 {idx + 1} 种XPath：{xpath}")  # 添加调试信息
                     try:
                         reward = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
                         if reward.get_attribute("selected") == "true":
