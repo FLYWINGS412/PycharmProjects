@@ -325,6 +325,7 @@ def handle_display_page(driver):
     try:
         start_time = time.time()
         timeout = 35
+        time.sleep(3)
         popup_texts = ["放弃", "离开", "取消"]
 
         while True:
