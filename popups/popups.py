@@ -41,7 +41,6 @@ def home_video_bonus(driver):
             time.sleep(random.randint(2, 5))  # 随机等待2-5秒
             close_element.click()
             print("点击了关闭弹窗")
-            time.sleep(random.randint(2, 5))  # 随机等待2-5秒
             found_and_handled = True  # 确认找到并处理了关闭弹窗
         except TimeoutException:
             print("未找到关闭弹窗元素，不执行关闭操作")
@@ -62,6 +61,13 @@ def daily_dividend_distribution(driver):
             time.sleep(random.randint(2, 5))
             receive_button.click()
             print("已领取每日股东分红。")
+
+            # 等待页面完成加载
+            time.sleep(2)
+            WebDriverWait(driver, 60).until(
+                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+            )
+            print("页面已正常加载")
 
             # 处理展示页
             if not tasks.handle_display_page(driver):
@@ -104,6 +110,13 @@ def hourly_bonus(driver):
             time.sleep(random.randint(2, 5))
             receive_button.click()
             print("已领取整点红包。")
+
+            # 等待页面完成加载
+            time.sleep(2)
+            WebDriverWait(driver, 60).until(
+                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+            )
+            print("页面已正常加载")
 
             # 处理展示页
             if not tasks.handle_display_page(driver):

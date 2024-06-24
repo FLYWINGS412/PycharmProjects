@@ -100,8 +100,8 @@ def get_close_button(driver):
                 # 输出元素的基本信息
                 # KEEP: print(f"检查元素：类别-{element.get_attribute('className')}, 位置-{element.location}, 大小-{element.size}")
 
-                # 先进行尺寸过滤，如果元素的宽度或高度大于等于50，则跳过该元素
-                if element.size['width'] >= 120 or element.size['height'] >= 80:
+                # 先进行尺寸过滤，如果元素的宽度或高度不符合，则跳过该元素
+                if element.size['width'] >= 100 or element.size['height'] >= 80:
                     # KEEP: print("跳过元素：尺寸超过限制")
                     continue
 
@@ -110,7 +110,8 @@ def get_close_button(driver):
                 y_right_top = element.location['y']
 
                 # 过滤掉不在屏幕顶部范围内的元素
-                if y_right_top > driver.height * 0.15:
+                if x_right_top < driver.width * 0.75  and y_right_top > driver.height * 0.15:
+                # if y_right_top > driver.height * 0.15:
                     # KEEP: print("跳过元素：不在顶部范围内")
                     continue
 

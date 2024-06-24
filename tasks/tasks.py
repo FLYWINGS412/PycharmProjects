@@ -36,6 +36,7 @@ def handle_home_page_video(driver, account):
             popups.home_video_bonus(driver)
 
             # 等待页面完成加载
+            time.sleep(2)
             WebDriverWait(driver, 60).until(
                 EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
             )
@@ -136,10 +137,11 @@ def mutual_assistance_reward(driver, account):
         print("点击了第一排的第一个作品")
     else:
         print("未找到任何作品元素")
-    time.sleep(10)
 
-    driver.wait.until(
-        EC.invisibility_of_element_located((MobileBy.XPATH, "//*[contains(@text, '加载中')]"))
+    # 等待页面完成加载
+    time.sleep(2)
+    WebDriverWait(driver, 60).until(
+        EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
     print("页面已正常加载")
 
@@ -156,9 +158,10 @@ def mutual_assistance_reward(driver, account):
             reward_layer.click()
             print("点击了激励视频奖励")
 
+            # 等待页面完成加载
             time.sleep(2)
-            driver.wait.until(
-                EC.invisibility_of_element_located((MobileBy.XPATH, "//*[contains(@text, '加载中')]"))
+            WebDriverWait(driver, 60).until(
+                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
             )
             print("页面已正常加载")
 
@@ -239,6 +242,13 @@ def collect_rewards(driver, account):
                     receive_bubble.click()
                     print(f"点击了领取按钮，更新剩余次数：{current + 1}/{total}")
 
+                    # 等待页面完成加载
+                    time.sleep(2)
+                    WebDriverWait(driver, 60).until(
+                        EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+                    )
+                    print("页面已正常加载")
+
                     if not handle_display_page(driver):
                         return False
 
@@ -278,6 +288,14 @@ def collect_rewards(driver, account):
                         if reward.get_attribute("selected") == "true":
                             reward.click()
                             print(f"点击了位于 {i} 的领取奖励，使用的XPath为: {xpath}")
+
+                            # 等待页面完成加载
+                            time.sleep(2)
+                            WebDriverWait(driver, 60).until(
+                                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+                            )
+                            print("页面已正常加载")
+
                             if not handle_display_page(driver):  # 处理展示页的逻辑
                                 return False
                             last_successful_index = i + 1  # 更新最后成功的索引
