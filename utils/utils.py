@@ -131,12 +131,17 @@ def get_close_button(driver):
 
         attempts += 1
 
+
+
     # 最终选择，考虑两个元素X坐标相同的情况
     if close_button and second_close_button:
         if (close_button.location['x'] == second_close_button.location['x'] and
                 close_button.location['y'] < second_close_button.location['y']):
             close_button = second_close_button
             print("元素替换Y坐标较大的元素")
+
+    elapsed_time = round(time.time() - start_time, 2)
+    print(f"本次查找用时: {elapsed_time} 秒")
 
     if close_button:
         # print(f"找到最合适的右上角关闭按钮：类别-{close_button.get_attribute('className')}, 位置-{close_button.location}, 大小-{close_button.size}")
