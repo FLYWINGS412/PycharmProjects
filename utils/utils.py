@@ -106,6 +106,9 @@ def get_close_button(driver):
 
             elements = []
             for future in as_completed(futures):
+                if close_button:  # 如果已经找到合适的关闭按钮，跳过处理
+                    future.cancel()  # 取消未完成的任务（注意：这不能真正停止正在执行的任务）
+                    continue
                 elements.extend(future.result())
 
         for element in elements:
