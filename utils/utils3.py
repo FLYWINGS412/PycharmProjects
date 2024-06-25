@@ -79,13 +79,6 @@ def click_close_button(driver):
     print("尝试多次后仍未成功点击按钮。")
     return False
 
-# 多线程查找关闭按钮元素
-def get_elements(driver, by, value):
-    try:
-        return driver.find_elements(by, value)
-    except StaleElementReferenceException:
-        return []
-
 # 获取关闭按钮
 def get_close_button(driver):
     attempts = 0
@@ -97,16 +90,11 @@ def get_close_button(driver):
     while attempts < 5 and not close_button:  # 尝试次数限制
         start_time = time.time()  # 记录查找开始时间
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            # 创建两个查找任务
-            futures = [
-                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
-            ]
-
-            elements = []
-            for future in as_completed(futures):
-                elements.extend(future.result())
+        # 等待并查找关闭按钮元素，优先查找ImageView
+        elements = WebDriverWait(driver, 0).until(
+            lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
+                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+        )
 
         for element in elements:
             try:
@@ -126,7 +114,6 @@ def get_close_button(driver):
                 if not (element.is_displayed() and element.is_enabled()):
                     continue
 
-                # 提升右上角关闭按钮的权重
                 distance = ((driver.width - x_right_top) ** 2 + y_right_top ** 2) ** 0.5
 
                 # 更新最近和次近的元素
@@ -141,9 +128,6 @@ def get_close_button(driver):
 
             except StaleElementReferenceException:
                 break  # 退出内部循环，将触发外部循环重新获取元素
-
-        if close_button:
-            break  # 找到合适的关闭按钮，提前退出循环
 
         attempts += 1
 

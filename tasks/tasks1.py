@@ -11,7 +11,6 @@ from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
@@ -272,20 +271,28 @@ def collect_rewards(driver, account):
 
             found = False
             for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
-                with ThreadPoolExecutor() as executor:
-                    futures = [executor.submit(utils.check_xpath, driver, base_xpath.format(i=i), idx, i) for idx, base_xpath in enumerate(base_xpaths)]
-                    for future in as_completed(futures):
-                        result = future.result()
-                        if result and "成功点击" in result:  # 检查是否是成功点击的消息
-                            print(result)
+                for idx, base_xpath in enumerate(base_xpaths):
+                    xpath = base_xpath.format(i=i)  # 动态生成每个按钮的 XPath
+                    # print(f"正在尝试第 {idx + 1} 种XPath：{xpath}")  # 添加调试信息
+                    try:
+                        reward = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
+                        if reward.get_attribute("selected") == "true":
+                            reward.click()
+                            print(f"点击了第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath")
+
                             if not handle_display_page(driver):  # 处理展示页的逻辑
                                 return False
+                            last_successful_index = i + 1  # 更新最后成功的索引
                             found = True
                             break  # 成功点击后退出内循环
-                    if not found:  # 如果在这一轮检查中没有找到并点击成功
-                        print(f"第 {i} 个领取奖励，不能点击。")
-
-                last_successful_index = i + 1  # 更新最后成功的索引
+                    except TimeoutException:
+                        # print(f"未能及时找到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath")
+                        pass
+                    except NoSuchElementException:
+                        print(f"未能定位到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath")
+                        pass
+                    except Exception as e:
+                        print(f"尝试点击第 {i} 个领取奖励时发生异常，使用的第 {idx + 1} 种XPath，异常：{e}")
                 if found:
                     break  # 成功点击后退出外循环
 

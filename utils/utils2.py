@@ -11,7 +11,6 @@ from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
@@ -79,13 +78,6 @@ def click_close_button(driver):
     print("尝试多次后仍未成功点击按钮。")
     return False
 
-# 多线程查找关闭按钮元素
-def get_elements(driver, by, value):
-    try:
-        return driver.find_elements(by, value)
-    except StaleElementReferenceException:
-        return []
-
 # 获取关闭按钮
 def get_close_button(driver):
     attempts = 0
@@ -97,21 +89,16 @@ def get_close_button(driver):
     while attempts < 5 and not close_button:  # 尝试次数限制
         start_time = time.time()  # 记录查找开始时间
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            # 创建两个查找任务
-            futures = [
-                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
-            ]
-
-            elements = []
-            for future in as_completed(futures):
-                elements.extend(future.result())
+        # 等待并查找关闭按钮元素，优先查找ImageView
+        elements = WebDriverWait(driver, 0).until(
+            lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
+                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+        )
 
         for element in elements:
             try:
                 # 输出元素的基本信息
-                if element.size['height'] > 80 or element.size['width'] > 110:
+                if element.size['height'] > 80 or element.size['width'] > 120:
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离
@@ -126,7 +113,6 @@ def get_close_button(driver):
                 if not (element.is_displayed() and element.is_enabled()):
                     continue
 
-                # 提升右上角关闭按钮的权重
                 distance = ((driver.width - x_right_top) ** 2 + y_right_top ** 2) ** 0.5
 
                 # 更新最近和次近的元素
@@ -142,10 +128,9 @@ def get_close_button(driver):
             except StaleElementReferenceException:
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
-        if close_button:
-            break  # 找到合适的关闭按钮，提前退出循环
-
         attempts += 1
+
+
 
     # 最终选择，考虑两个元素X坐标相同的情况
     if close_button and second_close_button:
@@ -248,21 +233,6 @@ def is_on_ad_page(driver):
     except TimeoutException:
         # print("未成功到达激励视频页")
         return False
-
-def check_xpath(driver, xpath, idx, i):
-    try:
-        reward = WebDriverWait(driver, 10).until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
-        if reward.get_attribute("selected") == "true":
-            reward.click()
-            return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
-        else:
-            return f"元素存在但未选中，未点击第 {i} 个奖励，使用的第 {idx + 1} 种XPath"
-    except TimeoutException:
-        return f"未能及时找到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
-    except NoSuchElementException:
-        return f"未能定位到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
-    except Exception as e:
-        return f"尝试点击第 {i} 个领取奖励时发生异常，使用的第 {idx + 1} 种XPath，异常：{e}"
 
 # 获取我的享币和享点
 def get_and_store_points(driver, account):
