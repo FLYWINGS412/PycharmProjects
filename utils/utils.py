@@ -23,7 +23,7 @@ from popups import popups
 # 点击关闭按钮
 def click_close_button(driver):
     attempts = 0
-    time.sleep(3)   # 等待关闭按钮出现
+    time.sleep(2)   # 等待关闭按钮出现
     while attempts < 5:
         try:
             button = get_close_button(driver)
@@ -337,10 +337,20 @@ def get_and_store_points(driver, account):
 # 激励视频奖励排除名单
 def log_mutual_assistance_reward(driver, account):
     try:
+        # 检查 driver.device_name 是否为空或不正确
+        if not hasattr(driver, 'device_name') or not driver.device_name:
+            raise ValueError("Driver 没有正确设置 device_name")
+
         # 创建以 device_name 命名的目录
         directory = os.path.join("record", driver.device_name)
         os.makedirs(directory, exist_ok=True)
         file_name = os.path.join(directory, "mutual_assistance_reward.txt")
+
+        # 检查目录和文件路径
+        if not os.path.exists(directory):
+            raise FileNotFoundError(f"目录未创建成功: {directory}")
+        if not os.path.isdir(directory):
+            raise NotADirectoryError(f"不是有效目录: {directory}")
 
         with open(file_name, "a", encoding='utf-8') as file:
             file.write(f"账号：{account['phone']}\n")
@@ -382,27 +392,46 @@ def initialize_system_date(device_name):
 
 # 检查并重置系统日期
 def check_and_reset_system_date(device_name):
-    # 定义设备特定的记录目录
-    directory = os.path.join("record", device_name)
-    date_file_path = os.path.join(directory, "system_date.txt")
-    mutual_assistance_file_path = os.path.join(directory, "mutual_assistance_reward.txt")
+    try:
+        # 定义设备特定的记录目录
+        directory = os.path.join("record", device_name)
+        date_file_path = os.path.join(directory, "system_date.txt")
+        mutual_assistance_file_path = os.path.join(directory, "mutual_assistance_reward.txt")
 
-    # 获取当前系统日期
-    today_date = time.strftime("%Y-%m-%d")
+        # 获取当前系统日期
+        today_date = time.strftime("%Y-%m-%d")
+        print(f"当前系统日期: {today_date}")
 
-    # 读取上次记录的系统日期
-    with open(date_file_path, "r", encoding='utf-8') as file:
-        last_date = file.read().strip()
+        # 读取上次记录的系统日期
+        if not os.path.exists(date_file_path):
+            print(f"日期文件不存在，创建新文件: {date_file_path}")
+            with open(date_file_path, "w", encoding='utf-8') as file:
+                file.write(today_date)
+            last_date = today_date
+        else:
+            with open(date_file_path, "r", encoding='utf-8') as file:
+                last_date = file.read().strip()
 
-    # 如果上次记录的系统日期与当前日期不一致
-    if last_date != today_date:
-        with open(mutual_assistance_file_path, "w", encoding='utf-8') as file:
-            file.write("")  # 清空文件内容
+        print(f"上次记录的系统日期: {last_date}")
 
-        # 更新系统日期记录文件为当前日期
-        with open(date_file_path, "w", encoding='utf-8') as file:
-            file.write(today_date)
+        # 如果上次记录的系统日期与当前日期不一致
+        if last_date != today_date:
+            if not os.path.exists(mutual_assistance_file_path):
+                print(f"互助奖励文件不存在，创建新文件: {mutual_assistance_file_path}")
+                with open(mutual_assistance_file_path, "w", encoding='utf-8') as file:
+                    file.write("")
+            else:
+                with open(mutual_assistance_file_path, "w", encoding='utf-8') as file:
+                    file.write("")  # 清空文件内容
 
-        print("已重置任务完成记录")
-        return True  # 表示日期已更改
-    return False  # 表示日期未更改
+            # 更新系统日期记录文件为当前日期
+            with open(date_file_path, "w", encoding='utf-8') as file:
+                file.write(today_date)
+
+            print("已重置任务完成记录")
+            return True  # 表示日期已更改
+        return False  # 表示日期未更改
+
+    except Exception as e:
+        print(f"检查并重置系统日期时发生异常：{e}")
+        return False
