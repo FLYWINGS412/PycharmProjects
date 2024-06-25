@@ -23,8 +23,8 @@ from popups import popups
 # 点击关闭按钮
 def click_close_button(driver):
     attempts = 0
+    time.sleep(3)   # 等待关闭按钮出现
     while attempts < 5:
-        time.sleep(3)   # 等待关闭按钮出现
         try:
             button = get_close_button(driver)
             if button:
