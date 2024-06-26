@@ -356,8 +356,8 @@ def handle_display_page(driver):
                             break  # 结束while循环
 
                 else:
-                    # 第二种检查倒计时的方法（长度为1或2的纯数字倒计时）
-                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 2 and @text = number(@text)]")
+                    # 第二种检查倒计时的方法（长度为1或3的纯数字倒计时）
+                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)]")
                     if text_views:
                         for text_view in text_views:
                             location = text_view.location
