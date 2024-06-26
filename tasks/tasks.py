@@ -335,6 +335,7 @@ def handle_display_page(driver):
                             lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None or
                                            not element_to_wait.is_displayed()
                         )
+
                         print("倒计时结束。")
                         break  # 结束while循环
                     except TimeoutException:
