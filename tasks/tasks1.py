@@ -166,7 +166,7 @@ def mutual_assistance_reward(driver, account):
 
             # 检查头像是否消失
             try:
-                WebDriverWait(driver, 3).until(
+                driver.wait.until(
                     EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                 )
                 print("没检查到头像，加载展示页。")
@@ -314,8 +314,6 @@ def handle_display_page(driver):
         EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
 
-    element_to_wait = None  # 初始化 element_to_wait 为 None
-
     try:
         start_time = time.time()
         timeout = 35
@@ -328,53 +326,83 @@ def handle_display_page(driver):
 
             # 检查倒计时是否消失
             try:
-                # 如果已经找到倒计时元素，则只检查其状态
-                if element_to_wait and isinstance(element_to_wait, WebElement):
-                    try:
-                        WebDriverWait(driver, 1).until(
-                            lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None or
-                                           not element_to_wait.is_displayed()
-                        )
-                        print("倒计时结束。")
-                        break  # 结束while循环
-                    except TimeoutException:
-                        # print("继续监控倒计时。")
-                        continue  # 继续while循环
-                    except StaleElementReferenceException:
-                        print("倒计时元素已从DOM中移除，倒计时结束。")
-                        break  # 退出循环，认为倒计时结束
-
+                element_to_wait = None
                 # 第一种检查倒计时的方法
                 text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
-                for text_view in text_views:
-                    location = text_view.location
-                    size = text_view.size
-                    top_y = location['y']
-                    if top_y < driver.height * 0.15:
-                        element_to_wait = text_view
-                        # print("找到倒计时元素（含秒标志）。")
-                        break
-
-                # 第二种检查倒计时的方法（长度为1或3的纯数字倒计时）
-                if not element_to_wait:
-                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)]")
+                if text_views:
                     for text_view in text_views:
                         location = text_view.location
                         size = text_view.size
                         top_y = location['y']
+                        # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
                         if top_y < driver.height * 0.15:
                             element_to_wait = text_view
-                            # print("找到纯数字倒计时元素。")
+                            # print(f"找到倒计时元素: {element_to_wait.text}")
                             break
 
-                # 检查其他可能的倒计时元素
-                if not element_to_wait:
-                    countdown_element = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
-                    if countdown_element:
-                        element_to_wait = countdown_element[0]
-                        # print("找到特定ID的倒计时元素。")
+                    if element_to_wait and isinstance(element_to_wait, WebElement):
+                        try:
+                            # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                            WebDriverWait(driver, 0).until(
+                                lambda driver: not element_to_wait.is_displayed() or re.match(r"0\s*s?", element_to_wait.text) is not None
+                            )
+                            print("倒计时结束。")
+                            break  # 结束while循环
+                        except TimeoutException:
+                            # print("等待倒计时结束超时（第一种方法）。")
+                            continue  # 继续while循环
+                        except StaleElementReferenceException:
+                            # print("倒计时元素在DOM中已不可访问。")
+                            break  # 结束while循环
 
-                if not element_to_wait:
+                else:
+                    # 第二种检查倒计时的方法（长度为1或2的纯数字倒计时）
+                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)]")
+                    if text_views:
+                        for text_view in text_views:
+                            location = text_view.location
+                            size = text_view.size
+                            top_y = location['y']
+                            # print(f"检查元素: 文本='{text_view.text}', 位置='{location}', 大小='{size}'")
+                            if top_y < driver.height * 0.15:
+                                element_to_wait = text_view
+                                # print(f"找到倒计时元素: {element_to_wait.text}")
+                                break
+
+                        if element_to_wait and isinstance(element_to_wait, WebElement):
+                            try:
+                                # print(f"等待倒计时元素消失前的状态: 可见性={element_to_wait.is_displayed()}, 文本='{element_to_wait.text}'")
+                                WebDriverWait(driver, 0).until(
+                                    lambda driver: not element_to_wait.is_displayed() or element_to_wait.text == '0'
+                                )
+                                print("倒计时结束。")
+                                break  # 结束while循环
+                            except TimeoutException:
+                                # print("等待倒计时结束超时（第二种方法）。")
+                                continue  # 继续while循环
+                                # except StaleElementReferenceException:
+                                # print("倒计时元素在DOM中已不可访问。")
+                                break  # 结束while循环
+
+                    else:
+                        # 检查其他可能的倒计时元素
+                        countdown_element = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+                        if countdown_element:
+                            element_to_wait = countdown_element[0]
+                            try:
+                                WebDriverWait(driver, 0).until(EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")))
+                                print("特定ID的倒计时元素已消失。")
+                                break  # 结束while循环
+                            except TimeoutException:
+                                # print("等待特定ID倒计时元素消失超时。")
+                                continue  # 继续while循环
+                                # 如果所有检查方法都未找到倒计时元素，跳出while循环
+
+                if element_to_wait is None:
+                    # remaining_time = start_time + timeout - time.time()
+                    # if remaining_time > 0:
+                    #     print("未找到倒计时元素，可能页面已刷新，等待剩余时间后退出。")
+                    #     time.sleep(remaining_time)
                     print("未找到倒计时元素，可能页面已刷新。")
                     break
 
@@ -385,7 +413,7 @@ def handle_display_page(driver):
                     time.sleep(remaining_time)
                 break
             except Exception as e:
-                print(f"发生错误: {e}")
+                print(f"发生错误")
                 break
 
         # 展示页弹窗
@@ -396,7 +424,7 @@ def handle_display_page(driver):
             return False
 
     except TimeoutException as e:
-        print("处理展示页时发生超时异常: ", str(e))
+        print("处理展示页时发生超时异常: ")
         return False
     except Exception as e:
         print("处理展示页时发生错误: ", str(e))

@@ -220,7 +220,14 @@ def get_current_activity(driver):
 
 # 检查资产广告页
 def is_on_assets_page(driver):
+    time.sleep(1)
     try:
+        # # 检查“享币+”是否消失
+        # WebDriverWait(driver, 60).until(
+        #     EC.invisibility_of_element_located((MobileBy.XPATH, "//*[contains(@text, '享币+')]"))
+        # )
+        # print("享币+消失了")
+
         # 尝试获取并点击关闭弹窗
         try:
             close_element = WebDriverWait(driver, 2).until(
@@ -235,10 +242,8 @@ def is_on_assets_page(driver):
         WebDriverWait(driver, 1).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))
         )
-        # KEEP: print("已成功到达资产广告页。")
         return True
     except TimeoutException:
-        # KEEP: print("未成功到达资产广告页。")
         return False
 
 # 检查激励视频页
@@ -247,10 +252,8 @@ def is_on_ad_page(driver):
         WebDriverWait(driver, 2).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
         )
-        # print("已成功到达激励视频页")
         return True
     except TimeoutException:
-        # print("未成功到达激励视频页")
         return False
 
 def check_xpath(driver, xpath, idx, i):

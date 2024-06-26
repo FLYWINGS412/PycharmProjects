@@ -160,15 +160,17 @@ def main_menu(driver):
 # 设置Desired Capabilities
 desired_caps = {
     'platformName': 'Android',
-    'platformVersion': '12',
-    'deviceName': 'localhost:7555 device',
+    'platformVersion': '8',
+    # 'deviceName': device_name,
+    # 'udid': '8RYBB18404152438',
     # 'appPackage': 'com.xiangshi.bjxsgc',
     # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
+    'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
-    'newCommandTimeout': 21600,  # 设置新的命令超时时间为300秒
+    'newCommandTimeout': 21600,
     'unicodeKeyboard': True,
-    "resetKeyboard": True,
+    'resetKeyboard': True,
     'noReset': True
 }
 
