@@ -323,6 +323,12 @@ def handle_display_page(driver):
         popup_texts = ["放弃", "离开", "取消"]
 
         while True:
+            # 检查是否已超过最大等待时间
+            current_time = time.time()
+            if current_time - start_time > timeout:
+                print("已超过最大等待时间，终止倒计时监控。")
+                break
+
             # 展示页弹窗
             popups.display_page_popup(driver, popup_texts)
 
@@ -376,12 +382,6 @@ def handle_display_page(driver):
 
                 if not element_to_wait:
                     print("未找到倒计时元素，可能页面已刷新。")
-                    break
-
-                # 检查是否已超过最大等待时间
-                current_time = time.time()
-                if current_time - start_time > timeout:
-                    print("已超过最大等待时间，终止倒计时监控。")
                     break
 
             except NoSuchElementException:
