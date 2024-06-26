@@ -358,7 +358,7 @@ def handle_display_page(driver):
                     top_y = location['y']
                     if top_y < driver.height * 0.15:
                         element_to_wait = text_view
-                        print("找到倒计时元素（含s标志）")
+                        print("找到倒计时元素（'s'）")
                         break
 
                 # 第二种检查倒计时的方法（长度为1或3的纯数字倒计时）
@@ -370,7 +370,7 @@ def handle_display_page(driver):
                         top_y = location['y']
                         if top_y < driver.height * 0.15:
                             element_to_wait = text_view
-                            print("找到倒计时元素（纯数字）")
+                            print("找到倒计时元素（数字）")
                             break
 
                 # 检查其他可能的倒计时元素
