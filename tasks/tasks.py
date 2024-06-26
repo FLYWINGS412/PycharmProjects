@@ -326,7 +326,7 @@ def handle_display_page(driver):
             # 检查是否已超过最大等待时间
             current_time = time.time()
             if current_time - start_time > timeout:
-                print("已超过最大等待时间，终止监控。")
+                print("已超过最大等待时间，终止倒计时监控。")
                 break
 
             # 展示页弹窗
