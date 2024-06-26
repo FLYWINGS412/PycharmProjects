@@ -258,7 +258,7 @@ def is_on_ad_page(driver):
 
 def check_xpath(driver, xpath, idx, i):
     try:
-        reward = WebDriverWait(driver, 10).until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
+        reward = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
         if reward.get_attribute("selected") == "true":
             reward.click()
             return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
