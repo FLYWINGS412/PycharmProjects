@@ -340,27 +340,28 @@ def get_and_store_points(driver, account):
 # 激励视频奖励排除名单
 def log_mutual_assistance_reward(driver, account):
     try:
-        # 检查 driver.device_name 是否为空或不正确
+        # 确保driver有device_name属性
         if not hasattr(driver, 'device_name') or not driver.device_name:
-            raise ValueError("Driver 没有正确设置 device_name")
+            raise ValueError("Driver没有正确设置device_name属性")
 
-        # 创建以 device_name 命名的目录
+        # 创建目录
         directory = os.path.join("record", driver.device_name)
-        os.makedirs(directory, exist_ok=True)
-        file_name = os.path.join(directory, "mutual_assistance_reward.txt")
-
-        # 检查目录和文件路径
         if not os.path.exists(directory):
-            raise FileNotFoundError(f"目录未创建成功: {directory}")
-        if not os.path.isdir(directory):
-            raise NotADirectoryError(f"不是有效目录: {directory}")
+            os.makedirs(directory, exist_ok=True)
 
-        with open(file_name, "a", encoding='utf-8') as file:
+        # 定义文件路径
+        file_path = os.path.join(directory, "mutual_assistance_reward.txt")
+
+        # 记录信息到文件
+        with open(file_path, "a", encoding='utf-8') as file:
             file.write(f"账号：{account['phone']}\n")
+            print(f"已成功记录账号：{account['phone']} 激励视频奖励完成")
 
-        print(f"已成功记录账号：{account['phone']} 激励视频奖励完成")
     except Exception as e:
         print(f"记录账号 {account['phone']} 的激励视频奖励信息时发生异常：{e}")
+        return False  # 返回失败状态
+
+    return True  # 返回成功状态
 
 # 检查是否已经完成激励视频奖励
 def has_completed_mutual_assistance_reward(account, device_name):
