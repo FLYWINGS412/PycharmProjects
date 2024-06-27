@@ -260,7 +260,7 @@ def auto_logout(driver):
         # 继续退出
         continue_to_exit_button = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
         continue_to_exit_button.click()
-        print("继续退出")
+        print("继续退出")1
 
     except TimeoutException as e:
         print(f"在退出过程中出现超时：{str(e)}")
