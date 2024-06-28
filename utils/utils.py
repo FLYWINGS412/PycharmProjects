@@ -115,7 +115,7 @@ def get_close_button(driver):
         for element in elements:
             try:
                 # 输出元素的基本信息
-                if element.size['height'] > 80 or element.size['width'] > 110:
+                if element.size['height'] > 80or element.size['width'] < 15 or element.size['width'] > 110:
                     continue
 
                 # 计算元素右上角到屏幕右上角的距离
