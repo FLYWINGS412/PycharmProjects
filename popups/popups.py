@@ -105,8 +105,9 @@ def hourly_bonus(driver):
             print("点击了关闭弹窗")
             return True
         except TimeoutException:
-            print("未找到关闭弹窗")
-            return False
+            pass
+            # print("未找到关闭弹窗")
+            # return False
 
     except TimeoutException:
         print("未找到整点红包")
