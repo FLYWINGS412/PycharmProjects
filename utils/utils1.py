@@ -30,7 +30,6 @@ def click_close_button(driver):
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
-                time.sleep(2)  # 等待页面加载
 
                 assets_page_result = [False]
                 ad_page_result = [False]
@@ -38,13 +37,11 @@ def click_close_button(driver):
 
                 def check_assets_page():
                     assets_page_result[0] = is_on_assets_page(driver)
-                    # print(f"检查资产页结果: {assets_page_result[0]}")
                     if assets_page_result[0]:
                         event.set()
 
                 def check_ad_page():
                     ad_page_result[0] = is_on_ad_page(driver)
-                    # print(f"检查激励视频页结果: {ad_page_result[0]}")
                     if ad_page_result[0]:
                         event.set()
 
@@ -55,11 +52,7 @@ def click_close_button(driver):
                 ad_page_thread.start()
 
                 # 设置超时避免无限等待
-                event.wait(timeout=10)
-
-                # 确保线程结束
-                assets_page_thread.join()
-                ad_page_thread.join()
+                event.wait(timeout=5)
 
                 assets_result = assets_page_result[0]
                 ad_result = ad_page_result[0]
@@ -226,19 +219,41 @@ def get_current_activity(driver):
 
 # 检查资产广告页
 def is_on_assets_page(driver):
-    current_activity = get_current_activity(driver)
-    expected_main_activity = "com.xiangshi.main.activity.MainActivity"
-    if expected_main_activity in current_activity:
+    time.sleep(1)
+    try:
+        # # 检查“享币+”是否消失
+        # WebDriverWait(driver, 60).until(
+        #     EC.invisibility_of_element_located((MobileBy.XPATH, "//*[contains(@text, '享币+')]"))
+        # )
+        # print("享币+消失了")
+
+        # 尝试获取并点击关闭弹窗
+        try:
+            close_element = WebDriverWait(driver, 2).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+            )
+            time.sleep(random.randint(2, 5))
+            close_element.click()
+        except TimeoutException:
+            pass
+
+        # 检查是否存在资产页的特定元素
+        WebDriverWait(driver, 1).until(
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))
+        )
         return True
-    return False
+    except TimeoutException:
+        return False
 
 # 检查激励视频页
 def is_on_ad_page(driver):
-    current_activity = get_current_activity(driver)
-    expected_VideoPlay_activity = "com.xiangshi.video.activity.VideoPlayActivity"
-    if expected_VideoPlay_activity in current_activity:
+    try:
+        WebDriverWait(driver, 2).until(
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
+        )
         return True
-    return False
+    except TimeoutException:
+        return False
 
 def check_xpath(driver, xpath, idx, i):
     try:

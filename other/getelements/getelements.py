@@ -160,7 +160,7 @@ def main_menu(driver):
 # 设置Desired Capabilities
 desired_caps = {
     'platformName': 'Android',
-    'platformVersion': '8',
+    'platformVersion': '12',
     # 'deviceName': device_name,
     # 'udid': '8RYBB18404152438',
     # 'appPackage': 'com.xiangshi.bjxsgc',

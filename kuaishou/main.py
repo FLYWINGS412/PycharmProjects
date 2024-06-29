@@ -8,7 +8,7 @@ from appium.webdriver.common.touch_action import TouchAction
 desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'deviceName': 'toutiao',
+    'deviceName': 'kuaishou',
     'udid': '127.0.0.1:21503',
     # 'appPackage': 'com.xiangshi.bjxsgc',
     # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',

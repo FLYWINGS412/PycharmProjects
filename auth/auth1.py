@@ -58,7 +58,8 @@ def auto_login(driver, phone=None, password=None, accounts=None):
         expected_launcher_activity = "com.xiangshi.bjxsgc.activity.LauncherActivity"
         print(f"当前活动: {current_activity}")
         if expected_launcher_activity not in current_activity:
-            print("未在启动页，可能已登录，尝试注销。")
+            print("未在启动页，可能已登录。等待15秒后尝试注销。")
+            time.sleep(15)  # 等待一段时间，可能是因为应用刚启动需要时间加载
             if not auto_logout(driver):
                 print("注销尝试失败。")
             return False
@@ -152,7 +153,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
         time.sleep(random.randint(2, 5))
 
         # 等待页面加载
-        time.sleep(10)
+        time.sleep(15)
 
         # 首页红包奖励
         popups.home_video_bonus(driver)
@@ -178,6 +179,9 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 # 自动退出
 def auto_logout(driver):
     try:
+        # 等待页面加载
+        time.sleep(5)
+
         # 获取当前活动并检查是否已经在主界面
         current_activity = utils.get_current_activity(driver)
         expected_main_activity = "com.xiangshi.main.activity.MainActivity"
