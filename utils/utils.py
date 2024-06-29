@@ -30,7 +30,6 @@ def click_close_button(driver):
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
-                time.sleep(2)  # 等待页面加载
 
                 assets_page_result = [False]
                 ad_page_result = [False]
@@ -100,6 +99,7 @@ def get_close_button(driver):
     second_min_distance = float('inf')
     close_button = None
     second_close_button = None
+    time.sleep(2)  # 等待页面加载
 
     while attempts < 5 and not close_button:  # 尝试次数限制
         start_time = time.time()  # 记录查找开始时间
