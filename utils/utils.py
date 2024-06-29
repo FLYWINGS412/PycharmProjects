@@ -35,6 +35,7 @@ def click_close_button(driver):
                 ad_page_result = [False]
                 event = threading.Event()
 
+                time.sleep(1)  # 等待页面加载
                 def check_assets_page():
                     assets_page_result[0] = is_on_assets_page(driver)
                     # print(f"检查资产页结果: {assets_page_result[0]}")
@@ -99,7 +100,6 @@ def get_close_button(driver):
     second_min_distance = float('inf')
     close_button = None
     second_close_button = None
-    time.sleep(2)  # 等待页面加载
 
     while attempts < 5 and not close_button:  # 尝试次数限制
         start_time = time.time()  # 记录查找开始时间
