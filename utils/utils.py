@@ -30,12 +30,12 @@ def click_close_button(driver):
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
+                time.sleep(1)  # 等待页面加载
 
                 assets_page_result = [False]
                 ad_page_result = [False]
                 event = threading.Event()
 
-                time.sleep(1)  # 等待页面加载
                 def check_assets_page():
                     assets_page_result[0] = is_on_assets_page(driver)
                     # print(f"检查资产页结果: {assets_page_result[0]}")
