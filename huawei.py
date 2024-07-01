@@ -159,10 +159,6 @@ def main():
         {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
         {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
         {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
-        # {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
-        # {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
-        # {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
-        # {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
     ]
 
     # 关注列表
