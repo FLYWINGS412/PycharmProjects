@@ -1,37 +1,21 @@
-import re
-import os
-import time
-import uuid
-import random
-import threading
-import subprocess
-from time import sleep
 from appium import webdriver
-from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
-from appium.webdriver.common.touch_action import TouchAction
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from selenium.webdriver.support import expected_conditions as EC
-from appium.webdriver.extensions.android.nativekey import AndroidKey
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from auth import auth
 from tasks import tasks
 from utils import utils
-from popups import popups
 
 # 全局变量
 driver = None
-device_name = 'main-2'
+device_name = 'huawei'
 
 # 驱动参数
 def create_driver():
     global driver
     desired_caps = {
         'platformName': 'Android',
-        'platformVersion': '12',
+        'platformVersion': '8',
         'deviceName': device_name,
-        'udid': 'localhost:16416',
+        'udid': '8RYBB18404152438',
         'appPackage': 'com.xiangshi.bjxsgc',
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'automationName': 'UiAutomator2',
@@ -146,23 +130,19 @@ def main():
 
     # 帐号列表
     accounts = [
-        # {'name': 'WY', 'phone': '13883122290', 'password': '412412'},
-        # {'name': 'WY', 'phone': '17782070003', 'password': '412412'},
-        # {'name': 'WY', 'phone': '17788487195', 'password': '412412'},
-        # {'name': 'WY', 'phone': '13308322330', 'password': '412412'},
-        # {'name': 'WY', 'phone': '17330966207', 'password': '412412'},
-        # {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
-        # {'name': 'WY', 'phone': '19122094023', 'password': '412412'},
-        # {'name': 'WY', 'phone': '18996925404', 'password': '412412'},
-        # {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
+        {'name': 'WY', 'phone': '13883122290', 'password': '412412'},
+        {'name': 'WY', 'phone': '17782070003', 'password': '412412'},
+        {'name': 'WY', 'phone': '17788487195', 'password': '412412'},
+        {'name': 'WY', 'phone': '13308322330', 'password': '412412'},
+        {'name': 'WY', 'phone': '17330966207', 'password': '412412'},
+        {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
+        {'name': 'WY', 'phone': '19122094023', 'password': '412412'},
+        {'name': 'WY', 'phone': '18996925404', 'password': '412412'},
+        {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
         {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
         {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
         {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
         {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
-        {'name': 'TJ', 'phone': '16623393179', 'password': '412412'},
-        {'name': 'TJ', 'phone': '16623490422', 'password': '412412'},
-        {'name': 'TJ', 'phone': '13983801809', 'password': 'xxf851101'},
-        {'name': 'TJ', 'phone': '15683627751', 'password': 'xxf851101'}
     ]
 
     # 关注列表
