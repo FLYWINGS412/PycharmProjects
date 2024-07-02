@@ -1,24 +1,14 @@
-import re
 import os
 import time
-import uuid
 import random
-import threading
-import subprocess
-from time import sleep
-from appium import webdriver
 from appium.webdriver.common.mobileby import MobileBy
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
-from auth import auth
-from tasks import tasks
-from utils import utils
-from popups import popups
+from selenium.common.exceptions import TimeoutException
+from xiangshi.utils import utils
+from xiangshi.popups import popups
+
 
 # 保存当前任务和帐号进度
 def save_progress(device_name, task_index, account_index):
@@ -58,8 +48,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
         expected_launcher_activity = "com.xiangshi.bjxsgc.activity.LauncherActivity"
         print(f"当前活动: {current_activity}")
         if expected_launcher_activity not in current_activity:
-            print("未在启动页，可能已登录。等待15秒后尝试注销。")
-            time.sleep(15)  # 等待一段时间，可能是因为应用刚启动需要时间加载
+            print("未在启动页，可能已登录，尝试注销。")
             if not auto_logout(driver):
                 print("注销尝试失败。")
             return False
@@ -153,7 +142,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
         time.sleep(random.randint(2, 5))
 
         # 等待页面加载
-        time.sleep(15)
+        time.sleep(10)
 
         # 首页红包奖励
         popups.home_video_bonus(driver)
@@ -179,9 +168,6 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 # 自动退出
 def auto_logout(driver):
     try:
-        # 等待页面加载
-        time.sleep(5)
-
         # 获取当前活动并检查是否已经在主界面
         current_activity = utils.get_current_activity(driver)
         expected_main_activity = "com.xiangshi.main.activity.MainActivity"

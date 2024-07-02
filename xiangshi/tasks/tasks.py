@@ -1,29 +1,23 @@
 import re
-import os
 import time
-import uuid
 import random
 import threading
-import subprocess
-from time import sleep
-from appium import webdriver
 from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
-from appium.webdriver.common.touch_action import TouchAction
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
-from auth import auth
-from tasks import tasks
-from utils import utils
-from popups import popups
+from xiangshi.utils import utils
+from xiangshi.popups import popups
+
 
 # 首页红包奖励
 def handle_home_page_video(driver, account):
     # 首页红包奖励
-    popups.home_video_bonus(driver)
+    if not popups.home_video_bonus(driver):
+        return False
 
     try:
         while True:
@@ -33,7 +27,8 @@ def handle_home_page_video(driver, account):
             utils.swipe_to_scroll(driver)
 
             # 检查首页红包奖励
-            popups.home_video_bonus(driver)
+            if not popups.home_video_bonus(driver):
+                return False
 
             # 等待页面完成加载
             time.sleep(1)
@@ -48,7 +43,8 @@ def handle_home_page_video(driver, account):
             time.sleep(random_sleep)
 
             # 检查首页红包奖励
-            popups.home_video_bonus(driver)
+            if not popups.home_video_bonus(driver):
+                return False
 
             # 立即检查首页红包奖励是否存在
             elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
@@ -64,7 +60,8 @@ def handle_home_page_video(driver, account):
                 print("未找到首页红包奖励，再次检查弹窗")
 
                 # 检查首页红包奖励
-                popups.home_video_bonus(driver)
+                if not popups.home_video_bonus(driver):
+                    return False
 
                 # 立即检查首页红包奖励是否存在
                 elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
@@ -216,7 +213,8 @@ def collect_rewards(driver, account):
         time.sleep(random.randint(2, 5))
 
         # 每日股东分红
-        popups.daily_dividend_distribution(driver)
+        if not popups.daily_dividend_distribution(driver):
+            return False
 
         # 点击领取
         try:
@@ -224,7 +222,8 @@ def collect_rewards(driver, account):
                 start_time = time.time()  # 记录循环开始时间
 
                 # 整点红包奖励
-                popups.hourly_bonus(driver)
+                if not popups.hourly_bonus(driver):
+                    return False
 
                 try:
                     miss_bubble_element = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
@@ -268,7 +267,8 @@ def collect_rewards(driver, account):
             start_time = time.time()  # 记录循环开始时间
 
             # 整点红包
-            popups.hourly_bonus(driver)
+            if not popups.hourly_bonus(driver):
+                return False
 
             found = False
             for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
@@ -315,11 +315,49 @@ def handle_display_page(driver):
     )
 
     element_to_wait = None  # 初始化 element_to_wait 为 None
+    event = threading.Event()  # 用于同步倒计时结束的事件
+
+    # 第一种检查倒计时的方法
+    def check_countdown_by_text_view():
+        nonlocal element_to_wait
+        text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
+        for text_view in text_views:
+            location = text_view.location
+            size = text_view.size
+            top_y = location['y']
+            if top_y < driver.height * 0.15:
+                element_to_wait = text_view
+                print("找到倒计时元素（'S'）")
+                event.set()
+                break
+
+    # 第二种检查倒计时的方法（长度为1或3的纯数字倒计时）
+    def check_countdown_by_numeric():
+        nonlocal element_to_wait
+        text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)]")
+        for text_view in text_views:
+            location = text_view.location
+            size = text_view.size
+            top_y = location['y']
+            if top_y < driver.height * 0.15:
+                element_to_wait = text_view
+                print("找到倒计时元素（'数字'）")
+                event.set()
+                break
+
+    # 检查其他可能的倒计时元素
+    def check_countdown_by_id():
+        nonlocal element_to_wait
+        countdown_element = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+        if countdown_element:
+            element_to_wait = countdown_element[0]
+            print("找到倒计时元素（'ID'）")
+            event.set()
 
     try:
         start_time = time.time()
         timeout = 35
-        time.sleep(3)
+        time.sleep(2)
         popup_texts = ["放弃", "离开", "取消"]
 
         while True:
@@ -332,87 +370,58 @@ def handle_display_page(driver):
             # 展示页弹窗
             popups.display_page_popup(driver, popup_texts)
 
-            # 检查倒计时是否消失
-            try:
-                # 如果已经找到倒计时元素，则只检查其状态
-                if element_to_wait and isinstance(element_to_wait, WebElement):
-                    try:
-                        WebDriverWait(driver, 1).until(
-                            lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None or
-                                           not element_to_wait.is_displayed()
-                        )
-                        print("倒计时结束。")
-                        break  # 结束while循环
-                    except TimeoutException:
-                        # print("继续监控倒计时。")
-                        continue  # 继续while循环
-                    except StaleElementReferenceException:
-                        print("倒计时元素已从DOM中移除，倒计时结束。")
-                        break  # 退出循环，认为倒计时结束
+            # 如果已经找到倒计时元素，则只检查其状态
+            if element_to_wait and isinstance(element_to_wait, WebElement):
+                try:
+                    WebDriverWait(driver, 0).until(
+                        lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None
+                    )
+                    print("倒计时结束。")
+                    break  # 结束while循环
+                except TimeoutException:
+                    continue  # 继续while循环
+                except StaleElementReferenceException:
+                    print("倒计时元素已从DOM中移除，倒计时结束。")
+                    break  # 退出循环，认为倒计时结束
 
-                # 第一种检查倒计时的方法
-                text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
-                for text_view in text_views:
-                    location = text_view.location
-                    size = text_view.size
-                    top_y = location['y']
-                    if top_y < driver.height * 0.15:
-                        element_to_wait = text_view
-                        print("找到倒计时元素（'S'）")
-                        break
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                futures = [
+                    executor.submit(check_countdown_by_text_view),
+                    executor.submit(check_countdown_by_numeric),
+                    executor.submit(check_countdown_by_id)
+                ]
 
-                # 第二种检查倒计时的方法（长度为1或3的纯数字倒计时）
-                if not element_to_wait:
-                    text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)]")
-                    for text_view in text_views:
-                        location = text_view.location
-                        size = text_view.size
-                        top_y = location['y']
-                        if top_y < driver.height * 0.15:
-                            element_to_wait = text_view
-                            print("找到倒计时元素（'数字'）")
-                            break
+                event.wait(timeout=5)  # 等待任一检查线程找到倒计时元素
 
-                # 检查其他可能的倒计时元素
-                if not element_to_wait:
-                    countdown_element = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
-                    if countdown_element:
-                        element_to_wait = countdown_element[0]
-                        print("找到倒计时元素（'ID'）")
+                for future in as_completed(futures):
+                    future.cancel()  # 取消未完成的任务
 
-                if not element_to_wait:
-                    print("未找到倒计时元素，可能页面已刷新。")
-                    break
-
-            except NoSuchElementException:
-                print("未找到倒计时元素，等待剩余时间后退出。")
-                remaining_time = start_time + timeout - time.time()
-                if remaining_time > 0:
-                    time.sleep(remaining_time)
-                break
-            except Exception as e:
-                print(f"发生错误: {e}")
+            if not element_to_wait:
+                print("未找到倒计时元素，可能页面已刷新。")
                 break
 
-        # 展示页弹窗
-        popups.display_page_popup(driver, popup_texts)
-
-        # 调用点击元素函数
-        if not utils.click_close_button(driver):
-            return False
-
-    except TimeoutException as e:
-        print("处理展示页时发生超时异常: ", str(e))
-        return False
+    except NoSuchElementException:
+        print("未找到倒计时元素，等待剩余时间后退出。")
+        remaining_time = start_time + timeout - time.time()
+        if remaining_time > 0:
+            time.sleep(remaining_time)
     except Exception as e:
-        print("处理展示页时发生错误: ", str(e))
+        print(f"发生错误: {e}")
+
+    # 展示页弹窗
+    popups.display_page_popup(driver, popup_texts)
+
+    # 调用点击元素函数
+    if not utils.click_close_button(driver):
         return False
+
     return True
 
 # 关注
 def follow(driver, account, follow_list):
     # 首页红包奖励
-    popups.home_video_bonus(driver)
+    if not popups.home_video_bonus(driver):
+        return False
 
     # 检查首页红包奖励是否完成
     elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
@@ -468,7 +477,8 @@ def follow(driver, account, follow_list):
 def unfollow(driver, account, follow_list):
     try:
         # 首页红包奖励
-        popups.home_video_bonus(driver)
+        if not popups.home_video_bonus(driver):
+            return False
 
         # 检查首页红包奖励是否完成
         elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
