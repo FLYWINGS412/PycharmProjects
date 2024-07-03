@@ -3,8 +3,6 @@ import cv2
 import time
 import random
 import numpy as np
-import pytesseract
-from PIL import Image
 from appium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -82,7 +80,7 @@ def find_element_with_retry(driver, by, value, retries=3, wait_time=10, switch_c
 
     raise e
 
-# 设置 Tesseract 可执行文件的路径
+# 图像对比
 def get_progress_bar_value(driver, bounds):
     screenshot_dir = "screenshot"
     if not os.path.exists(screenshot_dir):
@@ -92,18 +90,19 @@ def get_progress_bar_value(driver, bounds):
     cropped_screenshot_path = os.path.join(screenshot_dir, "cropped_screenshot.png")
 
     driver.save_screenshot(screenshot_path)
-    image = Image.open(screenshot_path)
-    cropped_image = image.crop(bounds)  # 根据bounds裁剪图像
-    cropped_image.save(cropped_screenshot_path)
 
-    # 读取图像
-    image = cv2.imread(cropped_screenshot_path)
-
+    # 使用 OpenCV 读取图像
+    image = cv2.imread(screenshot_path)
     if image is None:
-        raise ValueError(f"Cannot read the image file: {cropped_screenshot_path}")
+        raise ValueError(f"Cannot read the image file: {screenshot_path}")
+
+    # 裁剪图像
+    x1, y1, x2, y2 = bounds
+    cropped_image = image[y1:y2, x1:x2]
+    cv2.imwrite(cropped_screenshot_path, cropped_image)
 
     # 转换为 HSV 颜色空间
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    hsv_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2HSV)
 
     # 定义红色的范围
     lower_red1 = np.array([0, 100, 100])
