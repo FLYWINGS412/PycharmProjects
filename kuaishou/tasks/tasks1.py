@@ -1,71 +1,74 @@
 import time
 import random
-from appium import webdriver
 from selenium.webdriver.common.by import By
 from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from appium.webdriver.extensions.android.nativekey import AndroidKey
+from utils import find_element_with_retry, swipe_to_scroll, get_progress_bar_value, check_and_return_to_home
 
-def setUp():
-    desired_caps = {
-        'platformName': 'Android',
-        'platformVersion': '9',
-        'deviceName': 'kuaishou',
-        'udid': '7d1f9eba',
-        'automationName': 'UiAutomator2',
-        'settings[waitForIdleTimeout]': 10,
-        'settings[waitForSelectorTimeout]': 10,
-        'newCommandTimeout': 21600,
-        'unicodeKeyboard': True,
-        'resetKeyboard': True,
-        'noReset': True,
-    }
+# 首页看视频
+def watch_home_videos(driver):
+    print("开始首页看视频")
+    prev_progress_value = None
+    loop_count = 0
 
-    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
-    return driver
+    # 检查并点击“点击翻倍”按钮
+    try:
+        double_button = find_element_with_retry(driver, By.ANDROID_UIAUTOMATOR,
+                                                'new UiSelector().text("点击翻倍")', retries=1)
+        double_button.click()
+        print("点击了'点击翻倍'按钮")
+    except Exception:
+        pass  # 如果找不到“点击翻倍”按钮，就继续执行下面的代码
 
-def check_and_return_to_home(driver):
+    start_time = time.time()
     while True:
-        current_activity = driver.current_activity
-        print(f"当前页面: {current_activity}")
-        if current_activity == 'com.yxcorp.gifshow.HomeActivity':
-            print("已回到任务页，重新开始循环")
-            break
-        else:
-            print("未回到任务页，再次按返回键")
-            driver.press_keycode(AndroidKey.BACK)
-            time.sleep(2)  # 增加一点等待时间，确保页面有时间响应
 
-def find_element_with_retry(driver, by, value, retries=3, wait_time=10):
-    for i in range(retries):
+        # 检查进度条
         try:
-            element = WebDriverWait(driver, wait_time).until(
-                EC.presence_of_element_located((by, value))
-            )
-            return element
+            progress_bar = find_element_with_retry(driver, By.ID, "com.kuaishou.nebula:id/circular_progress_bar", retries=1)
+
+            if loop_count % 1 == 0:  # 每200秒进行连续截图比较
+                progress_value_1 = get_progress_bar_value(driver)
+                time.sleep(10)
+                progress_value_2 = get_progress_bar_value(driver)
+
+                if progress_value_1 == progress_value_2:
+                    print("进度条没有变化，翻页...")
+                    swipe_to_scroll(driver)
+                    loop_count = 0  # 重置计数器
+                else:
+                    print("进度条有变化，继续等待...")
+            else:
+                print("进度条存在，继续等待...")
+
+            # 增加循环次数
+            loop_count += 1
+            end_time = time.time()
+            loop_duration = end_time - start_time
+            print(f"本次用时: {loop_duration:.2f} 秒")
+
         except Exception as e:
-            print(f"尝试查找元素失败，第 {i+1} 次重试...")
-            time.sleep(2)  # 增加等待时间
-    raise e  # 如果所有重试都失败，抛出异常
+            print(f"进度条不存在，翻页...")
+            swipe_to_scroll(driver)
+            loop_count = 0  # 重置计数器
 
+# 看精选直播
 def watch_featured_live_stream(driver):
-    # 切换到WebView上下文（如果适用）
-    for context in driver.contexts:
-        if 'WEBVIEW' in context:
-            driver.switch_to.context(context)
-            break
-
     loop_count = 0
 
     while True:
         start_time = time.time()
         try:
+            # 切换到 WebView 上下文
+            for context in driver.contexts:
+                if 'WEBVIEW' in context:
+                    driver.switch_to.context(context)
+                    break
+
             # 尝试查找“去看看”按钮并点击
-            element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ANDROID_UIAUTOMATOR,
-                                                'new UiSelector().text("去看看")'))
-            )
+            element = find_element_with_retry(driver, By.ANDROID_UIAUTOMATOR,
+                                              'new UiSelector().text("去看看")', retries=10, wait_time=10)
             element.click()
             print("开始看直播")
 
@@ -97,12 +100,7 @@ def watch_featured_live_stream(driver):
             # 等待15分钟
             time.sleep(15 * 60)
 
-            # 检查并点击'做任务'的TextView
-            task_element = WebDriverWait(driver, 60).until(
-                EC.presence_of_element_located((By.ANDROID_UIAUTOMATOR, 'new UiSelector().text("做任务")'))
-            )
-            if task_element:
-                check_and_return_to_home(driver)
+            check_and_return_to_home(driver)
 
             # 增加循环次数
             loop_count += 1
@@ -114,6 +112,7 @@ def watch_featured_live_stream(driver):
             print(f"Error: {e}")
             break
 
+# 取消关注
 def cancel_following(driver):
     # 滚动到最上方
     driver.find_element(MobileBy.ANDROID_UIAUTOMATOR,
@@ -154,31 +153,4 @@ def cancel_following(driver):
             break
 
     # 返回任务页
-    check_and_return_to_home
-
-def tearDown(driver):
-    driver.quit()
-
-def main():
-    driver = setUp()
-    try:
-        while True:
-            print("请选择要执行的任务:")
-            print("1. 看精选直播")
-            print("2. 取消关注")
-            choice = input("输入选项编号并按回车: ")
-
-            if choice == '1':
-                watch_featured_live_stream(driver)
-                break
-            elif choice == '2':
-                cancel_following(driver)
-                break
-            else:
-                print("无效选项，请重新选择")
-
-    finally:
-        tearDown(driver)
-
-if __name__ == "__main__":
-    main()
+    check_and_return_to_home(driver)
