@@ -10,9 +10,9 @@ from tasks import watch_home_videos, watch_featured_live_stream, cancel_followin
 def setUp():
     desired_caps = {
         'platformName': 'Android',
-        'platformVersion': '9',
+        'platformVersion': '7',
         'deviceName': 'xiaoyao',
-        'udid': '127.0.0.1:21503',
+        'udid': '127.0.0.1:21513',
         'automationName': 'UiAutomator2',
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
