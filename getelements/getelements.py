@@ -107,6 +107,25 @@ def take_screenshot(driver):
     driver.save_screenshot(screenshot_file)
     print(f"截图已保存到: {screenshot_file}")
 
+def get_current_activity(driver):
+    """
+    选择使用 adb 命令或 driver.current_activity 获取当前活动的 Activity 名称。
+    """
+    print("选择获取当前活动页面的方式:")
+    print("1: 使用 ADB 命令    2: 使用 driver.current_activity")
+    choice = input("请输入选项 (1-2)：")
+
+    if choice == '1':
+        return get_current_activity_adb()
+    elif choice == '2':
+        try:
+            current_activity = driver.current_activity
+            return f"当前页面: {current_activity}"
+        except WebDriverException as e:
+            return f"获取当前活动页面时发生错误: {e}"
+    else:
+        return "无效的选择。"
+
 def get_current_activity_adb():
     """
     使用 adb 命令获取当前活动的 Activity 名称。
@@ -127,21 +146,40 @@ def get_current_activity_adb():
     except Exception as e:
         return f"获取当前 Activity 时发生错误: {e}"
 
+def get_device_resolution():
+    """
+    使用 adb 命令获取设备分辨率。
+    """
+    try:
+        result = subprocess.run(["adb", "shell", "wm", "size"], capture_output=True, text=True)
+        resolution_match = re.search(r'Physical size: (\d+x\d+)', result.stdout)
+        if resolution_match:
+            resolution = resolution_match.group(1)
+            return f"设备分辨率: {resolution}"
+        return "无法获取设备分辨率。"
+    except subprocess.CalledProcessError as e:
+        return f"执行 adb 命令时发生错误: {e}"
+    except Exception as e:
+        return f"获取设备分辨率时发生错误: {e}"
+
 def main_menu(driver):
     """
     显示主菜单并处理用户选择的操作。
     """
     while True:
         print("选择要检测的元素类型:")
-        print("1: Class    2: Resource-ID    3: Text    4: Content-Desc    5: XPath    6: 页面名    7: 截图    8: 退出")
-        choice = input("请输入选项 (1-8)：")
-        if choice == '8':
+        print("1: Class    2: Resource-ID    3: Text    4: Content-Desc    5: XPath    6: 页面名    7: 截图    8: 分辨率    9: 退出")
+        choice = input("请输入选项 (1-9)：")
+        if choice == '9':
             print("退出程序。")
             break
+        elif choice == '8':
+            resolution = get_device_resolution()
+            print(resolution)
         elif choice == '7':
             take_screenshot(driver)
         elif choice == '6':
-            activity_name = get_current_activity_adb()
+            activity_name = get_current_activity(driver)
             print(activity_name)
         else:
             attribute_map = {
