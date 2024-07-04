@@ -57,46 +57,28 @@ def switch_to_native_context(driver):
             return True
     print("未找到Native上下文")
     return False
-#
-# # 查找元素
-# def find_element_with_retry(driver, by, value, retries=3, wait_time=10, switch_context=False):
-#     if switch_context:
-#         if not switch_to_webview_context(driver):
-#             raise Exception("未找到 WebView 上下文")
-#
-#     for i in range(retries):
-#         try:
-#             element = WebDriverWait(driver, wait_time).until(
-#                 EC.presence_of_element_located((by, value))
-#             )
-#             return element
-#         except Exception as e:
-#             print(f"尝试查找元素失败，第 {i+1} 次重试...")
-#             time.sleep(2)
-#
-#     if switch_context:
-#         if not switch_to_native_context(driver):
-#             raise Exception("未找到 Native 上下文")
-#
-#     raise e
 
 # 查找元素
-def find_element_with_retry(driver, by, value, retries=3, wait_time=10):
+def find_element_with_retry(driver, by, value, retries=3, wait_time=10, switch_context=False):
+    if switch_context:
+        if not switch_to_webview_context(driver):
+            raise Exception("未找到 WebView 上下文")
+
     for i in range(retries):
         try:
-            # # 切换到 WebView 上下文（如果适用）
-            # for context in driver.contexts:
-            #     if 'WEBVIEW' in context:
-            #         driver.switch_to.context(context)
-            #         break
             element = WebDriverWait(driver, wait_time).until(
                 EC.presence_of_element_located((by, value))
             )
             return element
         except Exception as e:
-            print(f"尝试查找元素失败，第 {i+1} 次重试...异常信息: {str(e)}")
-            time.sleep(2)  # 增加等待时间
-    raise e  # 如果所有重试都失败，抛出异常
+            print(f"尝试查找元素失败，第 {i+1} 次重试...")
+            time.sleep(2)
+
+    if switch_context:
+        if not switch_to_native_context(driver):
+            raise Exception("未找到 Native 上下文")
+
+    raise e
 
 # 图像对比
 def get_progress_bar_value(driver, bounds):

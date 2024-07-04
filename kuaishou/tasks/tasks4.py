@@ -28,7 +28,7 @@ def watch_home_videos(driver):
     while True:
         # 检查进度条
         try:
-            progress_bar = WebDriverWait(driver, 3).until(
+            progress_bar = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "com.kuaishou.nebula:id/circular_progress_bar"))
             )
             bounds = progress_bar.get_attribute('bounds')
@@ -40,20 +40,16 @@ def watch_home_videos(driver):
                 progress_value_2 = get_progress_bar_value(driver, bounds)
 
                 if progress_value_1 == progress_value_2:
+                    print("进度条没有变化，翻页...")
                     swipe_to_scroll(driver)
                     loop_count = 0  # 重置计数器
                     end_time = time.time()
                     loop_duration = end_time - start_time
-                    print(f"本次用时: {loop_duration:.2f} 秒，进度条没有变化，翻页。")
-                    start_time = time.time()  # 在翻页后重置时间
+                    print(f"本次用时: {loop_duration:.2f} 秒")
                 else:
-                    end_time = time.time()
-                    loop_duration = end_time - start_time
-                    print(f"用时: {loop_duration:.2f} 秒，进度条有变化。")
+                    print("进度条有变化，继续等待...")
             else:
-                # end_time = time.time()
-                # loop_duration = end_time - start_time
-                # print(f"用时: {loop_duration:.2f} 秒，进度条存在，继续等待...")
+                # print("进度条存在，继续等待...")
                 pass
 
             # 增加循环次数
@@ -61,12 +57,12 @@ def watch_home_videos(driver):
             loop_count += 1
 
         except Exception as e:
+            print(f"进度条不存在，翻页...")
             swipe_to_scroll(driver)
             loop_count = 0  # 重置计数器
             end_time = time.time()
             loop_duration = end_time - start_time
-            print(f"本次用时: {loop_duration:.2f} 秒，进度条不存在，翻页。")
-            start_time = time.time()  # 在翻页后重置时间
+            print(f"本次用时: {loop_duration:.2f} 秒")
 
 # 看精选直播
 def watch_featured_live_stream(driver):
@@ -104,36 +100,23 @@ def watch_featured_live_stream(driver):
             # except Exception as e:
             #     print("未点开宝箱")
 
-            # # 切换回 WebView 上下文
-            # print("尝试切换到WebView上下文")
-            # if not switch_to_webview_context(driver):
-            #     raise Exception("未找到 WebView 上下文")
+            # 切换回 WebView 上下文
+            print("尝试切换到WebView上下文")
+            if not switch_to_webview_context(driver):
+                raise Exception("未找到 WebView 上下文")
 
             # 尝试查找“去看看”按钮并点击
-            element = find_element_with_retry(driver, By.ANDROID_UIAUTOMATOR, 'new UiSelector().text("看直播")', retries=3, switch_context=True)
+            element = find_element_with_retry(driver, By.ANDROID_UIAUTOMATOR, 'new UiSelector().text("去浏览")', retries=3, switch_context=True)
             element.click()
             print("开始看直播")
-            #
-            # # 切换回 Native 上下文
-            # print("尝试切换到Native上下文")
-            # if not switch_to_native_context(driver):
-            #     raise Exception("未找到 Native 上下文")
 
-            # # 尝试查找“去看看”按钮并点击
-            # element = find_element_with_retry(driver, By.ANDROID_UIAUTOMATOR,
-            #                                   'new UiSelector().textContains("点可领")', retries=10, wait_time=10)
-            # element.click()
-            # print("开始看直播")
-            #
-            # # 等待15秒
-            # time.sleep(15)
+            # 切换回 Native 上下文
+            print("尝试切换到Native上下文")
+            if not switch_to_native_context(driver):
+                raise Exception("未找到 Native 上下文")
 
-            # # 查找小尺寸的关闭按钮并点击
-            # xpath_expression = "//android.widget.Image[@width > 70 and @width < 80 and @height > 70 and @height < 80]"
-            # close_button = find_element_with_retry(driver, By.XPATH, xpath_expression, retries=5, wait_time=5)
-            # close_button.click()
-            # print("点击了关闭按钮")
-            # time.sleep(random.randint(2, 5))
+            # 等待15秒
+            time.sleep(15)
 
             # 检查是否有“看播中”元素
             try:
