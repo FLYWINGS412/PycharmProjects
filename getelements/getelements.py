@@ -162,17 +162,33 @@ def get_device_resolution():
     except Exception as e:
         return f"获取设备分辨率时发生错误: {e}"
 
+def get_all_contexts(driver):
+    """
+    获取所有可用的上下文并打印出来。
+
+    :param driver: WebDriver对象
+    """
+    try:
+        contexts = driver.contexts
+        print("可用的上下文:")
+        for context in contexts:
+            print(context)
+    except WebDriverException as e:
+        print(f"获取上下文时发生错误: {e}")
+
 def main_menu(driver):
     """
     显示主菜单并处理用户选择的操作。
     """
     while True:
         print("选择要检测的元素类型:")
-        print("1: Class    2: Resource-ID    3: Text    4: Content-Desc    5: XPath    6: 页面名    7: 截图    8: 分辨率    9: 退出")
-        choice = input("请输入选项 (1-9)：")
-        if choice == '9':
+        print("1: Class    2: Resource-ID    3: Text    4: Content-Desc    5: XPath    6: 页面名    7: 截图    8: 分辨率    9: 所有上下文    10: 退出")
+        choice = input("请输入选项 (1-10)：")
+        if choice == '10':
             print("退出程序。")
             break
+        elif choice == '9':
+            get_all_contexts(driver)
         elif choice == '8':
             resolution = get_device_resolution()
             print(resolution)
