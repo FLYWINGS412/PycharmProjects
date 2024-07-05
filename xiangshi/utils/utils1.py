@@ -124,10 +124,6 @@ def get_close_button(driver):
                 if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.15:
                     continue
 
-                # 排除指定坐标和大小的元素
-                if element.location['x'] == 646 and element.location['y'] == 48 and element.size['height'] == 25 and element.size['width'] == 25:
-                    continue
-
                 # 优先检查元素是否可见和可点击
                 if not (element.is_displayed() and element.is_enabled()):
                     continue
