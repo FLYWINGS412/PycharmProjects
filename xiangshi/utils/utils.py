@@ -79,7 +79,7 @@ def click_close_button(driver):
     return False
 
 # 多线程查找关闭按钮元素
-def get_elements(driver, by, value, wait_time=3):
+def get_elements(driver, by, value, wait_time):
     try:
         driver.implicitly_wait(wait_time)
         return driver.find_elements(by, value)
@@ -100,8 +100,8 @@ def get_close_button(driver):
         with ThreadPoolExecutor(max_workers=2) as executor:
             # 创建两个查找任务
             futures = [
-                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView", 3),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]", 3)
+                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView",3),
+                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]",3)
             ]
 
             elements = []
