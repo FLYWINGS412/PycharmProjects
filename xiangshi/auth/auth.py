@@ -1,14 +1,22 @@
+import re
 import os
 import time
 import random
+import threading
+import subprocess
+from appium import webdriver
 from appium.webdriver.common.mobileby import MobileBy
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
-from selenium.common.exceptions import TimeoutException
-from xiangshi.utils import utils
-from xiangshi.popups import popups
-
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from auth import auth
+from tasks import tasks
+from utils import utils
+from popups import popups
 
 # 保存当前任务和帐号进度
 def save_progress(device_name, task_index, account_index):
