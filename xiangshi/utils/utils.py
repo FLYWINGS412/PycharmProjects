@@ -115,7 +115,11 @@ def get_close_button(driver):
                 if close_button:  # 如果已经找到合适的关闭按钮，跳过处理
                     future.cancel()  # 取消未完成的任务（注意：这不能真正停止正在执行的任务）
                     continue
-                elements.extend(future.result())
+                try:
+                    elements.extend(future.result())
+                except Exception as e:
+                    print(f"在获取元素时发生错误：{e}")
+                    continue
 
         for element in elements:
             try:
@@ -154,6 +158,9 @@ def get_close_button(driver):
 
             except StaleElementReferenceException:
                 break  # 退出内部循环，将触发外部循环重新获取元素
+            except Exception as e:
+                print(f"处理元素时发生错误：{e}")
+                continue
 
         if close_button:
             break  # 找到合适的关闭按钮，提前退出循环
