@@ -100,8 +100,8 @@ def get_close_button(driver):
         with ThreadPoolExecutor(max_workers=2) as executor:
             # 创建两个查找任务
             futures = [
-                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView",3),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]",3)
+                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView",0),
+                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]",0)
             ]
 
             elements = []
