@@ -91,6 +91,9 @@ def get_elements(driver, wait_time, by, value):
         return driver.find_elements(by, value)
     except StaleElementReferenceException:
         return []
+    except Exception as e:
+        print(f"在获取元素时发生错误：{e}")
+        return []
 
 # 获取关闭按钮
 def get_close_button(driver):
