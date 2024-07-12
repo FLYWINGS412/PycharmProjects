@@ -88,8 +88,21 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        elements = WebDriverWait(driver, 2).until(EC.visibility_of_all_elements_located((by, value)))
+        elements = WebDriverWait(driver, 0).until(EC.visibility_of_all_elements_located((by, value)))
         print(f"找到 {len(elements)} 个元素使用 {by} 和 {value}")  # 添加调试信息
+        return elements
+    except TimeoutException:
+        print("在指定时间内没有找到元素")  # 添加调试信息
+        return []
+
+# 使用 Android UI Automator 查找元素
+def get_elements_with_uiautomator(driver, uiautomator_string):
+    try:
+        # 使用 Android UI Automator 直接查找元素
+        elements = WebDriverWait(driver, 2).until(
+            EC.visibility_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string))
+        )
+        print(f"找到 {len(elements)} 个可见元素使用 UI Automator: {uiautomator_string}")  # 添加调试信息
         return elements
     except TimeoutException:
         print("在指定时间内没有找到元素")  # 添加调试信息
@@ -108,8 +121,10 @@ def get_close_button(driver):
         print(f"尝试次数 {attempts + 1}")  # 添加调试信息
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [
-                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                # executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
+                # executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                executor.submit(get_elements_with_uiautomator, driver, 'new UiSelector().className("android.widget.ImageView").description("close")'),
+                executor.submit(get_elements_with_uiautomator, driver, 'new UiSelector().className("android.widget.TextView").textContains("跳过")')
             ]
 
             elements = []
