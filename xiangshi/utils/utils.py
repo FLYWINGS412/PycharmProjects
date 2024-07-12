@@ -133,8 +133,7 @@ def get_close_button(driver):
                     if close_button:
                         future.cancel()
                         continue
-                    result = future.result()
-                    elements.extend(result)
+                    elements.extend(future.result())
                     # print(f"当前总找到的元素数量: {len(elements)}")  # 添加调试信息
             except Exception as e:
                 print(f"处理异步任务时出错: {e}")  # 处理所有可能的异常
