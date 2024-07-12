@@ -88,9 +88,11 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        return WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
+        elements = WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
+        print(f"找到 {len(elements)} 个元素使用 {by} 和 {value}")  # 添加调试信息
+        return elements
     except TimeoutException:
-        # 如果在指定时间内没有找到元素，则返回空列表
+        print("在指定时间内没有找到元素")  # 添加调试信息
         return []
 
 # 获取关闭按钮
@@ -102,23 +104,20 @@ def get_close_button(driver):
     second_close_button = None
     start_time = time.time()
 
-    while attempts < 5 and not close_button:  # 尝试次数限制
+    while attempts < 5 and not close_button:
+        print(f"尝试次数 {attempts + 1}")  # 添加调试信息
         with ThreadPoolExecutor(max_workers=2) as executor:
-            # 创建两个查找任务
             futures = [
-                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                executor.submit(get_elements, driver, By.CLASS_NAME, "android.widget.ImageView"),
+                executor.submit(get_elements, driver, By.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
             ]
 
             elements = []
             try:
                 for future in as_completed(futures):
-                    if close_button:
-                        future.cancel()
-                        continue
-                    elements.extend(future.result())
-            except (CancelledError, TimeoutError) as e:
-                print(f"处理未来时出错: {e}")
+                    elements.extend(future.result())  # 获取每一个任务的结果
+            except Exception as e:
+                print(f"处理异步任务时出错: {e}")  # 处理所有可能的异常
 
         for element in elements:
             try:
@@ -156,9 +155,11 @@ def get_close_button(driver):
                     second_close_button = element
 
             except StaleElementReferenceException:
+                print("元素状态过时，重新获取元素")
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
         if close_button:
+            print("找到可能的关闭按钮")
             break  # 找到合适的关闭按钮，提前退出循环
 
         attempts += 1
