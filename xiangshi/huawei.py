@@ -27,7 +27,7 @@ def create_driver():
     global driver
     desired_caps = {
         'platformName': 'Android',
-        'platformVersion': '8',
+        'platformVersion': '9',
         'deviceName': device_name,
         'udid': '8RYBB18404152438',
         'appPackage': 'com.xiangshi.bjxsgc',

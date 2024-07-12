@@ -111,7 +111,7 @@ def hourly_bonus(driver):
         print("未找到整点红包")
 
     except Exception as e:
-        print("处理活动时发生异常：{str(e)}")
+        print(f"处理活动时发生异常：{str(e)}")
         return False
 
     return True
