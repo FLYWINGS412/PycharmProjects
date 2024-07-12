@@ -135,6 +135,8 @@ def get_close_button(driver):
                         continue
                     elements.extend(future.result())
                     # print(f"当前总找到的元素数量: {len(elements)}")  # 添加调试信息
+            except (CancelledError, TimeoutError) as e:
+                print(f"处理未来时出错: {e}")
             except Exception as e:
                 print(f"处理异步任务时出错: {e}")  # 处理所有可能的异常
 
