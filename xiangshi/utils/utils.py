@@ -99,11 +99,12 @@ def get_elements(driver, by, value):
 def get_elements_with_uiautomator(driver, uiautomator_string):
     try:
         # 使用 Android UI Automator 直接查找元素
-        elements = WebDriverWait(driver, 0).until(
-            EC.presence_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string))
-        )
+        return  WebDriverWait(driver, 0).until(EC.presence_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string)))
+        # return  WebDriverWait(driver, 0).until(
+        #     EC.presence_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string))
+        # )
         # print(f"找到 {len(elements)} 个可见元素使用 UI Automator: {uiautomator_string}")  # 添加调试信息
-        return elements
+        # return elements
     except TimeoutException:
         # print("在指定时间内没有找到元素")  # 添加调试信息
         return []
