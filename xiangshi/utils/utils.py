@@ -84,6 +84,15 @@ def click_close_button(driver):
     print("尝试多次后仍未成功点击按钮。")
     return False
 
+# 多线程查找关闭按钮元素
+def get_elements(driver, by, value):
+    try:
+        # 等待元素在DOM中出现，无论是否可见
+        return WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
+    except TimeoutException:
+        # 如果在指定时间内没有找到元素，则返回空列表
+        return []
+
 # 获取关闭按钮
 def get_close_button(driver):
     attempts = 0
@@ -91,15 +100,25 @@ def get_close_button(driver):
     second_min_distance = float('inf')
     close_button = None
     second_close_button = None
+    start_time = time.time()
 
     while attempts < 5 and not close_button:  # 尝试次数限制
-        start_time = time.time()  # 记录查找开始时间
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            # 创建两个查找任务
+            futures = [
+                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
+                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+            ]
 
-        # 等待并查找关闭按钮元素，优先查找ImageView
-        elements = WebDriverWait(driver, 2).until(
-            lambda d: d.find_elements(MobileBy.CLASS_NAME, "android.widget.ImageView") +
-                      d.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
-        )
+            elements = []
+            try:
+                for future in as_completed(futures):
+                    if close_button:
+                        future.cancel()
+                        continue
+                    elements.extend(future.result())
+            except (CancelledError, TimeoutError) as e:
+                print(f"处理未来时出错: {e}")
 
         for element in elements:
             try:
@@ -115,9 +134,9 @@ def get_close_button(driver):
                 if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.15:
                     continue
 
-                # 排除指定坐标和大小的元素
-                if element.location['x'] == 646 and element.location['y'] == 48 and element.size['height'] == 25 and element.size['width'] == 25:
-                    continue
+                # # 排除指定坐标和大小的元素
+                # if element.location['x'] == 646 and element.location['y'] == 48 and element.size['height'] == 25 and element.size['width'] == 25:
+                #     continue
 
                 # 优先检查元素是否可见和可点击
                 if not (element.is_displayed() and element.is_enabled()):
