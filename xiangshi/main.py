@@ -20,7 +20,7 @@ from popups import popups
 
 # 全局变量
 driver = None
-device_name = 'main-1'
+device_name = 'main'
 
 # 驱动参数
 def create_driver():
