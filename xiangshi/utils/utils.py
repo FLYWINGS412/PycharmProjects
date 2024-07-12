@@ -108,8 +108,8 @@ def get_close_button(driver):
         print(f"尝试次数 {attempts + 1}")  # 添加调试信息
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [
-                executor.submit(get_elements, driver, By.CLASS_NAME, "android.widget.ImageView"),
-                executor.submit(get_elements, driver, By.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
+                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
             ]
 
             elements = []
