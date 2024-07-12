@@ -99,10 +99,10 @@ def get_elements(driver, by, value):
 def get_elements_with_uiautomator(driver, uiautomator_string):
     try:
         # 使用 Android UI Automator 直接查找元素
-        elements = WebDriverWait(driver, 2).until(
+        elements = WebDriverWait(driver, 10).until(
             EC.visibility_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string))
         )
-        print(f"找到 {len(elements)} 个可见元素使用 UI Automator: {uiautomator_string}")  # 添加调试信息
+        # print(f"找到 {len(elements)} 个可见元素使用 UI Automator: {uiautomator_string}")  # 添加调试信息
         return elements
     except TimeoutException:
         print("在指定时间内没有找到元素")  # 添加调试信息
@@ -118,25 +118,33 @@ def get_close_button(driver):
     start_time = time.time()
 
     while attempts < 5 and not close_button:
-        print(f"尝试次数 {attempts + 1}")  # 添加调试信息
+        # print(f"尝试次数 {attempts + 1}")  # 添加调试信息
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [
                 # executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
                 # executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
-                executor.submit(get_elements_with_uiautomator, driver, 'new UiSelector().className("android.widget.ImageView").description("close")'),
+                executor.submit(get_elements_with_uiautomator, driver, 'new UiSelector().className("android.widget.ImageView")'),
                 executor.submit(get_elements_with_uiautomator, driver, 'new UiSelector().className("android.widget.TextView").textContains("跳过")')
             ]
 
             elements = []
             try:
                 for future in as_completed(futures):
-                    elements.extend(future.result())  # 获取每一个任务的结果
+                    if close_button:
+                        future.cancel()
+                        continue
+                    result = future.result()
+                    elements.extend(result)
+                    # print(f"当前总找到的元素数量: {len(elements)}")  # 添加调试信息
             except Exception as e:
                 print(f"处理异步任务时出错: {e}")  # 处理所有可能的异常
+
+        # print(f"最终找到的元素数量: {len(elements)}")  # 添加调试信息
 
         for element in elements:
             try:
                 # 输出元素的基本信息
+                # print(f"检查元素：位置 {element.location}, 大小 {element.size}, 可见性 {element.is_displayed()}, 启用性 {element.is_enabled()}")  # 添加调试信息
                 if element.size['height'] > 90 or element.size['width'] < 15 or element.size['width'] > 120:
                     continue
 
@@ -170,11 +178,11 @@ def get_close_button(driver):
                     second_close_button = element
 
             except StaleElementReferenceException:
-                print("元素状态过时，重新获取元素")
+                # print("元素状态过时，重新获取元素")
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
         if close_button:
-            print("找到可能的关闭按钮")
+            # print("找到可能的关闭按钮")
             break  # 找到合适的关闭按钮，提前退出循环
 
         attempts += 1
