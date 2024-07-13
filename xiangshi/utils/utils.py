@@ -75,11 +75,11 @@ def click_close_button(driver):
     attempts = 0
     while attempts < 5:
         try:
-            button = get_close_button(driver)
+            element = get_close_button(driver)
             if button:
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
-                store_close_button(button)  # 存储找到的关闭按钮
+                store_close_button(element)  # 存储找到的关闭按钮
                 button.click()
                 time.sleep(1)  # 等待页面加载
 

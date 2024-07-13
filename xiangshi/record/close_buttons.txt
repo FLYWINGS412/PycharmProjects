@@ -31,5 +31,16 @@
             "height": 79,
             "width": 79
         }
+    },
+    {
+        "className": "android.widget.ImageView",
+        "location": {
+            "x": 647,
+            "y": 53
+        },
+        "size": {
+            "height": 23,
+            "width": 23
+        }
     }
 ]
