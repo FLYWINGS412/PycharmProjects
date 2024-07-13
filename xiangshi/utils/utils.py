@@ -12,6 +12,7 @@ from appium.webdriver.common.touch_action import TouchAction
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
+from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError, TimeoutError
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from auth import auth
 from tasks import tasks
@@ -99,14 +100,13 @@ def get_elements(driver, by, value):
 def get_elements_with_uiautomator(driver, uiautomator_string):
     try:
         # 使用 Android UI Automator 直接查找元素
-        return  WebDriverWait(driver, 0).until(EC.presence_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string)))
-        # return  WebDriverWait(driver, 0).until(
-        #     EC.presence_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string))
-        # )
-        # print(f"找到 {len(elements)} 个可见元素使用 UI Automator: {uiautomator_string}")  # 添加调试信息
-        # return elements
+        elements = WebDriverWait(driver, 0).until(
+            EC.presence_of_all_elements_located((MobileBy.ANDROID_UIAUTOMATOR, uiautomator_string))
+        )
+        print(f"找到 {len(elements)} 个可见元素使用 UI Automator: {uiautomator_string}")  # 添加调试信息
+        return elements
     except TimeoutException:
-        # print("在指定时间内没有找到元素")  # 添加调试信息
+        print("在指定时间内没有找到元素")  # 添加调试信息
         return []
 
 # 获取关闭按钮
@@ -119,7 +119,7 @@ def get_close_button(driver):
     start_time = time.time()
 
     while attempts < 5 and not close_button:
-        # print(f"尝试次数 {attempts + 1}")  # 添加调试信息
+        print(f"尝试次数 {attempts + 1}")  # 添加调试信息
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [
                 # executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
@@ -135,18 +135,18 @@ def get_close_button(driver):
                         future.cancel()
                         continue
                     elements.extend(future.result())
-                    # print(f"当前总找到的元素数量: {len(elements)}")  # 添加调试信息
+                    print(f"当前总找到的元素数量: {len(elements)}")  # 添加调试信息
             except (CancelledError, TimeoutError) as e:
                 print(f"处理未来时出错: {e}")
             except Exception as e:
                 print(f"处理异步任务时出错: {e}")  # 处理所有可能的异常
 
-        # print(f"最终找到的元素数量: {len(elements)}")  # 添加调试信息
+        print(f"最终找到的元素数量: {len(elements)}")  # 添加调试信息
 
         for element in elements:
             try:
                 # 输出元素的基本信息
-                # print(f"检查元素：位置 {element.location}, 大小 {element.size}, 可见性 {element.is_displayed()}, 启用性 {element.is_enabled()}")  # 添加调试信息
+                print(f"检查元素：位置 {element.location}, 大小 {element.size}, 可见性 {element.is_displayed()}, 启用性 {element.is_enabled()}")  # 添加调试信息
                 if element.size['height'] > 90 or element.size['width'] < 15 or element.size['width'] > 120:
                     continue
 
