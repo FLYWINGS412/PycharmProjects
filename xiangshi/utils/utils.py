@@ -29,6 +29,7 @@ def click_close_button(driver):
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
+                store_close_button(close_button)  # 存储找到的关闭按钮
                 time.sleep(1)  # 等待页面加载
 
                 assets_page_result = [False]
@@ -215,7 +216,6 @@ def get_close_button(driver):
 
         if close_button:
             # print("找到可能的关闭按钮")
-            store_close_button(close_button)
             break  # 找到合适的关闭按钮，提前退出循环
 
         attempts += 1
@@ -232,9 +232,8 @@ def get_close_button(driver):
 
     if close_button:
         # print(f"找到最合适的右上角关闭按钮：类别-{close_button.get_attribute('className')}, 位置-{close_button.location}, 大小-{close_button.size}")
-        # pass
-        store_close_button(close_button)  # 存储找到的关闭按钮
-    else:
+        pass
+    # else:
         print("未能找到合适的右上角关闭按钮。")
 
     return close_button
