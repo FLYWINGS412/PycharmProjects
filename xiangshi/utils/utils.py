@@ -10,9 +10,9 @@ from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError, CancelledError
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from auth import auth
 from tasks import tasks
@@ -24,17 +24,17 @@ def get_stored_close_button(driver):
     elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', 'close_buttons.txt')
     if os.path.exists(elements_file):
         with open(elements_file, 'r') as file:
-            stored_elements = json.load(file)
-        for element_info in stored_elements:
-            try:
-                elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
-                for element in elements:
-                    if (element.location == element_info['location'] and
-                            element.size == element_info['size'] and
-                            element.is_displayed() and element.is_enabled()):
-                        return element
-            except NoSuchElementException:
-                continue
+            for line in file:
+                element_info = json.loads(line.strip())
+                try:
+                    elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
+                    for element in elements:
+                        if (element.location == element_info['location'] and
+                                element.size == element_info['size'] and
+                                element.is_displayed() and element.is_enabled()):
+                            return element
+                except NoSuchElementException:
+                    continue
     return None
 
 # 存储关闭按钮信息
@@ -51,24 +51,19 @@ def store_close_button(element):
     if not os.path.exists(directory):
         os.makedirs(directory, exist_ok=True)
 
-    # 读取已有的元素信息
+    # 检查元素是否已存在
     if os.path.exists(elements_file):
         with open(elements_file, 'r') as file:
-            stored_elements = json.load(file)
-    else:
-        stored_elements = []
-
-    # 检查元素是否已存在
-    for stored_element in stored_elements:
-        if (stored_element['className'] == element_info['className'] and
-                stored_element['location'] == element_info['location'] and
-                stored_element['size'] == element_info['size']):
-            return  # 元素已存在，直接返回
+            for line in file:
+                stored_element = json.loads(line.strip())
+                if (stored_element['className'] == element_info['className'] and
+                        stored_element['location'] == element_info['location'] and
+                        stored_element['size'] == element_info['size']):
+                    return  # 元素已存在，直接返回
 
     # 存储新的元素信息
-    stored_elements.append(element_info)
-    with open(elements_file, 'w') as file:
-        json.dump(stored_elements, file, indent=4)  # 添加缩进以便于阅读
+    with open(elements_file, 'a') as file:
+        file.write(json.dumps(element_info) + '\n')
 
 # 点击关闭按钮
 def click_close_button(driver):
