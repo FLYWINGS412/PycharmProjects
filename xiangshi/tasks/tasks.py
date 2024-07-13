@@ -412,11 +412,13 @@ def handle_display_page(driver):
                 while True:
                     utils.swipe_to_scroll(driver)
                     try:
-                        element = WebDriverWait(driver, 30).until(
-                            EC.presence_of_element_located((MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]"))
-                        )
+                        # element = WebDriverWait(driver, 30).until(
+                        #     EC.presence_of_element_located((MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]"))
+                        # )
+                        element = driver.find_element(MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]")
+
                         if element:
-                            print(f"找到元素，文本为: {element.text}，退出循环。")
+                            print(f"找到元素，文本为: {element.text}，退出逛街。")
 
                             max_attempts = 5
                             attempts = 0
@@ -464,9 +466,12 @@ def handle_display_page(driver):
                                     return True
                                 else:
                                     print("未成功到达任何预期页面。")
+                    except NoSuchElementException:
+                        # print("未找到指定的元素。继续滚动搜索。")
+                        continue
                     except Exception as e:
-                        # print(f"未找到指定的元素。继续滚动搜索。错误详情：{str(e)}")
-                        pass
+                        print(f"查找元素时发生错误：{str(e)}")
+                        continue
                 break
 
     except NoSuchElementException:
