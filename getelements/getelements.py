@@ -216,7 +216,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
     # 'deviceName': device_name,
-    # 'udid': '8RYBB18404152438',
+    'udid': '8RYBB18404152438',
     # 'appPackage': 'com.xiangshi.bjxsgc',
     # 'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
     'automationName': 'UiAutomator2',
