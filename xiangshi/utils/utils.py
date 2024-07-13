@@ -238,7 +238,7 @@ def get_close_button(driver):
         # print(f"找到最合适的右上角关闭按钮：类别-{close_button.get_attribute('className')}, 位置-{close_button.location}, 大小-{close_button.size}")
         # store_close_button(close_button)
         pass
-    # else:
+    else:
         print("未能找到合适的右上角关闭按钮。")
 
     return close_button
