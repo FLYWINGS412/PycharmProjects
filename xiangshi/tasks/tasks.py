@@ -325,7 +325,8 @@ def handle_display_page(driver):
     # 第一种检查倒计时的方法
     def check_countdown_by_text_view():
         nonlocal element_to_wait
-        text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')]")
+        text_views = driver.find_elements(MobileBy.XPATH,
+                                          "//android.widget.TextView[contains(@text, 's')] | //android.view.View[contains(@text, 's')]")
         for text_view in text_views:
             location = text_view.location
             size = text_view.size
@@ -339,7 +340,8 @@ def handle_display_page(driver):
     # 第二种检查倒计时的方法（长度为1或3的纯数字倒计时）
     def check_countdown_by_numeric():
         nonlocal element_to_wait
-        text_views = driver.find_elements(MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)]")
+        text_views = driver.find_elements(MobileBy.XPATH,
+                                          "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)] | //android.view.View[string-length(@text) <= 3 and @text = number(@text)]")
         for text_view in text_views:
             location = text_view.location
             size = text_view.size
@@ -353,7 +355,8 @@ def handle_display_page(driver):
     # 检查其他可能的倒计时元素
     def check_countdown_by_id():
         nonlocal element_to_wait
-        countdown_element = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
+        countdown_element = driver.find_elements(MobileBy.ID,
+                                                           "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
         if countdown_element:
             element_to_wait = countdown_element[0]
             print("找到倒计时元素（'ID'）")

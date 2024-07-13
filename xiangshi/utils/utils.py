@@ -19,6 +19,57 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
+# 读取关闭按钮信息
+def get_stored_close_button(driver):
+    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', 'close_buttons.txt')
+    if os.path.exists(elements_file):
+        with open(elements_file, 'r') as file:
+            stored_elements = json.load(file)
+        for element_info in stored_elements:
+            try:
+                elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
+                for element in elements:
+                    if (element.location == element_info['location'] and
+                            element.size == element_info['size'] and
+                            element.is_displayed() and element.is_enabled()):
+                        return element
+            except NoSuchElementException:
+                continue
+    return None
+
+# 存储关闭按钮信息
+def store_close_button(element):
+    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', 'close_buttons.txt')
+    element_info = {
+        'className': element.get_attribute('className'),
+        'location': element.location,
+        'size': element.size
+    }
+
+    # 创建目录和文件
+    directory = os.path.dirname(elements_file)
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+    # 读取已有的元素信息
+    if os.path.exists(elements_file):
+        with open(elements_file, 'r') as file:
+            stored_elements = json.load(file)
+    else:
+        stored_elements = []
+
+    # 检查元素是否已存在
+    for stored_element in stored_elements:
+        if (stored_element['className'] == element_info['className'] and
+                stored_element['location'] == element_info['location'] and
+                stored_element['size'] == element_info['size']):
+            return  # 元素已存在，直接返回
+
+    # 存储新的元素信息
+    stored_elements.append(element_info)
+    with open(elements_file, 'w') as file:
+        json.dump(stored_elements, file, indent=4)  # 添加缩进以便于阅读
+
 # 点击关闭按钮
 def click_close_button(driver):
     attempts = 0
@@ -28,8 +79,8 @@ def click_close_button(driver):
             if button:
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
+                store_close_button(button)  # 存储找到的关闭按钮
                 button.click()
-                store_close_button(close_button)  # 存储找到的关闭按钮
                 time.sleep(1)  # 等待页面加载
 
                 assets_page_result = [False]
@@ -86,54 +137,6 @@ def click_close_button(driver):
     print("尝试多次后仍未成功点击按钮。")
     return False
 
-# 读取关闭按钮信息
-def get_stored_close_button(driver):
-    elements_file = os.path.join(os.path.dirname(__file__), 'record', 'close_buttons.txt')
-    if os.path.exists(elements_file):
-        with open(elements_file, 'r') as file:
-            stored_elements = json.load(file)
-        for element_info in stored_elements:
-            try:
-                element = driver.find_element(By.XPATH, element_info['xpath'])
-                if element.is_displayed() and element.is_enabled():
-                    return element
-            except NoSuchElementException:
-                continue
-    return None
-
-# 存储关闭按钮信息
-def store_close_button(element):
-    elements_file = os.path.join(os.path.dirname(__file__), 'record', 'close_buttons.txt')
-    element_info = {
-        'xpath': element.get_attribute('xpath'),
-        'location': element.location,
-        'size': element.size
-    }
-
-    # 创建目录和文件
-    directory = os.path.dirname(elements_file)
-    if not os.path.exists(directory):
-        os.makedirs(directory, exist_ok=True)
-
-    # 读取已有的元素信息
-    if os.path.exists(elements_file):
-        with open(elements_file, 'r') as file:
-            stored_elements = json.load(file)
-    else:
-        stored_elements = []
-
-    # 检查元素是否已存在
-    for stored_element in stored_elements:
-        if (stored_element['xpath'] == element_info['xpath'] and
-                stored_element['location'] == element_info['location'] and
-                stored_element['size'] == element_info['size']):
-            return  # 元素已存在，直接返回
-
-    # 存储新的元素信息
-    stored_elements.append(element_info)
-    with open(elements_file, 'w') as file:
-        json.dump(stored_elements, file)
-
 # 多线程查找关闭按钮元素
 def get_elements(driver, by, value):
     try:
@@ -163,7 +166,7 @@ def get_close_button(driver):
             # 创建两个查找任务
             futures = [
                 executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')] | //android.view.View[contains(@text, '跳过')]")
             ]
 
             elements = []
@@ -216,6 +219,7 @@ def get_close_button(driver):
 
         if close_button:
             # print("找到可能的关闭按钮")
+            # store_close_button(close_button)
             break  # 找到合适的关闭按钮，提前退出循环
 
         attempts += 1
@@ -232,6 +236,7 @@ def get_close_button(driver):
 
     if close_button:
         # print(f"找到最合适的右上角关闭按钮：类别-{close_button.get_attribute('className')}, 位置-{close_button.location}, 大小-{close_button.size}")
+        # store_close_button(close_button)
         pass
     # else:
         print("未能找到合适的右上角关闭按钮。")

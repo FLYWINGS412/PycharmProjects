@@ -1,1 +1,0 @@
-[{"resourceId": null, "className": "android.view.View", "location": {"x": 620, "y": 40}, "size": {"height": 36, "width": 84}}]
