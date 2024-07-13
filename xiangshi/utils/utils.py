@@ -127,7 +127,7 @@ def click_close_button(driver):
         except TimeoutException:
             print("元素不可点击，超时。")
         except Exception as e:
-            print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
+            print(f"尝试点击右上角关闭按钮时发生错误")
         attempts += 1
     print("尝试多次后仍未成功点击按钮。")
     return False
