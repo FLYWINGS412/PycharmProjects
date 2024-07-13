@@ -64,5 +64,27 @@
             "height": 46,
             "width": 46
         }
+    },
+    {
+        "className": "android.widget.ImageView",
+        "location": {
+            "x": 638,
+            "y": 16
+        },
+        "size": {
+            "height": 52,
+            "width": 52
+        }
+    },
+    {
+        "className": "android.view.View",
+        "location": {
+            "x": 616,
+            "y": 44
+        },
+        "size": {
+            "height": 36,
+            "width": 84
+        }
     }
 ]
