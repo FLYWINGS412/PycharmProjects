@@ -406,7 +406,67 @@ def handle_display_page(driver):
                     future.cancel()  # 取消未完成的任务
 
             if not element_to_wait:
-                print("未找到倒计时元素，可能页面已刷新。")
+                print("未找到倒计时元素，随便逛逛。")
+                time.sleep(random.randint(5, 8))
+
+                while True:
+                    utils.swipe_to_scroll(driver)
+                    try:
+                        element = WebDriverWait(driver, 30).until(
+                            EC.presence_of_element_located((MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]"))
+                        )
+                        if element:
+                            print(f"找到元素，文本为: {element.text}，退出循环。")
+
+                            max_attempts = 5
+                            attempts = 0
+                            while attempts < max_attempts:
+                                driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
+                                time.sleep(1)
+
+                                assets_page_result = [False]
+                                ad_page_result = [False]
+                                event = threading.Event()
+
+                                def check_assets_page():
+                                    assets_page_result[0] = utils.is_on_assets_page(driver)
+                                    # print(f"检查资产页结果: {assets_page_result[0]}")
+                                    if assets_page_result[0]:
+                                        event.set()
+
+                                def check_ad_page():
+                                    ad_page_result[0] = utils.is_on_ad_page(driver)
+                                    # print(f"检查激励视频页结果: {ad_page_result[0]}")
+                                    if ad_page_result[0]:
+                                        event.set()
+
+                                assets_page_thread = threading.Thread(target=check_assets_page)
+                                ad_page_thread = threading.Thread(target=check_ad_page)
+
+                                assets_page_thread.start()
+                                ad_page_thread.start()
+
+                                # 设置超时避免无限等待
+                                event.wait(timeout=3)
+
+                                # 确保线程结束
+                                assets_page_thread.join()
+                                ad_page_thread.join()
+
+                                assets_result = assets_page_result[0]
+                                ad_result = ad_page_result[0]
+
+                                if assets_result or ad_result:
+                                    if assets_result:
+                                        print("已成功到达资产页。")
+                                    if ad_result:
+                                        print("已成功到达激励视频页")
+                                    return True
+                                else:
+                                    print("未成功到达任何预期页面。")
+                    except Exception as e:
+                        # print(f"未找到指定的元素。继续滚动搜索。错误详情：{str(e)}")
+                        pass
                 break
 
     except NoSuchElementException:

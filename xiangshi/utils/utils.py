@@ -136,7 +136,8 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        return WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
+        # return WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
+        return driver.find_elements((by, value))
     except TimeoutException:
         # 如果在指定时间内没有找到元素，则返回空列表
         return []
