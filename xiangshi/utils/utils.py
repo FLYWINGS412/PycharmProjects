@@ -85,6 +85,7 @@ def click_close_button(driver):
     print("尝试多次后仍未成功点击按钮。")
     return False
 
+# 读取关闭按钮信息
 def get_stored_close_button(driver):
     elements_file = os.path.join(os.path.dirname(__file__), 'record', 'close_buttons.txt')
     if os.path.exists(elements_file):
@@ -99,6 +100,7 @@ def get_stored_close_button(driver):
                 continue
     return None
 
+# 存储关闭按钮信息
 def store_close_button(element):
     elements_file = os.path.join(os.path.dirname(__file__), 'record', 'close_buttons.txt')
     element_info = {
