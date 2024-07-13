@@ -1,0 +1,35 @@
+[
+    {
+        "className": "android.view.View",
+        "location": {
+            "x": 620,
+            "y": 40
+        },
+        "size": {
+            "height": 36,
+            "width": 84
+        }
+    },
+    {
+        "className": "android.widget.ImageView",
+        "location": {
+            "x": 640,
+            "y": 94
+        },
+        "size": {
+            "height": 32,
+            "width": 32
+        }
+    },
+    {
+        "className": "android.widget.ImageView",
+        "location": {
+            "x": 614,
+            "y": 27
+        },
+        "size": {
+            "height": 79,
+            "width": 79
+        }
+    }
+]
