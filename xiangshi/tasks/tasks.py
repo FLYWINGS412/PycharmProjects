@@ -449,7 +449,7 @@ def browse_live_room(driver):
         try:
             element = driver.find_element(MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]")
             if element:
-                print(f"找到元素，文本为: {element.text}，退出逛街。")
+                print(f"找到元素{element.text}，退出逛街。")
 
                 max_attempts = 5
                 attempts = 0
