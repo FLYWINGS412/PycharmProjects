@@ -233,7 +233,9 @@ def collect_rewards(driver, account):
                         print("所有‘点击领取’已领取完毕。")
                         break
 
-                    receive_bubble = driver.wait.until(EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble")))
+                    receive_bubble = WebDriverWait(driver, 3).until(
+                        EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_receive_bubble"))
+                    )
                     receive_bubble.click()
                     print(f"点击了领取按钮，更新剩余次数：{current + 1}/{total}")
 
@@ -244,9 +246,6 @@ def collect_rewards(driver, account):
                     elapsed_time = round(time.time() - start_time, 2)
                     print(f"用时: {elapsed_time} 秒")
 
-                except StaleElementReferenceException:
-                    print("元素不再存在于 DOM 中，重新获取元素。")
-                    continue
                 except Exception as e:
                     print(f"在点击领取时发生异常：{e}")
                     continue
