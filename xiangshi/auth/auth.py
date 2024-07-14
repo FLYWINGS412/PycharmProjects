@@ -247,13 +247,15 @@ def auto_logout(driver):
         print("点击个性设置页。")
 
         # 退出登录
-        logout_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']")))
+        logout_button = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']")))
         logout_button.click()
         print("点击退出登录")
         time.sleep(random.randint(2, 5))
 
         # 继续退出
-        continue_to_exit_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
+        continue_to_exit_button = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
         continue_to_exit_button.click()
         print("点击继续退出")
 
