@@ -1,2 +1,18 @@
-{"className": "android.widget.TextView", "location": {"x": 324, "y": 33}, "size": {"height": 19, "width": 28}}
-{"className": "android.widget.ImageView", "location": {"x": 340, "y": 24}, "size": {"height": 15, "width": 15}}
+{"className": "android.widget.ImageView", "location": {"x": 638, "y": 114}, "size": {"height": 23, "width": 23}}
+{"className": "android.widget.ImageView", "location": {"x": 650, "y": 114}, "size": {"height": 23, "width": 23}}
+{"className": "android.widget.ImageView", "location": {"x": 650, "y": 116}, "size": {"height": 23, "width": 23}}
+{"className": "android.widget.ImageView", "location": {"x": 640, "y": 94}, "size": {"height": 32, "width": 32}}
+{"className": "android.widget.ImageView", "location": {"x": 614, "y": 27}, "size": {"height": 79, "width": 79}}
+{"className": "android.widget.ImageView", "location": {"x": 647, "y": 53}, "size": {"height": 23, "width": 23}}
+{"className": "android.widget.ImageView", "location": {"x": 651, "y": 71}, "size": {"height": 46, "width": 46}}
+{"className": "android.widget.ImageView", "location": {"x": 638, "y": 16}, "size": {"height": 52, "width": 52}}
+{"className": "android.widget.ImageView", "location": {"x": 640, "y": 96}, "size": {"height": 32, "width": 32}}
+{"className": "android.widget.ImageView", "location": {"x": 640, "y": 48}, "size": {"height": 32, "width": 32}}
+{"className": "android.widget.ImageView", "location": {"x": 647, "y": 53}, "size": {"height": 23, "width": 23}}
+{"className": "android.widget.ImageView", "location": {"x": 632, "y": 77}, "size": {"height": 50, "width": 50}}
+{"className": "android.widget.ImageView", "location": {"x": 608, "y": 28}, "size": {"height": 84, "width": 84}}
+{"className": "android.widget.TextView", "location": {"x": 614, "y": 109}, "size": {"height": 37, "width": 52}}
+{"className": "android.widget.TextView", "location": {"x": 618, "y": 46}, "size": {"height": 37, "width": 52}}
+{"className": "android.view.View", "location": {"x": 620, "y": 40}, "size": {"height": 36, "width": 84}}
+{"className": "android.view.View", "location": {"x": 616, "y": 44}, "size": {"height": 36, "width": 84}}
+
