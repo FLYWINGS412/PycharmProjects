@@ -306,8 +306,11 @@ def is_on_ad_page(driver):
 def check_xpath(driver, xpath, idx, i):
     try:
         reward = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
-        reward.click()
-        return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
+        if reward.get_attribute("selected") == "true":
+            reward.click()
+            return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
+        else:
+            return f"元素存在但未选中，未点击第 {i} 个奖励，使用的第 {idx + 1} 种XPath"
     except TimeoutException:
         return f"未能及时找到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
     except NoSuchElementException:
