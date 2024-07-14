@@ -185,6 +185,7 @@ def mutual_assistance_reward(driver, account):
                     counter += 1
                     if counter >= max_attempts:
                         print("达到最大尝试次数，退出循环。")
+                        utils.log_mutual_assistance_reward(driver, account)
                         break
             except TimeoutException:
                 print("头像未消失，继续执行滑动操作。")
