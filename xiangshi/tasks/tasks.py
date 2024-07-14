@@ -214,7 +214,7 @@ def collect_rewards(driver, account):
             print("首页红包奖励已完成，继续下一步")
 
         # 跳转到资产页
-        assets_element = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
+        assets_element = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='资产']")))
         assets_element.click()
         print("已找到并点击‘资产’。")
         time.sleep(random.randint(2, 5))
@@ -233,7 +233,7 @@ def collect_rewards(driver, account):
                     return False
 
                 try:
-                    miss_bubble_element = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
+                    miss_bubble_element = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_miss_bubble")))
                     click_to_collect_text = miss_bubble_element.text
                     current, total = map(int, click_to_collect_text.replace(" ", "").strip('()').split('/'))
 
@@ -527,14 +527,14 @@ def follow(driver, account, follow_list):
 
     try:
         # 查找并点击搜索按钮
-        search_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_search")))
+        search_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_search")))
         search_button.click()
         print("点击了搜索按钮")
         time.sleep(random.randint(2, 5))
 
         for user_id in follow_list:
             # 查找并点击搜索框
-            search_box = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/edit")))
+            search_box = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/edit")))
             search_box.click()
             print("点击了搜索框")
             time.sleep(random.randint(2, 5))
@@ -545,13 +545,13 @@ def follow(driver, account, follow_list):
             time.sleep(random.randint(2, 5))
 
             # 查找并点击关注按钮
-            follow_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_follow")))
+            follow_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_follow")))
             follow_button.click()
             print(f"点击了关注按钮 {user_id}")
             time.sleep(random.randint(2, 5))
 
         # 查找并点击返回按钮
-        back_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_back")))
+        back_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_back")))
         back_button.click()
         print("点击了返回按钮")
         time.sleep(random.randint(2, 5))
@@ -583,13 +583,13 @@ def unfollow(driver, account, follow_list):
             print("首页红包奖励已完成，继续下一步")
 
         # 个人页面
-        my_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
+        my_tab = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
         my_tab.click()
         print("点击我的")
         time.sleep(random.randint(2, 5))
 
         # 点击关注
-        follow_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
+        follow_tab = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
         follow_tab.click()
         print("点击关注")
         time.sleep(random.randint(2, 5))
@@ -648,13 +648,13 @@ def like(driver, account, follow_list):
             print("首页红包奖励已完成，继续下一步")
 
         # 个人页面
-        my_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
+        my_tab = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
         my_tab.click()
         print("点击我的")
         time.sleep(random.randint(2, 5))
 
         # 点击关注
-        follow_tab = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
+        follow_tab = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='关注']")))
         follow_tab.click()
         print("点击关注")
         time.sleep(random.randint(2, 5))
@@ -671,7 +671,7 @@ def like(driver, account, follow_list):
             print(f"开始点赞 {user_id}")
             try:
                 # 我的关注
-                my_following = driver.wait.until(EC.presence_of_element_located((MobileBy.XPATH, f"//android.widget.TextView[contains(@text, '{user_id}')]")))
+                my_following = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, f"//android.widget.TextView[contains(@text, '{user_id}')]")))
                 my_following.click()
                 print(f"选择 {user_id}")
                 time.sleep(random.randint(2, 5))
@@ -685,7 +685,7 @@ def like(driver, account, follow_list):
                 print("用户主页")
 
                 # 选择作品
-                portfolio_elements = driver.wait.until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb")))
+                portfolio_elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb")))
                 if portfolio_elements:
                     # 点击第一排的第一个作品
                     first_element = portfolio_elements[0]
@@ -699,7 +699,7 @@ def like(driver, account, follow_list):
                 while True:
                     try:
                         # 查找并点击点赞按钮
-                        like_button = driver.wait.until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_like")))
+                        like_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_like")))
                         like_button.click()
                         print("点击了点赞按钮")
                         time.sleep(random.randint(2, 5))
