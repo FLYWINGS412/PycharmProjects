@@ -339,7 +339,7 @@ def handle_display_page(driver):
             location = text_view.location
             size = text_view.size
             top_y = location['y']
-            if top_y < driver.height * 0.15:
+            if top_y < driver.height * 0.15 and size['height'] > 15:
                 element_to_wait = text_view
                 print(f"找到倒计时元素（'S'）, 类别-{text_view.get_attribute('class')}, 位置-{location}, 大小-{size}")
                 event.set()
@@ -357,7 +357,7 @@ def handle_display_page(driver):
             location = text_view.location
             size = text_view.size
             top_y = location['y']
-            if top_y < driver.height * 0.15:
+            if top_y < driver.height * 0.15 and size['height'] > 15:
                 element_to_wait = text_view
                 print(f"找到倒计时元素（'数字'）, 类别-{text_view.get_attribute('class')}, 位置-{location}, 大小-{size}")
                 event.set()
