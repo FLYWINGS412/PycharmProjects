@@ -149,23 +149,16 @@ def mutual_assistance_reward(driver, account):
     print("页面已正常加载")
 
     while True:
-        start_time = time.time()  # 记录循环开始时间
+        start_time = time.time()
 
-        # 检查激励视频奖励
+        # 激励视频奖励
         try:
-            # 激励视频奖励
-            reward_layer = driver.wait.until(
-                EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
+            reward_layer = WebDriverWait(driver, 3).until(
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
             time.sleep(random.randint(2, 5))
             reward_layer.click()
             print("点击了激励视频奖励")
-
-            # 等待页面完成加载
-            time.sleep(1)
-            WebDriverWait(driver, 60).until(
-                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-            )
 
             # 检查头像是否消失
             try:
@@ -187,9 +180,9 @@ def mutual_assistance_reward(driver, account):
                 except TimeoutException:
                     print("未检查到'每日20次'文本，继续执行。")
             except TimeoutException:
-                print("检查到头像，继续执行滑动操作。")
-        except Exception as e:
-            print("未找到或不可点击激励广告。")
+                print("头像未消失，继续执行滑动操作。")
+        except TimeoutException:
+            print("未找到激励广告。")
 
         # 执行滑动操作
         utils.swipe_to_scroll(driver)
@@ -320,6 +313,17 @@ def handle_display_page(driver):
         EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
 
+    elements = driver.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
+    for element in elements:
+        location = element.location
+        size = element.size
+
+        if location['x'] < driver.width * 0.15 and location['y'] < driver.height * 0.15 and size['height'] < 70 and size['width'] < 70:
+            print("找到一个位于左上角的 RelativeLayout")
+            print(f"位置: {location}, 大小: {size}")
+
+            return browse_live_room(driver)
+
     element_to_wait = None  # 初始化 element_to_wait 为 None
     event = threading.Event()  # 用于同步倒计时结束的事件
 
@@ -366,7 +370,6 @@ def handle_display_page(driver):
     try:
         start_time = time.time()
         timeout = 35
-        time.sleep(2)
         popup_texts = ["放弃", "离开", "取消"]
 
         while True:
@@ -406,72 +409,7 @@ def handle_display_page(driver):
                     future.cancel()  # 取消未完成的任务
 
             if not element_to_wait:
-                print("未找到倒计时元素，随便逛逛。")
-                time.sleep(random.randint(5, 8))
-
-                while True:
-                    utils.swipe_to_scroll(driver)
-                    try:
-                        # element = WebDriverWait(driver, 30).until(
-                        #     EC.presence_of_element_located((MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]"))
-                        # )
-                        element = driver.find_element(MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]")
-
-                        if element:
-                            print(f"找到元素，文本为: {element.text}，退出逛街。")
-
-                            max_attempts = 5
-                            attempts = 0
-                            while attempts < max_attempts:
-                                driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
-                                time.sleep(1)
-
-                                assets_page_result = [False]
-                                ad_page_result = [False]
-                                event = threading.Event()
-
-                                def check_assets_page():
-                                    assets_page_result[0] = utils.is_on_assets_page(driver)
-                                    # print(f"检查资产页结果: {assets_page_result[0]}")
-                                    if assets_page_result[0]:
-                                        event.set()
-
-                                def check_ad_page():
-                                    ad_page_result[0] = utils.is_on_ad_page(driver)
-                                    # print(f"检查激励视频页结果: {ad_page_result[0]}")
-                                    if ad_page_result[0]:
-                                        event.set()
-
-                                assets_page_thread = threading.Thread(target=check_assets_page)
-                                ad_page_thread = threading.Thread(target=check_ad_page)
-
-                                assets_page_thread.start()
-                                ad_page_thread.start()
-
-                                # 设置超时避免无限等待
-                                event.wait(timeout=3)
-
-                                # 确保线程结束
-                                assets_page_thread.join()
-                                ad_page_thread.join()
-
-                                assets_result = assets_page_result[0]
-                                ad_result = ad_page_result[0]
-
-                                if assets_result or ad_result:
-                                    if assets_result:
-                                        print("已成功到达资产页。")
-                                    if ad_result:
-                                        print("已成功到达激励视频页")
-                                    return True
-                                else:
-                                    print("未成功到达任何预期页面。")
-                    except NoSuchElementException:
-                        # print("未找到指定的元素。继续滚动搜索。")
-                        continue
-                    except Exception as e:
-                        print(f"查找元素时发生错误：{str(e)}")
-                        continue
+                print("未找到倒计时元素，可能页面已刷新。")
                 break
 
     except NoSuchElementException:
@@ -490,6 +428,68 @@ def handle_display_page(driver):
         return False
 
     return True
+
+# 直播间
+def browse_live_room(driver):
+    print("未找到倒计时元素，随便逛逛。")
+
+    while True:
+        time.sleep(random.randint(5, 8))
+        utils.swipe_to_scroll(driver)
+        try:
+            element = driver.find_element(MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]")
+            if element:
+                print(f"找到元素，文本为: {element.text}，退出逛街。")
+
+                max_attempts = 5
+                attempts = 0
+                while attempts < max_attempts:
+                    driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
+                    time.sleep(1)
+
+                    assets_page_result = [False]
+                    ad_page_result = [False]
+                    event = threading.Event()
+
+                    def check_assets_page():
+                        assets_page_result[0] = utils.is_on_assets_page(driver)
+                        if assets_page_result[0]:
+                            event.set()
+
+                    def check_ad_page():
+                        ad_page_result[0] = utils.is_on_ad_page(driver)
+                        if ad_page_result[0]:
+                            event.set()
+
+                    assets_page_thread = threading.Thread(target=check_assets_page)
+                    ad_page_thread = threading.Thread(target=check_ad_page)
+
+                    assets_page_thread.start()
+                    ad_page_thread.start()
+
+                    # 设置超时避免无限等待
+                    event.wait(timeout=3)
+
+                    # 确保线程结束
+                    assets_page_thread.join()
+                    ad_page_thread.join()
+
+                    assets_result = assets_page_result[0]
+                    ad_result = ad_page_result[0]
+
+                    if assets_result or ad_result:
+                        if assets_result:
+                            print("已成功到达资产页。")
+                        if ad_result:
+                            print("已成功到达激励视频页")
+                        return True
+                    else:
+                        print("未成功到达任何预期页面。")
+        except NoSuchElementException:
+            continue
+        except Exception as e:
+            print(f"查找元素时发生错误：{str(e)}")
+            return False
 
 # 关注
 def follow(driver, account, follow_list):
