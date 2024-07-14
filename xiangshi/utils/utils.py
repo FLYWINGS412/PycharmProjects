@@ -310,9 +310,6 @@ def check_xpath(driver, xpath, idx, i):
             return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
         else:
             return f"元素存在但未选中，未点击第 {i} 个奖励，使用的第 {idx + 1} 种XPath"
-    except StaleElementReferenceException:
-        print(f"元素状态失效，正在重新获取第 {i} 个领取奖励")
-        return check_xpath(driver, xpath, idx, i)  # 递归调用自身，尝试重新获取和点击
     except TimeoutException:
         return f"未能及时找到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
     except NoSuchElementException:
