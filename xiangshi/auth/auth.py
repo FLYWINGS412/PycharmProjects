@@ -244,7 +244,7 @@ def auto_logout(driver):
         if expected_setting_activity not in current_activity:
             print("未能加载到个性设置，退出登出流程。")
             return False
-        print("个性设置页。")
+        print("点击个性设置页。")
 
         # 退出登录
         logout_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']")))
@@ -255,14 +255,14 @@ def auto_logout(driver):
         # 继续退出
         continue_to_exit_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
         continue_to_exit_button.click()
-        print("继续退出")
+        print("点击继续退出")
 
     except TimeoutException as e:
         print(f"在退出过程中出现超时：{str(e)}")
-        return False
+        # return False
 
     except Exception as e:
         print(f"在退出过程中发生错误: {str(e)}")
-        return False
+        # return False
 
     return True
