@@ -187,7 +187,7 @@ def get_close_button(driver):
                 y_right_top = element.location['y']
 
                 # 过滤掉不在屏幕顶部范围内的元素
-                if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.15:
+                if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.2:
                     continue
 
                 # 排除指定坐标和大小的元素
