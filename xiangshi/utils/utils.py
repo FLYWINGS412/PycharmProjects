@@ -38,7 +38,7 @@ def get_stored_close_button(driver):
     return None
 
 # 存储关闭按钮信息
-def store_close_button(element):
+def store_close_button(driver, element):
     elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
     element_info = {
         'className': element.get_attribute('className'),
@@ -74,7 +74,7 @@ def click_close_button(driver):
             if button:
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
-                store_close_button(button)  # 存储找到的关闭按钮
+                store_close_button(driver, button)  # 存储找到的关闭按钮
                 button.click()
                 time.sleep(1)  # 等待页面加载
 
