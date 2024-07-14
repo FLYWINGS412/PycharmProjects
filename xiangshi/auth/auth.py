@@ -169,10 +169,10 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
     except TimeoutException as e:
         print(f"在登录过程中出现超时：{str(e)}")
-        return False
+        # return False
     except Exception as e:
         print(f"登录过程中出现异常：{str(e)}")
-        return False
+        # return False
 
 # 自动退出
 def auto_logout(driver):
