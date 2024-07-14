@@ -215,7 +215,6 @@ def get_close_button(driver):
 
         if close_button:
             # print("找到可能的关闭按钮")
-            # store_close_button(close_button)
             break  # 找到合适的关闭按钮，提前退出循环
 
         attempts += 1
@@ -232,7 +231,6 @@ def get_close_button(driver):
 
     if close_button:
         # print(f"找到最合适的右上角关闭按钮：类别-{close_button.get_attribute('className')}, 位置-{close_button.location}, 大小-{close_button.size}")
-        # store_close_button(close_button)
         pass
     else:
         print("未能找到合适的右上角关闭按钮。")
