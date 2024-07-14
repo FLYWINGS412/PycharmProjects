@@ -148,6 +148,9 @@ def mutual_assistance_reward(driver, account):
     )
     print("页面已正常加载")
 
+    counter = 0  # 初始化计数器
+    max_attempts = 20  # 最大尝试次数
+
     while True:
         start_time = time.time()
 
@@ -179,6 +182,10 @@ def mutual_assistance_reward(driver, account):
                     break
                 except TimeoutException:
                     print("未检查到'每日20次'文本，继续执行。")
+                    counter += 1
+                    if counter >= max_attempts:
+                        print("达到最大尝试次数，退出循环。")
+                        break
             except TimeoutException:
                 print("头像未消失，继续执行滑动操作。")
         except TimeoutException:
@@ -341,7 +348,8 @@ def handle_display_page(driver):
             top_y = location['y']
             if top_y < driver.height * 0.15 and size['height'] > 15:
                 element_to_wait = text_view
-                print(f"找到倒计时元素（'S'）, 类别-{text_view.get_attribute('class')}, 位置-{location}, 大小-{size}")
+                # print(f"找到倒计时元素（'S'）, 类别-{text_view.get_attribute('class')}, 位置-{location}, 大小-{size}")
+                print(f"找到倒计时元素（'S'）")
                 event.set()
                 break
 
@@ -359,7 +367,8 @@ def handle_display_page(driver):
             top_y = location['y']
             if top_y < driver.height * 0.15 and size['height'] > 15:
                 element_to_wait = text_view
-                print(f"找到倒计时元素（'数字'）, 类别-{text_view.get_attribute('class')}, 位置-{location}, 大小-{size}")
+                # print(f"找到倒计时元素（'数字'）, 类别-{text_view.get_attribute('class')}, 位置-{location}, 大小-{size}")
+                print(f"找到倒计时元素（'数字'）")
                 event.set()
                 break
 
