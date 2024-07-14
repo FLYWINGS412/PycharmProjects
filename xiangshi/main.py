@@ -41,7 +41,7 @@ def create_driver():
         'noReset': True
     }
 
-    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+    driver = webdriver.Remote('http://localhost:4725/wd/hub', desired_caps)
     driver.wait = WebDriverWait(driver, 10)
     size = driver.get_window_size()
     driver.width = size['width']
