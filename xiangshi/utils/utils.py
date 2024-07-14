@@ -127,7 +127,7 @@ def click_close_button(driver):
         except TimeoutException:
             print("元素不可点击，超时。")
         except Exception as e:
-            print(f"尝试点击右上角关闭按钮时发生错误")
+            print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
         attempts += 1
     print("尝试多次后仍未成功点击按钮。")
     return False
@@ -136,8 +136,8 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        # return WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
-        return driver.find_elements((by, value))
+        return WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
+        # return driver.find_elements((by, value))
     except TimeoutException:
         print("如果在指定时间内没有找到元素，则返回空列表")
         return []
@@ -312,6 +312,9 @@ def check_xpath(driver, xpath, idx, i):
             return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
         else:
             return f"元素存在但未选中，未点击第 {i} 个奖励，使用的第 {idx + 1} 种XPath"
+    except StaleElementReferenceException:
+        print(f"元素状态失效，正在重新获取第 {i} 个领取奖励")
+        return check_xpath(driver, xpath, idx, i)  # 递归调用自身，尝试重新获取和点击
     except TimeoutException:
         return f"未能及时找到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
     except NoSuchElementException:
