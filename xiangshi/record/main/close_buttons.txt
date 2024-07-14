@@ -1,0 +1,2 @@
+{"className": "android.widget.TextView", "location": {"x": 324, "y": 33}, "size": {"height": 19, "width": 28}}
+{"className": "android.widget.ImageView", "location": {"x": 340, "y": 24}, "size": {"height": 15, "width": 15}}

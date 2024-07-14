@@ -167,13 +167,14 @@ def get_close_button(driver):
 
             elements = []
             try:
-                for future in as_completed(futures):
+                for future in as_completed(futures, timeout=30):
                     if close_button:
                         future.cancel()
                         continue
                     elements.extend(future.result())
             except (CancelledError, TimeoutError) as e:
                 print(f"处理未来时出错: {e}")
+                return False
 
         for element in elements:
             try:

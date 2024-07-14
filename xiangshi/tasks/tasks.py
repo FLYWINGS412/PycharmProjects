@@ -310,7 +310,7 @@ def collect_rewards(driver, account):
 
     except Exception as e:
         print(f"处理资产页广告奖励时发生异常：{e}")
-        return False
+        # return False
 
 # 展示页
 def handle_display_page(driver):
