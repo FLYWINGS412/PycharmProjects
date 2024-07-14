@@ -1,6 +1,7 @@
 import re
 import os
 import time
+import json
 import random
 import threading
 import subprocess
@@ -9,14 +10,60 @@ from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError, CancelledError
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from auth import auth
 from tasks import tasks
 from utils import utils
 from popups import popups
+
+# 读取关闭按钮信息
+def get_stored_close_button(driver):
+    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
+    if os.path.exists(elements_file):
+        with open(elements_file, 'r') as file:
+            for line in file:
+                element_info = json.loads(line.strip())
+                try:
+                    elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
+                    for element in elements:
+                        if (element.location == element_info['location'] and
+                                element.size == element_info['size'] and
+                                element.is_displayed() and element.is_enabled()):
+                            return element
+                except NoSuchElementException:
+                    continue
+    return None
+
+# 存储关闭按钮信息
+def store_close_button(driver, element):
+    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
+    element_info = {
+        'className': element.get_attribute('className'),
+        'location': element.location,
+        'size': element.size
+    }
+
+    # 创建目录和文件
+    directory = os.path.dirname(elements_file)
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+    # 检查元素是否已存在
+    if os.path.exists(elements_file):
+        with open(elements_file, 'r') as file:
+            for line in file:
+                stored_element = json.loads(line.strip())
+                if (stored_element['className'] == element_info['className'] and
+                        stored_element['location'] == element_info['location'] and
+                        stored_element['size'] == element_info['size']):
+                    return  # 元素已存在，直接返回
+
+    # 存储新的元素信息
+    with open(elements_file, 'a') as file:
+        file.write(json.dumps(element_info) + '\n')
 
 # 点击关闭按钮
 def click_close_button(driver):
@@ -27,6 +74,7 @@ def click_close_button(driver):
             if button:
                 driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
+                store_close_button(driver, button)  # 存储找到的关闭按钮
                 button.click()
                 time.sleep(1)  # 等待页面加载
 
@@ -88,9 +136,10 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        return WebDriverWait(driver, 2).until(EC.presence_of_all_elements_located((by, value)))
+        return WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((by, value)))
+        # return driver.find_elements((by, value))
     except TimeoutException:
-        # 如果在指定时间内没有找到元素，则返回空列表
+        # print("如果在指定时间内没有找到元素，则返回空列表")
         return []
 
 # 获取关闭按钮
@@ -102,23 +151,30 @@ def get_close_button(driver):
     second_close_button = None
     start_time = time.time()
 
+    # 优先查找已存储的关闭按钮元素
+    close_button = get_stored_close_button(driver)
+    if close_button:
+        print("找到存储的关闭按钮元素")
+        return close_button
+
     while attempts < 5 and not close_button:  # 尝试次数限制
         with ThreadPoolExecutor(max_workers=2) as executor:
             # 创建两个查找任务
             futures = [
                 executor.submit(get_elements, driver, MobileBy.CLASS_NAME, "android.widget.ImageView"),
-                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
+                executor.submit(get_elements, driver, MobileBy.XPATH, "//android.widget.TextView[contains(@text, '跳过')] | //android.view.View[contains(@text, '跳过')]")
             ]
 
             elements = []
             try:
-                for future in as_completed(futures):
+                for future in as_completed(futures, timeout=30):
                     if close_button:
                         future.cancel()
                         continue
                     elements.extend(future.result())
             except (CancelledError, TimeoutError) as e:
                 print(f"处理未来时出错: {e}")
+                return False
 
         for element in elements:
             try:
@@ -159,6 +215,7 @@ def get_close_button(driver):
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
         if close_button:
+            # print("找到可能的关闭按钮")
             break  # 找到合适的关闭按钮，提前退出循环
 
         attempts += 1
