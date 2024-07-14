@@ -21,7 +21,7 @@ from popups import popups
 
 # 读取关闭按钮信息
 def get_stored_close_button(driver):
-    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', 'close_buttons.txt')
+    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
     if os.path.exists(elements_file):
         with open(elements_file, 'r') as file:
             for line in file:
@@ -39,7 +39,7 @@ def get_stored_close_button(driver):
 
 # 存储关闭按钮信息
 def store_close_button(element):
-    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', 'close_buttons.txt')
+    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
     element_info = {
         'className': element.get_attribute('className'),
         'location': element.location,
