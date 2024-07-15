@@ -43,21 +43,12 @@ def get_stored_close_button(driver):
 
     for element_info in stored_elements:
         try:
-            x, y = element_info['location']['x'], element_info['location']['y']
-            width, height = element_info['size']['width'], element_info['size']['height']
-
-            # 获取屏幕上的所有元素
             elements = WebDriverWait(driver, 0).until(
                 EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, element_info['className']))
             )
             for element in elements:
-                # 获取元素的实际位置和大小
-                location = element.location
-                size = element.size
-
-                # 检查元素的位置和大小是否匹配
-                if (location['x'] == x and location['y'] == y and
-                        size['width'] == width and size['height'] == height and
+                if (element.location == element_info['location'] and
+                        element.size == element_info['size'] and
                         element.is_displayed() and element.is_enabled()):
                     elapsed_time = round(time.time() - start_time, 2)
                     print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
@@ -109,7 +100,7 @@ def click_close_button(driver):
             button = get_close_button(driver)
             if button:
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
-                # store_close_button(driver, button)  # 存储找到的关闭按钮
+                store_close_button(driver, button)  # 存储找到的关闭按钮
                 button.click()
                 time.sleep(1)  # 等待页面加载
 
@@ -187,11 +178,11 @@ def get_close_button(driver):
     second_close_button = None
     start_time = time.time()
 
-    # # 优先查找已存储的关闭按钮元素
-    # close_button = get_stored_close_button(driver)
-    # if close_button:
-    #     # print("找到存储的关闭按钮元素")
-    #     return close_button
+    # 优先查找已存储的关闭按钮元素
+    close_button = get_stored_close_button(driver)
+    if close_button:
+        # print("找到存储的关闭按钮元素")
+        return close_button
 
     while attempts < 5 and not close_button:  # 尝试次数限制
         with ThreadPoolExecutor(max_workers=2) as executor:

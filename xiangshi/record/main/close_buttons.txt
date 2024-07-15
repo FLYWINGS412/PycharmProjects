@@ -16,3 +16,5 @@
 {"className": "android.widget.TextView", "location": {"x": 618, "y": 46}, "size": {"height": 37, "width": 52}}
 {"className": "android.view.View", "location": {"x": 620, "y": 40}, "size": {"height": 36, "width": 84}}
 {"className": "android.view.View", "location": {"x": 616, "y": 44}, "size": {"height": 36, "width": 84}}
+{"className": "android.widget.ImageView", "location": {"x": 625, "y": 2}, "size": {"height": 82, "width": 82}}
+{"className": "android.widget.ImageView", "location": {"x": 643, "y": 43}, "size": {"height": 25, "width": 25}}

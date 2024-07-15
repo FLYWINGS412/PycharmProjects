@@ -79,7 +79,7 @@ def execute_task(task_function, account, task_args=None):
 
         return True
     except Exception as e:
-        print(f"处理中发生异常: {type(e).__name__}, 信息: {str(e)}")
+        print(f"处理中发生异常: 信息: {str(e)}")
         return False
     finally:
         if driver:

@@ -54,7 +54,7 @@ def handle_home_page_video(driver, account):
 
             # 立即检查首页红包奖励是否存在
             elements = WebDriverWait(driver, 3).until(
-                EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
             )
             if elements:
                 print("找到了首页红包奖励，继续循环")
@@ -73,7 +73,7 @@ def handle_home_page_video(driver, account):
 
                 # 立即检查首页红包奖励是否存在
                 elements = WebDriverWait(driver, 3).until(
-                    EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+                    EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
                 )
 
                 # 输出循环用时
@@ -93,7 +93,7 @@ def handle_home_page_video(driver, account):
 def mutual_assistance_reward(driver, account):
     # 检查首页红包奖励是否完成
     elements = WebDriverWait(driver, 3).until(
-        EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+        EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
     )
     if elements:
         print("首页红包奖励未完成，执行首页红包奖励任务")
@@ -221,7 +221,7 @@ def collect_rewards(driver, account):
         # 检查首页红包奖励是否完成
         try:
             elements = WebDriverWait(driver, 3).until(
-                EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
             )
             print("首页红包奖励未完成，执行首页红包奖励任务")
             handle_home_page_video(driver, account)
@@ -549,7 +549,7 @@ def follow(driver, account, follow_list):
 
     # 检查首页红包奖励是否完成
     elements = WebDriverWait(driver, 3).until(
-        EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+        EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
     )
     if elements:
         print("首页红包奖励未完成，执行首页红包奖励任务")
@@ -616,7 +616,7 @@ def unfollow(driver, account, follow_list):
 
         # 检查首页红包奖励是否完成
         elements = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
         )
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")
@@ -689,7 +689,7 @@ def like(driver, account, follow_list):
     try:
         # 检查首页红包奖励是否完成
         elements = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
         )
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")

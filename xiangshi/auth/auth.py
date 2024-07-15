@@ -158,7 +158,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 确认是否登录成功
         login_success_indicator = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_progress"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_progress"))
         )
         if login_success_indicator:
             print("登录成功！")
@@ -169,10 +169,10 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
     except TimeoutException as e:
         print(f"在登录过程中出现超时：{str(e)}")
-        # return False
+        return False
     except Exception as e:
         print(f"登录过程中出现异常：{str(e)}")
-        # return False
+        return False
 
 # 自动退出
 def auto_logout(driver):
@@ -221,7 +221,7 @@ def auto_logout(driver):
         print("点击更多菜单")
         time.sleep(random.randint(2, 5))
 
-        # 滑动菜单并点击个性设置
+        # 滑动菜单并点击了个性设置
         while True:
             start_x = random.randint(driver.width * 7 // 10, driver.width * 8 // 10)
             start_y = random.randint(driver.height * 9 // 10, driver.height * 9 // 10)
