@@ -53,7 +53,7 @@ def handle_home_page_video(driver, account):
                 return False
 
             # 立即检查首页红包奖励是否存在
-            elements = WebDriverWait(driver, 0).until(
+            elements = WebDriverWait(driver, 3).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
             )
             if elements:
@@ -72,7 +72,7 @@ def handle_home_page_video(driver, account):
                     return False
 
                 # 立即检查首页红包奖励是否存在
-                elements = WebDriverWait(driver, 0).until(
+                elements = WebDriverWait(driver, 3).until(
                     EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
                 )
 
@@ -176,11 +176,10 @@ def mutual_assistance_reward(driver, account):
             time.sleep(random.randint(2, 5))
             reward_layer.click()
             print("点击了激励视频奖励")
-            time.sleep(1)
 
             # 检查头像是否消失
             try:
-                WebDriverWait(driver, 0).until(
+                WebDriverWait(driver, 3).until(
                     EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
                 )
                 print("没检查到头像，加载展示页。")
