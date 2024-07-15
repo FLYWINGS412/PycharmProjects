@@ -1,6 +1,7 @@
 import re
 import os
 import time
+import json
 import random
 import threading
 import subprocess
@@ -9,10 +10,9 @@ from appium.webdriver.common.mobileby import MobileBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
-from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError, TimeoutError
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError, CancelledError
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 from auth import auth
 from tasks import tasks

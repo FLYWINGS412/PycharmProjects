@@ -340,7 +340,8 @@ def handle_display_page(driver):
         size = element.size
 
         if location['x'] < driver.width * 0.15 and location['y'] < driver.height * 0.15 and size['height'] < 70 and size['width'] < 70:
-            print(f"找到左上角的 RelativeLayout, 位置: {location}, 大小: {size}")
+            # print(f"找到左上角的 RelativeLayout, 位置: {location}, 大小: {size}")
+            print(f"找到左上角的 RelativeLayout")
 
             # 进入直播间
             return browse_live_room(driver)

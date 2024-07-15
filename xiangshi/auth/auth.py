@@ -176,95 +176,95 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
 # 自动退出
 def auto_logout(driver):
-    # try:
-    # 获取当前活动并检查是否已经在主界面
-    current_activity = utils.get_current_activity(driver)
-    expected_main_activity = "com.xiangshi.main.activity.MainActivity"
-    print(f"当前页面为: {current_activity}")
+    try:
+        # 获取当前活动并检查是否已经在主界面
+        current_activity = utils.get_current_activity(driver)
+        expected_main_activity = "com.xiangshi.main.activity.MainActivity"
+        print(f"当前页面为: {current_activity}")
 
-    # 首页红包
-    popups.home_video_bonus(driver)
+        # 首页红包
+        popups.home_video_bonus(driver)
 
-    # 整点红包
-    popups.hourly_bonus(driver)
+        # 整点红包
+        popups.hourly_bonus(driver)
 
-    # 如果不在主界面，则尝试返回到主界面
-    if current_activity != expected_main_activity:
-        print("不在主界面，尝试返回到主界面。")
-        max_attempts = 5
-        attempts = 0
-        while current_activity != expected_main_activity and attempts < max_attempts:
-            driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
-            time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
-            current_activity = utils.get_current_activity(driver)  # 再次获取当前活动，确保使用正确的参数
-            attempts += 1
-            print(f"尝试 {attempts}: 当前页面为 {current_activity}")
-        if attempts == max_attempts:
-            print("尝试返回主界面失败，请手动检查")
-            return False
-    else:
-        print("已在主界面，无需返回。")
+        # 如果不在主界面，则尝试返回到主界面
+        if current_activity != expected_main_activity:
+            print("不在主界面，尝试返回到主界面。")
+            max_attempts = 5
+            attempts = 0
+            while current_activity != expected_main_activity and attempts < max_attempts:
+                driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
+                time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
+                current_activity = utils.get_current_activity(driver)  # 再次获取当前活动，确保使用正确的参数
+                attempts += 1
+                print(f"尝试 {attempts}: 当前页面为 {current_activity}")
+            if attempts == max_attempts:
+                print("尝试返回主界面失败，请手动检查")
+                return False
+        else:
+            print("已在主界面，无需返回。")
 
-    # 个人页面
-    my_tab = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
-    my_tab.click()
-    print("点击我的")
-    time.sleep(random.randint(2, 5))
-
-    # 更多菜单
-    more_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_more_me")))
-    more_button.click()
-    print("点击更多菜单")
-    time.sleep(random.randint(2, 5))
-
-    # 滑动菜单并点击了个性设置
-    while True:
-        start_x = random.randint(driver.width * 7 // 10, driver.width * 8 // 10)
-        start_y = random.randint(driver.height * 9 // 10, driver.height * 9 // 10)
-        end_x = random.randint(driver.width * 8 // 10, driver.width * 9 // 10)
-        end_y = random.randint(driver.height * 1 // 10, driver.height * 1 // 10)
-        duration = random.randint(200, 500)
-        action = TouchAction(driver)
-        action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
-        print(f"Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
+        # 个人页面
+        my_tab = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']")))
+        my_tab.click()
+        print("点击我的")
         time.sleep(random.randint(2, 5))
 
-        try:
-            settings = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='个性设置']")))
-            settings.click()
-            print("找到并点击了个性设置")
+        # 更多菜单
+        more_button = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_more_me")))
+        more_button.click()
+        print("点击更多菜单")
+        time.sleep(random.randint(2, 5))
+
+        # 滑动菜单并点击了个性设置
+        while True:
+            start_x = random.randint(driver.width * 7 // 10, driver.width * 8 // 10)
+            start_y = random.randint(driver.height * 9 // 10, driver.height * 9 // 10)
+            end_x = random.randint(driver.width * 8 // 10, driver.width * 9 // 10)
+            end_y = random.randint(driver.height * 1 // 10, driver.height * 1 // 10)
+            duration = random.randint(200, 500)
+            action = TouchAction(driver)
+            action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
+            print(f"Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
             time.sleep(random.randint(2, 5))
-            break  # 成功找到，退出循环
-        except TimeoutException:
-            print("未找到个性设置，再次尝试滑动")
 
-    # 检查是否在个性设置页
-    current_activity = utils.get_current_activity(driver)
-    expected_setting_activity = "com.xiangshi.main.activity.SettingActivity"
-    if expected_setting_activity not in current_activity:
-        print("未能加载到个性设置，退出登出流程。")
+            try:
+                settings = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='个性设置']")))
+                settings.click()
+                print("找到并点击了个性设置")
+                time.sleep(random.randint(2, 5))
+                break  # 成功找到，退出循环
+            except TimeoutException:
+                print("未找到个性设置，再次尝试滑动")
+
+        # 检查是否在个性设置页
+        current_activity = utils.get_current_activity(driver)
+        expected_setting_activity = "com.xiangshi.main.activity.SettingActivity"
+        if expected_setting_activity not in current_activity:
+            print("未能加载到个性设置，退出登出流程。")
+            return False
+        print("点击个性设置页。")
+
+        # 退出登录
+        logout_button = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']")))
+        logout_button.click()
+        print("点击退出登录")
+        time.sleep(random.randint(2, 5))
+
+        # 继续退出
+        continue_to_exit_button = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
+        continue_to_exit_button.click()
+        print("点击继续退出")
+
+        return True
+
+    except TimeoutException as e:
+        print(f"在退出过程中出现超时：{str(e)}")
         return False
-    print("点击个性设置页。")
 
-    # 退出登录
-    logout_button = WebDriverWait(driver, 3).until(
-        EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']")))
-    logout_button.click()
-    print("点击退出登录")
-    time.sleep(random.randint(2, 5))
-
-    # 继续退出
-    continue_to_exit_button = WebDriverWait(driver, 3).until(
-        EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']")))
-    continue_to_exit_button.click()
-    print("点击继续退出")
-
-    # except TimeoutException as e:
-    #     print(f"在退出过程中出现超时：{str(e)}")
-        # return False
-
-    # except Exception as e:
-    #     print(f"在退出过程中发生错误: {str(e)}")
-        # return False
-
-    return True
+    except Exception as e:
+        print(f"在退出过程中发生错误: {str(e)}")
+        return False

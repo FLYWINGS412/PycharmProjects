@@ -41,15 +41,14 @@ def get_stored_close_button(driver):
                                 element.size == element_info['size'] and
                                 element.is_displayed() and element.is_enabled()):
                             elapsed_time = round(time.time() - start_time, 2)
-                            print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}")
-                            print(f"本次查找用时: {elapsed_time} 秒")
+                            # print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
                             return element
                 except NoSuchElementException:
                     continue
     else:
         print(f"文件不存在：{elements_file}")
     elapsed_time = round(time.time() - start_time, 2)
-    print(f"未找到存储的关闭按钮，本次查找用时: {elapsed_time} 秒")
+    print(f"未找到存储的关闭按钮，用时: {elapsed_time} 秒")
     return None
 
 # 存储关闭按钮信息
@@ -205,7 +204,7 @@ def get_close_button(driver):
                 y_right_top = element.location['y']
 
                 # 过滤掉不在屏幕顶部范围内的元素
-                if x_right_top < driver.width * 0.85 or y_right_top > driver.height * 0.15:
+                if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.15:
                     continue
 
                 # 排除指定坐标和大小的元素
