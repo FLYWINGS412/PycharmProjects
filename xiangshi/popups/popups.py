@@ -70,14 +70,14 @@ def daily_dividend_distribution(driver):
         if not popups.hourly_bonus(driver):
             return False
 
+        return True
+
     except TimeoutException:
         print("未找到每日股东分红")
 
     except Exception as e:
         print(f"处理活动时发生异常：{str(e)}")
         return False
-
-    return True
 
 # 整点红包
 def hourly_bonus(driver):

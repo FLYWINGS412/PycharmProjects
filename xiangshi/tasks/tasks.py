@@ -25,28 +25,45 @@ def handle_home_page_video(driver, account):
     if not popups.home_video_bonus(driver):
         return False
 
-    try:
-        while True:
-            start_time = time.time()  # 记录循环开始时间
+    while True:
+        start_time = time.time()  # 记录循环开始时间
 
-            # 执行滑动操作
-            utils.swipe_to_scroll(driver)
+        # 执行滑动操作
+        utils.swipe_to_scroll(driver)
 
-            # 检查首页红包奖励
-            if not popups.home_video_bonus(driver):
-                return False
+        # 检查首页红包奖励
+        if not popups.home_video_bonus(driver):
+            return False
 
-            # 等待页面完成加载
-            time.sleep(1)
-            WebDriverWait(driver, 60).until(
-                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-            )
-            print("页面已正常加载")
+        # 等待页面完成加载
+        WebDriverWait(driver, 60).until(
+            EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+        )
+        print("页面已正常加载")
 
-            # 翻页后的随机等待时间
-            random_sleep = random.randint(0, 20)
-            print(f"等待 {random_sleep} 秒")
-            time.sleep(random_sleep)
+        # 翻页后的随机等待时间
+        random_sleep = random.randint(0, 20)
+        print(f"等待 {random_sleep} 秒")
+        time.sleep(random_sleep)
+
+        # 检查首页红包奖励
+        if not popups.home_video_bonus(driver):
+            return False
+
+        # 立即检查首页红包奖励是否存在
+        elements = WebDriverWait(driver, 0).until(
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+        )
+        if elements:
+            print("找到了首页红包奖励，继续循环")
+
+            # 输出循环用时
+            end_time = time.time()
+            elapsed_time = round(end_time - start_time, 2)
+            print(f"用时: {elapsed_time} 秒")
+        else:
+            # 第一次未找到首页红包奖励时，再次处理弹窗并重新检查
+            print("未找到首页红包奖励，再次检查弹窗")
 
             # 检查首页红包奖励
             if not popups.home_video_bonus(driver):
@@ -56,36 +73,15 @@ def handle_home_page_video(driver, account):
             elements = WebDriverWait(driver, 0).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
             )
-            if elements:
-                print("找到了首页红包奖励，继续循环")
 
-                # 输出循环用时
-                end_time = time.time()
-                elapsed_time = round(end_time - start_time, 2)
-                print(f"用时: {elapsed_time} 秒")
-            else:
-                # 第一次未找到首页红包奖励时，再次处理弹窗并重新检查
-                print("未找到首页红包奖励，再次检查弹窗")
-
-                # 检查首页红包奖励
-                if not popups.home_video_bonus(driver):
-                    return False
-
-                # 立即检查首页红包奖励是否存在
-                elements = WebDriverWait(driver, 0).until(
-                    EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
-                )
-
-                # 输出循环用时
-                end_time = time.time()
-                elapsed_time = round(end_time - start_time, 2)
-                print(f"用时: {elapsed_time} 秒")
-                if not elements:
-                    print("再次检查后仍未找到首页红包奖励，退出循环")
-                    return True
-    except Exception as e:
-        print(f"在滑屏循环中发生错误：{e}")
-        return False
+            # 输出循环用时
+            end_time = time.time()
+            elapsed_time = round(end_time - start_time, 2)
+            print(f"用时: {elapsed_time} 秒")
+            if not elements:
+                print("再次检查后仍未找到首页红包奖励，退出循环")
+                break
+    return True
 
 # 激励视频奖励
 def mutual_assistance_reward(driver, account):
