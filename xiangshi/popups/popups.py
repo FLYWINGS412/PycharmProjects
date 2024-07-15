@@ -72,6 +72,7 @@ def daily_dividend_distribution(driver):
 
     except TimeoutException:
         print("未找到每日股东分红")
+        return True
 
     except Exception as e:
         print(f"处理活动时发生异常：{str(e)}")
@@ -107,6 +108,7 @@ def hourly_bonus(driver):
 
     except TimeoutException:
         print("未找到整点红包")
+        return True
 
     except Exception as e:
         print(f"处理活动时发生异常：{str(e)}")

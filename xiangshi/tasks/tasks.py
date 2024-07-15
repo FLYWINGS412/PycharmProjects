@@ -220,9 +220,9 @@ def collect_rewards(driver, account):
             )
             print("首页红包奖励未完成，执行首页红包奖励任务")
             handle_home_page_video(driver, account)
-            print("首页红包奖励已完成，继续下一步")
+            print("首页红包奖励已完成，继续下一步。")
         except (TimeoutException, NoSuchElementException):
-            print("首页红包奖励已完成，继续下一步")
+            print("首页红包奖励已完成，继续下一步。")
 
         # 跳转到资产页
         assets_element = WebDriverWait(driver, 3).until(
