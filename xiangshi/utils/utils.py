@@ -175,7 +175,7 @@ def get_elements(driver, by, value):
             EC.presence_of_all_elements_located((by, value))
         )
     except TimeoutException:
-        print("如果在指定时间内没有找到元素，则返回空列表")
+        # print("如果在指定时间内没有找到元素，则返回空列表")
         return []
 
 # 获取关闭按钮
