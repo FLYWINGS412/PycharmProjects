@@ -283,8 +283,8 @@ def collect_rewards(driver, account):
     try:
         # 领取奖励
         base_xpaths = [
-            "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/androidx.viewpager.widget.ViewPager/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView",
             "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView",
+            "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/androidx.viewpager.widget.ViewPager/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView",
             "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ScrollView/android.widget.RelativeLayout/android.widget.FrameLayout/android.widget.FrameLayout[{i}]/android.widget.LinearLayout/android.widget.ImageView"
         ]
 
@@ -298,27 +298,18 @@ def collect_rewards(driver, account):
 
             found = False
             for i in range(last_successful_index, 7):  # 假设有6个奖励按钮
-                try:
-                    with ThreadPoolExecutor() as executor:
-                        futures = [executor.submit(utils.check_xpath, driver, base_xpath.format(i=i), idx, i) for idx, base_xpath in enumerate(base_xpaths)]
-                        for future in as_completed(futures):
-                            try:
-                                result = future.result()
-                                # current_base_xpath = base_xpaths[futures.index(future)]  # 获取当前的base_xpath
-                                # print(f"调试信息：检查第 {i} 个奖励按钮，使用的XPath：{current_base_xpath.format(i=i)}")
-                                # print(f"调试信息：检查结果：{result}")
-                                if result and "成功点击" in result:  # 检查是否是成功点击的消息
-                                    print(result)
-                                    if not handle_display_page(driver):  # 处理展示页的逻辑
-                                        return False
-                                    found = True
-                                    break  # 成功点击后退出内循环
-                            except Exception as e:
-                                print(f"处理 future 时出错：{e}")
+                with ThreadPoolExecutor() as executor:
+                    futures = [executor.submit(utils.check_xpath, driver, base_xpath.format(i=i), idx, i) for idx, base_xpath in enumerate(base_xpaths)]
+                    for future in as_completed(futures):
+                        result = future.result()
+                        if result and "成功点击" in result:  # 检查是否是成功点击的消息
+                            print(result)
+                            if not handle_display_page(driver):  # 处理展示页的逻辑
+                                return False
+                            found = True
+                            break  # 成功点击后退出内循环
                     if not found:  # 如果在这一轮检查中没有找到并点击成功
                         print(f"第 {i} 个领取奖励，不能点击。")
-                except Exception as e:
-                    print(f"处理第 {i} 个领取奖励时发生异常：{e}")
 
                 last_successful_index = i + 1  # 更新最后成功的索引
                 if found:
@@ -332,14 +323,14 @@ def collect_rewards(driver, account):
             elapsed_time = round(time.time() - start_time, 2)
             print(f"用时: {elapsed_time} 秒")
 
-    except Exception as e:
-        print(f"在领取奖励时发生异常：{e}")
-        return False
-
         # 获取并存储“我的享币”和“我的享点”
         utils.get_and_store_points(driver, account)
 
-    return True
+        return True
+
+    except Exception as e:
+        print(f"在领取奖励时发生异常：{e}")
+        return False
 
 # 展示页
 def handle_display_page(driver):

@@ -50,8 +50,6 @@ def home_video_bonus(driver):
         print(f"处理活动时发生异常：{str(e)}")
         return False
 
-    return True
-
 # 每日股东分红
 def daily_dividend_distribution(driver):
     try:
@@ -104,9 +102,8 @@ def hourly_bonus(driver):
             print("点击了关闭弹窗")
             return True
         except TimeoutException:
-            pass
             # print("未找到关闭弹窗")
-            # return False
+            pass
 
     except TimeoutException:
         print("未找到整点红包")
@@ -114,8 +111,6 @@ def hourly_bonus(driver):
     except Exception as e:
         print(f"处理活动时发生异常：{str(e)}")
         return False
-
-    return True
 
 # 展示页弹窗
 def display_page_popup(driver, popup_texts):
