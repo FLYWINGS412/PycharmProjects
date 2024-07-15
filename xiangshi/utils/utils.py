@@ -21,20 +21,35 @@ from popups import popups
 
 # 读取关闭按钮信息
 def get_stored_close_button(driver):
+    start_time = time.time()  # 开始计时
     elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
     if os.path.exists(elements_file):
         with open(elements_file, 'r') as file:
             for line in file:
-                element_info = json.loads(line.strip())
+                try:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    element_info = json.loads(line)
+                except json.JSONDecodeError as e:
+                    print(f"JSON解析错误：{e}，内容：{line}")
+                    continue
                 try:
                     elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
                     for element in elements:
                         if (element.location == element_info['location'] and
                                 element.size == element_info['size'] and
                                 element.is_displayed() and element.is_enabled()):
+                            elapsed_time = round(time.time() - start_time, 2)
+                            print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}")
+                            print(f"本次查找用时: {elapsed_time} 秒")
                             return element
                 except NoSuchElementException:
                     continue
+    else:
+        print(f"文件不存在：{elements_file}")
+    elapsed_time = round(time.time() - start_time, 2)
+    print(f"未找到存储的关闭按钮，本次查找用时: {elapsed_time} 秒")
     return None
 
 # 存储关闭按钮信息
@@ -55,7 +70,11 @@ def store_close_button(driver, element):
     if os.path.exists(elements_file):
         with open(elements_file, 'r') as file:
             for line in file:
-                stored_element = json.loads(line.strip())
+                try:
+                    stored_element = json.loads(line.strip())
+                except json.JSONDecodeError as e:
+                    print(f"JSON解析错误：{e}，内容：{line.strip()}")
+                    continue
                 if (stored_element['className'] == element_info['className'] and
                         stored_element['location'] == element_info['location'] and
                         stored_element['size'] == element_info['size']):
@@ -72,7 +91,6 @@ def click_close_button(driver):
         try:
             button = get_close_button(driver)
             if button:
-                driver.wait.until(EC.element_to_be_clickable(button))
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 store_close_button(driver, button)  # 存储找到的关闭按钮
                 button.click()
@@ -136,7 +154,7 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        return WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((by, value)))
+        return WebDriverWait(driver, 5).until(EC.presence_of_all_elements_located((by, value)))
         # return driver.find_elements((by, value))
     except TimeoutException:
         print("如果在指定时间内没有找到元素，则返回空列表")
@@ -167,12 +185,12 @@ def get_close_button(driver):
 
             elements = []
             try:
-                for future in as_completed(futures, timeout=30):
+                for future in as_completed(futures, timeout=60):
                     if close_button:
                         future.cancel()
                         continue
                     elements.extend(future.result())
-            except (CancelledError, TimeoutError) as e:
+            except Exception as e:
                 print(f"处理未来时出错: {e}")
                 return False
 
@@ -187,7 +205,7 @@ def get_close_button(driver):
                 y_right_top = element.location['y']
 
                 # 过滤掉不在屏幕顶部范围内的元素
-                if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.2:
+                if x_right_top < driver.width * 0.85 or y_right_top > driver.height * 0.15:
                     continue
 
                 # 排除指定坐标和大小的元素
@@ -315,6 +333,8 @@ def check_xpath(driver, xpath, idx, i):
         return f"未能及时找到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
     except NoSuchElementException:
         return f"未能定位到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
+    except Exception as e:
+        return f"尝试点击第 {i} 个领取奖励时发生异常，使用的第 {idx + 1} 种XPath，异常：{e}"
 
 # 获取我的享币和享点
 def get_and_store_points(driver, account):
