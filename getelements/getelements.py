@@ -64,9 +64,9 @@ def get_elements_by_type(driver, attribute_type):
             attribute_value = input("请输入XPath表达式：")
             if attribute_value.strip() == "":
                 return  # 直接返回菜单
-            elements = driver.find_elements(By.XPATH, attribute_value)
+            elements = WebDriverWait(driver, 0).until(EC.presence_of_all_elements_located((By.XPATH, attribute_value)))
         else:
-            elements = driver.find_elements(By.XPATH, f"//*[@{attribute_type}]")
+            elements = WebDriverWait(driver, 0).until(EC.presence_of_all_elements_located((By.XPATH, f"//*[@{attribute_type}]")))
 
         filtered_elements, filtered_indices = filter_elements(elements, attribute_type)
         print(f"获取到元素数量: {len(filtered_elements)} (时间: {time.time():.2f})")

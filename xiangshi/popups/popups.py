@@ -12,8 +12,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
-from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError, CancelledError
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from concurrent.futures import ThreadPoolExecutor, as_completed, wait, FIRST_COMPLETED, ALL_COMPLETED, TimeoutError, CancelledError
 from auth import auth
 from tasks import tasks
 from utils import utils
@@ -96,7 +96,7 @@ def hourly_bonus(driver):
 
         # 尝试获取并点击关闭弹窗，仅在元素存在时执行
         try:
-            close_element = WebDriverWait(driver, 2).until(
+            close_element = WebDriverWait(driver, 3).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
             time.sleep(random.randint(2, 5))

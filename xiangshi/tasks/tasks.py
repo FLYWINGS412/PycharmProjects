@@ -12,8 +12,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
-from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError, CancelledError
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from concurrent.futures import ThreadPoolExecutor, as_completed, wait, FIRST_COMPLETED, ALL_COMPLETED, TimeoutError, CancelledError
 from auth import auth
 from tasks import tasks
 from utils import utils
@@ -53,7 +53,7 @@ def handle_home_page_video(driver, account):
                 return False
 
             # 立即检查首页红包奖励是否存在
-            elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+            elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")))
             if elements:
                 print("找到了首页红包奖励，继续循环")
 
@@ -70,7 +70,7 @@ def handle_home_page_video(driver, account):
                     return False
 
                 # 立即检查首页红包奖励是否存在
-                elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+                elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")))
 
                 # 输出循环用时
                 end_time = time.time()
@@ -88,7 +88,7 @@ def handle_home_page_video(driver, account):
 # 激励视频奖励
 def mutual_assistance_reward(driver, account):
     # 检查首页红包奖励是否完成
-    elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+    elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")))
     if elements:
         print("首页红包奖励未完成，执行首页红包奖励任务")
         handle_home_page_video(driver, account)
@@ -205,7 +205,7 @@ def mutual_assistance_reward(driver, account):
 def collect_rewards(driver, account):
     try:
         # 检查首页红包奖励是否完成
-        elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+        elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")))
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")
             handle_home_page_video(driver, account)
@@ -289,9 +289,9 @@ def collect_rewards(driver, account):
                         for future in as_completed(futures):
                             try:
                                 result = future.result()
-                                current_base_xpath = base_xpaths[futures.index(future)]  # 获取当前的base_xpath
-                                print(f"调试信息：检查第 {i} 个奖励按钮，使用的XPath：{current_base_xpath.format(i=i)}")
-                                print(f"调试信息：检查结果：{result}")
+                                # current_base_xpath = base_xpaths[futures.index(future)]  # 获取当前的base_xpath
+                                # print(f"调试信息：检查第 {i} 个奖励按钮，使用的XPath：{current_base_xpath.format(i=i)}")
+                                # print(f"调试信息：检查结果：{result}")
                                 if result and "成功点击" in result:  # 检查是否是成功点击的消息
                                     print(result)
                                     if not handle_display_page(driver):  # 处理展示页的逻辑
@@ -334,7 +334,7 @@ def handle_display_page(driver):
         EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
 
-    elements = driver.find_elements(MobileBy.CLASS_NAME, "android.widget.RelativeLayout")
+    elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, "android.widget.RelativeLayout")))
     for element in elements:
         location = element.location
         size = element.size
@@ -352,9 +352,7 @@ def handle_display_page(driver):
     # 第一种检查倒计时的方法
     def check_countdown_by_text_view():
         nonlocal element_to_wait
-        # text_views = driver.find_elements(MobileBy.XPATH,
-        #                                   "//android.widget.TextView[contains(@text, 's')] | //android.view.View[contains(@text, 's')]")
-        text_views = WebDriverWait(driver, 5).until(
+        text_views = WebDriverWait(driver, 3).until(
             EC.presence_of_all_elements_located((MobileBy.XPATH, "//android.widget.TextView[contains(@text, 's')] | //android.view.View[contains(@text, 's')]"))
         )
 
@@ -372,9 +370,7 @@ def handle_display_page(driver):
     # 第二种检查倒计时的方法（长度为1或3的纯数字倒计时）
     def check_countdown_by_numeric():
         nonlocal element_to_wait
-        # text_views = driver.find_elements(MobileBy.XPATH,
-        #                                   "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)] | //android.view.View[string-length(@text) <= 3 and @text = number(@text)]")
-        text_views = WebDriverWait(driver, 5).until(
+        text_views = WebDriverWait(driver, 3).until(
             EC.presence_of_all_elements_located((MobileBy.XPATH, "//android.widget.TextView[string-length(@text) <= 3 and @text = number(@text)] | //android.view.View[string-length(@text) <= 3 and @text = number(@text)]"))
         )
         for text_view in text_views:
@@ -391,9 +387,7 @@ def handle_display_page(driver):
     # 检查其他可能的倒计时元素
     def check_countdown_by_id():
         nonlocal element_to_wait
-        # countdown_element = driver.find_elements(MobileBy.ID,
-        #                                                    "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
-        text_views = WebDriverWait(driver, 5).until(
+        text_views = WebDriverWait(driver, 3).until(
             EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"))
         )
         if countdown_element:
@@ -532,7 +526,7 @@ def follow(driver, account, follow_list):
         return False
 
     # 检查首页红包奖励是否完成
-    elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+    elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")))
     if elements:
         print("首页红包奖励未完成，执行首页红包奖励任务")
         handle_home_page_video(driver, account)
@@ -589,7 +583,7 @@ def unfollow(driver, account, follow_list):
             return False
 
         # 检查首页红包奖励是否完成
-        elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+        elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")))
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")
             handle_home_page_video(driver, account)
@@ -622,7 +616,7 @@ def unfollow(driver, account, follow_list):
             found = False
 
             # 遍历所有的 RelativeLayout 元素
-            relative_layouts = driver.find_elements(MobileBy.XPATH, "//androidx.recyclerview.widget.RecyclerView/android.widget.RelativeLayout")
+            elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.XPATH, "//androidx.recyclerview.widget.RecyclerView/android.widget.RelativeLayout")))
             for layout in relative_layouts:
                 try:
                     user_element = layout.find_element(MobileBy.XPATH, ".//android.widget.TextView[@resource-id='com.xiangshi.bjxsgc:id/id_val' and contains(@text, '" + user_id + "')]")
@@ -654,7 +648,7 @@ def unfollow(driver, account, follow_list):
 def like(driver, account, follow_list):
     try:
         # 检查首页红包奖励是否完成
-        elements = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")
+        elements = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag")))
         if elements:
             print("首页红包奖励未完成，执行首页红包奖励任务")
             handle_home_page_video(driver, account)

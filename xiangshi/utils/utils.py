@@ -19,13 +19,14 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
-# 读取关闭按钮信息
 def get_stored_close_button(driver):
     start_time = time.time()  # 开始计时
     elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
 
     if not os.path.exists(elements_file):
         print(f"文件不存在：{elements_file}")
+        elapsed_time = round(time.time() - start_time, 2)
+        print(f"未找到存储的关闭按钮，用时: {elapsed_time} 秒")
         return None
 
     stored_elements = []
@@ -40,28 +41,18 @@ def get_stored_close_button(driver):
             except json.JSONDecodeError as e:
                 print(f"JSON解析错误：{e}，内容：{line}")
 
-    def find_element(element_info):
+    for element_info in stored_elements:
         try:
-            elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
+            elements = WebDriverWait(driver, 0).until(EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, element_info['className'])))
             for element in elements:
                 if (element.location == element_info['location'] and
                         element.size == element_info['size'] and
                         element.is_displayed() and element.is_enabled()):
                     elapsed_time = round(time.time() - start_time, 2)
-                    print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
+                    # print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
                     return element
         except NoSuchElementException:
-            return None
-
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_element_info = {executor.submit(find_element, info): info for info in stored_elements}
-        for future in as_completed(future_to_element_info):
-            try:
-                element = future.result()
-                if element:
-                    return element
-            except Exception as e:
-                print(f"处理存储元素时出错：{e}")
+            continue
 
     elapsed_time = round(time.time() - start_time, 2)
     print(f"未找到存储的关闭按钮，用时: {elapsed_time} 秒")
@@ -98,7 +89,6 @@ def store_close_button(driver, element):
     with open(elements_file, 'w') as file:
         for item in stored_elements:
             file.write(json.dumps(item) + '\n')
-
 
 # 点击关闭按钮
 def click_close_button(driver):
@@ -170,8 +160,7 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        return WebDriverWait(driver, 5).until(EC.presence_of_all_elements_located((by, value)))
-        # return driver.find_elements((by, value))
+        return WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((by, value)))
     except TimeoutException:
         print("如果在指定时间内没有找到元素，则返回空列表")
         return []
@@ -188,7 +177,7 @@ def get_close_button(driver):
     # 优先查找已存储的关闭按钮元素
     close_button = get_stored_close_button(driver)
     if close_button:
-        print("找到存储的关闭按钮元素")
+        # print("找到存储的关闭按钮元素")
         return close_button
 
     while attempts < 5 and not close_button:  # 尝试次数限制
