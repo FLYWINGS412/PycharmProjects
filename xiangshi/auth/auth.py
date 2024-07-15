@@ -64,7 +64,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 勾选协议
         login_check_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_login_check"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_login_check"))
         )
         time.sleep(random.randint(2, 5))
         login_check_button.click()
@@ -72,7 +72,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 点击同意
         confirm_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_confirm"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_confirm"))
         )
         time.sleep(random.randint(2, 5))
         confirm_button.click()
@@ -103,7 +103,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 点击头像
         avatar_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
         )
         avatar_button.click()
         print("点击头像")
@@ -120,7 +120,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 输入电话号码
         phone_input = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/edit_phone"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/edit_phone"))
         )
         phone_input.send_keys(phone)
         print("输入电话号码")
@@ -128,7 +128,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 输入密码
         password_input = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/ed_pwd"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/ed_pwd"))
         )
         password_input.send_keys(password)
         print("输入密码")
@@ -136,7 +136,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 勾选服务协议
         login_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_login_check"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_login_check"))
         )
         login_button.click()
         print("勾选服务协议")
@@ -144,7 +144,7 @@ def auto_login(driver, phone=None, password=None, accounts=None):
 
         # 点击立即登录
         login_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_login"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_login"))
         )
         login_button.click()
         print("点击立即登录")
@@ -207,7 +207,7 @@ def auto_logout(driver):
 
         # 个人页面
         my_tab = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']"))
+            EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']"))
         )
         my_tab.click()
         print("点击我的")
@@ -215,13 +215,13 @@ def auto_logout(driver):
 
         # 更多菜单
         more_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_more_me"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_more_me"))
         )
         more_button.click()
         print("点击更多菜单")
         time.sleep(random.randint(2, 5))
 
-        # 滑动菜单并点击了个性设置
+        # 滑动菜单并点击个性设置
         while True:
             start_x = random.randint(driver.width * 7 // 10, driver.width * 8 // 10)
             start_y = random.randint(driver.height * 9 // 10, driver.height * 9 // 10)
@@ -235,10 +235,10 @@ def auto_logout(driver):
 
             try:
                 settings = WebDriverWait(driver, 3).until(
-                    _element_located((MobileBy.XPATH, "//android.widget.TextView[@text='个性设置']"))
+                    EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='个性设置']"))
                 )
                 settings.click()
-                print("找到并点击了个性设置")
+                print("点击个性设置")
                 time.sleep(random.randint(2, 5))
                 break  # 成功找到，退出循环
             except TimeoutException:
@@ -250,11 +250,11 @@ def auto_logout(driver):
         if expected_setting_activity not in current_activity:
             print("未能加载到个性设置，退出登出流程。")
             return False
-        print("点击个性设置页。")
+        print("已到达个性设置页。")
 
         # 退出登录
         logout_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']"))
+            EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='退出登录']"))
         )
         logout_button.click()
         print("点击退出登录")
@@ -262,7 +262,7 @@ def auto_logout(driver):
 
         # 继续退出
         continue_to_exit_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']"))
+            EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='继续退出']"))
         )
         continue_to_exit_button.click()
         print("点击继续退出")

@@ -24,7 +24,7 @@ def home_video_bonus(driver):
     try:
         # 直接尝试获取接收弹窗元素
         bg_element = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
         )
         time.sleep(random.randint(2, 5))  # 随机等待2-5秒
         bg_element.click()
@@ -33,7 +33,7 @@ def home_video_bonus(driver):
         # 尝试获取并点击关闭弹窗，仅在元素存在时执行
         try:
             close_element = WebDriverWait(driver, 3).until(
-                EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
             time.sleep(random.randint(2, 5))  # 随机等待2-5秒
             close_element.click()
@@ -56,7 +56,7 @@ def home_video_bonus(driver):
 def daily_dividend_distribution(driver):
     try:
         receive_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_watch_ad"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_watch_ad"))
         )
         time.sleep(random.randint(2, 5))
         receive_button.click()
@@ -84,7 +84,7 @@ def hourly_bonus(driver):
     # 直接尝试获取接收整点红包
     try:
         receive_button = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_receive"))
         )
         time.sleep(random.randint(2, 5))
         receive_button.click()
@@ -97,7 +97,7 @@ def hourly_bonus(driver):
         # 尝试获取并点击关闭弹窗，仅在元素存在时执行
         try:
             close_element = WebDriverWait(driver, 3).until(
-                EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
+                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
             time.sleep(random.randint(2, 5))
             close_element.click()
@@ -124,7 +124,7 @@ def display_page_popup(driver, popup_texts):
         try:
             xpath_expression = f"//*[contains(@text, '{text}')]"
             popup_button = WebDriverWait(driver, 0).until(
-                EC.presence_of_all_elements_located((MobileBy.XPATH, xpath_expression))
+                EC.presence_of_element_located((MobileBy.XPATH, xpath_expression))
             )
             time.sleep(random.randint(1, 3))
             popup_button.click()

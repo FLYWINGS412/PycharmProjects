@@ -51,7 +51,7 @@ def get_stored_close_button(driver):
                         element.size == element_info['size'] and
                         element.is_displayed() and element.is_enabled()):
                     elapsed_time = round(time.time() - start_time, 2)
-                    # print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
+                    print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
                     return element
         except NoSuchElementException:
             continue
@@ -333,7 +333,7 @@ def is_on_ad_page(driver):
 def check_xpath(driver, xpath, idx, i):
     try:
         reward = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.XPATH, xpath))
+            EC.presence_of_element_located((MobileBy.XPATH, xpath))
         )
         if reward.get_attribute("selected") == "true":
             reward.click()
