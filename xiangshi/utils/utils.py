@@ -43,7 +43,9 @@ def get_stored_close_button(driver):
 
     for element_info in stored_elements:
         try:
-            elements = WebDriverWait(driver, 0).until(EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, element_info['className'])))
+            elements = WebDriverWait(driver, 0).until(
+                EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, element_info['className']))
+            )
             for element in elements:
                 if (element.location == element_info['location'] and
                         element.size == element_info['size'] and
@@ -160,7 +162,9 @@ def click_close_button(driver):
 def get_elements(driver, by, value):
     try:
         # 等待元素在DOM中出现，无论是否可见
-        return WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((by, value)))
+        return WebDriverWait(driver, 3).until(
+            EC.presence_of_all_elements_located((by, value))
+        )
     except TimeoutException:
         print("如果在指定时间内没有找到元素，则返回空列表")
         return []
@@ -328,7 +332,9 @@ def is_on_ad_page(driver):
 
 def check_xpath(driver, xpath, idx, i):
     try:
-        reward = WebDriverWait(driver, 3).until(EC.presence_of_element_located((MobileBy.XPATH, xpath)))
+        reward = WebDriverWait(driver, 3).until(
+            EC.presence_of_all_elements_located((MobileBy.XPATH, xpath))
+        )
         if reward.get_attribute("selected") == "true":
             reward.click()
             return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
