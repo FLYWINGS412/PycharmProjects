@@ -12,8 +12,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
-from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError, CancelledError
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from concurrent.futures import ThreadPoolExecutor, as_completed, wait, FIRST_COMPLETED, ALL_COMPLETED, TimeoutError, CancelledError
 from auth import auth
 from tasks import tasks
 from utils import utils
@@ -23,30 +23,46 @@ from popups import popups
 def get_stored_close_button(driver):
     start_time = time.time()  # 开始计时
     elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
-    if os.path.exists(elements_file):
-        with open(elements_file, 'r') as file:
-            for line in file:
-                try:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    element_info = json.loads(line)
-                except json.JSONDecodeError as e:
-                    print(f"JSON解析错误：{e}，内容：{line}")
-                    continue
-                try:
-                    elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
-                    for element in elements:
-                        if (element.location == element_info['location'] and
-                                element.size == element_info['size'] and
-                                element.is_displayed() and element.is_enabled()):
-                            elapsed_time = round(time.time() - start_time, 2)
-                            # print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
-                            return element
-                except NoSuchElementException:
-                    continue
-    else:
+
+    if not os.path.exists(elements_file):
         print(f"文件不存在：{elements_file}")
+        return None
+
+    stored_elements = []
+    with open(elements_file, 'r') as file:
+        for line in file:
+            try:
+                line = line.strip()
+                if not line:
+                    continue
+                element_info = json.loads(line)
+                stored_elements.append(element_info)
+            except json.JSONDecodeError as e:
+                print(f"JSON解析错误：{e}，内容：{line}")
+
+    def find_element(element_info):
+        try:
+            elements = driver.find_elements(MobileBy.CLASS_NAME, element_info['className'])
+            for element in elements:
+                if (element.location == element_info['location'] and
+                        element.size == element_info['size'] and
+                        element.is_displayed() and element.is_enabled()):
+                    elapsed_time = round(time.time() - start_time, 2)
+                    print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
+                    return element
+        except NoSuchElementException:
+            return None
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_element_info = {executor.submit(find_element, info): info for info in stored_elements}
+        for future in as_completed(future_to_element_info):
+            try:
+                element = future.result()
+                if element:
+                    return element
+            except Exception as e:
+                print(f"处理存储元素时出错：{e}")
+
     elapsed_time = round(time.time() - start_time, 2)
     print(f"未找到存储的关闭按钮，用时: {elapsed_time} 秒")
     return None
@@ -65,23 +81,24 @@ def store_close_button(driver, element):
     if not os.path.exists(directory):
         os.makedirs(directory, exist_ok=True)
 
-    # 检查元素是否已存在
+    # 读取已有的元素信息并检查是否已存在
     if os.path.exists(elements_file):
         with open(elements_file, 'r') as file:
-            for line in file:
-                try:
-                    stored_element = json.loads(line.strip())
-                except json.JSONDecodeError as e:
-                    print(f"JSON解析错误：{e}，内容：{line.strip()}")
-                    continue
-                if (stored_element['className'] == element_info['className'] and
-                        stored_element['location'] == element_info['location'] and
-                        stored_element['size'] == element_info['size']):
-                    return  # 元素已存在，直接返回
+            stored_elements = [json.loads(line.strip()) for line in file if line.strip()]
+        for stored_element in stored_elements:
+            if (stored_element['className'] == element_info['className'] and
+                    stored_element['location'] == element_info['location'] and
+                    stored_element['size'] == element_info['size']):
+                return  # 元素已存在，直接返回
+    else:
+        stored_elements = []
 
     # 存储新的元素信息
-    with open(elements_file, 'a') as file:
-        file.write(json.dumps(element_info) + '\n')
+    stored_elements.append(element_info)
+    with open(elements_file, 'w') as file:
+        for item in stored_elements:
+            file.write(json.dumps(item) + '\n')
+
 
 # 点击关闭按钮
 def click_close_button(driver):
