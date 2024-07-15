@@ -82,12 +82,10 @@ def handle_home_page_video(driver, account):
                 print(f"用时: {elapsed_time} 秒")
                 if not elements:
                     print("再次检查后仍未找到首页红包奖励，退出循环")
-                    break
+                    return True
     except Exception as e:
         print(f"在滑屏循环中发生错误：{e}")
         return False
-
-    return True
 
 # 激励视频奖励
 def mutual_assistance_reward(driver, account):
