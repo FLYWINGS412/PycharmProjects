@@ -92,14 +92,14 @@ def handle_home_page_video(driver, account):
 # 激励视频奖励
 def mutual_assistance_reward(driver, account):
     # 检查首页红包奖励是否完成
-    elements = WebDriverWait(driver, 3).until(
-        EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
-    )
-    if elements:
+    try:
+        elements = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/layer_redbag"))
+        )
         print("首页红包奖励未完成，执行首页红包奖励任务")
         handle_home_page_video(driver, account)
         print("首页红包奖励已完成，继续下一步")
-    else:
+    except (TimeoutException, NoSuchElementException):
         print("首页红包奖励已完成，继续下一步")
 
     # 个人页面
