@@ -145,7 +145,7 @@ def mutual_assistance_reward(driver, account):
 
     # 选择作品
     portfolio_elements = WebDriverWait(driver, 3).until(
-        EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb"))
+        EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb"))
     )
     if portfolio_elements:
         # 点击第一排的第一个作品
@@ -743,7 +743,7 @@ def like(driver, account, follow_list):
 
                 # 选择作品
                 portfolio_elements = WebDriverWait(driver, 3).until(
-                    EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb"))
+                    EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/thumb"))
                 )
                 if portfolio_elements:
                     # 点击第一排的第一个作品
