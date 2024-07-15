@@ -103,7 +103,7 @@ def mutual_assistance_reward(driver, account):
         print("首页红包奖励已完成，继续下一步")
 
     # 个人页面
-    my_tab = WebDriverWait(driver, 3).untild(
+    my_tab = WebDriverWait(driver, 3).until(
         EC.presence_of_element_located((MobileBy.XPATH, "//android.widget.TextView[@text='我的']"))
     )
     my_tab.click()
