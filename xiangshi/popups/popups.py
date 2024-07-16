@@ -45,6 +45,7 @@ def home_video_bonus(driver):
 
     except TimeoutException:
         print("未找到弹窗")
+        return True
 
     except Exception as e:
         print(f"处理活动时发生异常：{str(e)}")
