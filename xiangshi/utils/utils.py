@@ -51,7 +51,7 @@ def store_close_button(driver, element):
         for item in stored_elements:
             file.write(json.dumps(item) + '\n')
 
-# 获取关闭按钮信息
+# 获取关闭按钮元素信息
 def get_stored_close_button(driver):
     start_time = time.time()  # 开始计时
     elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
@@ -60,47 +60,67 @@ def get_stored_close_button(driver):
         print(f"文件不存在：{elements_file}")
         elapsed_time = round(time.time() - start_time, 2)
         print(f"未找到存储的关闭按钮，用时: {elapsed_time} 秒")
-        return None
+        return False
 
     stored_elements = []
-    with open(elements_file, 'r') as file:
-        for line in file:
-            try:
-                line = line.strip()
-                if not line:
-                    continue
-                element_info = json.loads(line)
-                stored_elements.append(element_info)
-            except json.JSONDecodeError as e:
-                print(f"JSON解析错误：{e}，内容：{line}")
+    try:
+        with open(elements_file, 'r') as file:
+            for line in file:
+                try:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    element_info = json.loads(line)
+                    stored_elements.append(element_info)
+                except json.JSONDecodeError as e:
+                    print(f"JSON解析错误：{e}，内容：{line}")
+    except Exception as e:
+        print(f"读取存储的关闭按钮信息时发生错误：{e}")
+        return False
 
-    for element_info in stored_elements:
+    def click_element(element_info):
         try:
             x, y = element_info['location']['x'], element_info['location']['y']
             width, height = element_info['size']['width'], element_info['size']['height']
 
-            # 获取屏幕上的所有元素
-            elements = WebDriverWait(driver, 0).until(
-                EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, element_info['className']))
-            )
-            for element in elements:
-                # 获取元素的实际位置和大小
-                location = element.location
-                size = element.size
+            # 使用坐标和大小模拟点击操作
+            TouchAction(driver).tap(x=x + width // 2, y=y + height // 2).perform()
+            print(f"尝试点击位置（{x}, {y}），大小（{width}, {height}）的元素")
+            return True
+        except Exception as e:
+            print(f"点击位置（{x}, {y}）的元素时发生错误：{e}")
+            return False
 
-                # 检查元素的位置和大小是否匹配
-                if (location['x'] == x and location['y'] == y and
-                        size['width'] == width and size['height'] == height and
-                        element.is_displayed() and element.is_enabled()):
-                    elapsed_time = round(time.time() - start_time, 2)
-                    print(f"找到存储的关闭按钮元素：类别-{element_info['className']}, 位置-{element_info['location']}, 大小-{element_info['size']}, 用时: {elapsed_time} 秒")
-                    return element
-        except NoSuchElementException:
-            continue
+    max_attempts = len(stored_elements)
+    attempt = 0
+
+    while attempt < max_attempts:
+        try:
+            initial_activity = get_current_activity(driver)
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                futures = [executor.submit(click_element, element_info) for element_info in stored_elements]
+                for future in as_completed(futures):
+                    if future.result():
+                        time.sleep(1)  # 等待页面加载
+                        post_click_activity = get_current_activity(driver)
+
+                        # 检查是否为目标页面
+                        if post_click_activity in ["com.xiangshi.main.activity.MainActivity", "com.xiangshi.video.activity.VideoPlayActivity"]:
+                            elapsed_time = round(time.time() - start_time, 2)
+                            print(f"成功点击关闭按钮，用时: {elapsed_time} 秒")
+                            return True
+                        elif initial_activity != post_click_activity:
+                            print("页面发生变化但未到达目标页面，继续下一次点击")
+                            break  # 页面发生变化，跳出线程循环重新尝试
+
+            attempt += 1
+            time.sleep(0.1)  # 增加线程间隔时间，避免过多请求同时发送
+        except Exception as e:
+            print(f"在尝试第 {attempt + 1} 次点击时发生错误：{e}")
 
     elapsed_time = round(time.time() - start_time, 2)
     print(f"未找到存储的关闭按钮，用时: {elapsed_time} 秒")
-    return None
+    return False
 
 # 点击关闭按钮
 def click_close_button(driver):
@@ -110,7 +130,6 @@ def click_close_button(driver):
             button = get_close_button(driver)
             if button:
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
-                store_close_button(driver, button)  # 存储找到的关闭按钮
                 button.click()
                 time.sleep(1)  # 等待页面加载
 
