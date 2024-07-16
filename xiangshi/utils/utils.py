@@ -19,6 +19,7 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
+# 获取关闭按钮信息
 def get_stored_close_button(driver):
     start_time = time.time()  # 开始计时
     elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
