@@ -188,8 +188,12 @@ def main():
     task_type = input("请输入任务类型序号: ")
 
     if task_type in ['1', '2']:
-        # 只显示前两个任务，并且只包括未注释的任务
-        available_tasks = [task for task in tasks_list[:2] if task.get('function')]
+        # 根据选择类型显示相应的任务
+        if task_type == '1':
+            available_tasks = [tasks_list[0], tasks_list[1], tasks_list[2]]
+        else:
+            available_tasks = [tasks_list[1], tasks_list[2]]
+
         print("请选择任务:")
         for index, task in enumerate(available_tasks):
             print(f"{index + 1}. {task['name']}")

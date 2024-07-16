@@ -333,6 +333,7 @@ def is_on_assets_page(driver):
 
 # 检查激励视频页
 def is_on_ad_page(driver):
+    time.sleep(3)
     current_activity = get_current_activity(driver)
     expected_VideoPlay_activity = "com.xiangshi.video.activity.VideoPlayActivity"
     if expected_VideoPlay_activity in current_activity:
