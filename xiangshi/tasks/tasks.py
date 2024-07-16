@@ -179,10 +179,12 @@ def mutual_assistance_reward(driver, account):
             )
 
             # 检查头像是否消失
-            try:
-                WebDriverWait(driver, 3).until(
-                    EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_appreciate"))
-                )
+            # try:
+            if not utils.is_on_ad_page(driver):
+
+            # WebDriverWait(driver, 3).until(
+            #     EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_appreciate"))
+            # )
                 print("没检查到头像，加载展示页。")
                 if not handle_display_page(driver):
                     return False
@@ -202,8 +204,8 @@ def mutual_assistance_reward(driver, account):
                         print("达到最大尝试次数，退出循环。")
                         utils.log_mutual_assistance_reward(driver, account)
                         break
-            except TimeoutException:
-                print("检查到头像，继续执行滑动操作。")
+            # except TimeoutException:
+            #     print("检查到头像，继续执行滑动操作。")
         except Exception as e:
             print("未找到或不可点击激励广告。")
 
