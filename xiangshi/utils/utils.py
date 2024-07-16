@@ -19,6 +19,38 @@ from tasks import tasks
 from utils import utils
 from popups import popups
 
+# 存储关闭按钮信息
+def store_close_button(driver, element):
+    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
+    element_info = {
+        'className': element.get_attribute('className'),
+        'location': element.location,
+        'size': element.size
+    }
+
+    # 创建目录和文件
+    directory = os.path.dirname(elements_file)
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+    # 读取已有的元素信息并检查是否已存在
+    if os.path.exists(elements_file):
+        with open(elements_file, 'r') as file:
+            stored_elements = [json.loads(line.strip()) for line in file if line.strip()]
+        for stored_element in stored_elements:
+            if (stored_element['className'] == element_info['className'] and
+                    stored_element['location'] == element_info['location'] and
+                    stored_element['size'] == element_info['size']):
+                return  # 元素已存在，直接返回
+    else:
+        stored_elements = []
+
+    # 存储新的元素信息
+    stored_elements.append(element_info)
+    with open(elements_file, 'w') as file:
+        for item in stored_elements:
+            file.write(json.dumps(item) + '\n')
+
 # 获取关闭按钮信息
 def get_stored_close_button(driver):
     start_time = time.time()  # 开始计时
@@ -70,38 +102,6 @@ def get_stored_close_button(driver):
     print(f"未找到存储的关闭按钮，用时: {elapsed_time} 秒")
     return None
 
-# 存储关闭按钮信息
-def store_close_button(driver, element):
-    elements_file = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), 'record', driver.device_name, 'close_buttons.txt')
-    element_info = {
-        'className': element.get_attribute('className'),
-        'location': element.location,
-        'size': element.size
-    }
-
-    # 创建目录和文件
-    directory = os.path.dirname(elements_file)
-    if not os.path.exists(directory):
-        os.makedirs(directory, exist_ok=True)
-
-    # 读取已有的元素信息并检查是否已存在
-    if os.path.exists(elements_file):
-        with open(elements_file, 'r') as file:
-            stored_elements = [json.loads(line.strip()) for line in file if line.strip()]
-        for stored_element in stored_elements:
-            if (stored_element['className'] == element_info['className'] and
-                    stored_element['location'] == element_info['location'] and
-                    stored_element['size'] == element_info['size']):
-                return  # 元素已存在，直接返回
-    else:
-        stored_elements = []
-
-    # 存储新的元素信息
-    stored_elements.append(element_info)
-    with open(elements_file, 'w') as file:
-        for item in stored_elements:
-            file.write(json.dumps(item) + '\n')
-
 # 点击关闭按钮
 def click_close_button(driver):
     attempts = 0
@@ -110,7 +110,7 @@ def click_close_button(driver):
             button = get_close_button(driver)
             if button:
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
-                # store_close_button(driver, button)  # 存储找到的关闭按钮
+                store_close_button(driver, button)  # 存储找到的关闭按钮
                 button.click()
                 time.sleep(1)  # 等待页面加载
 
@@ -176,12 +176,6 @@ def get_close_button(driver):
     close_button = None
     second_close_button = None
     start_time = time.time()
-
-    # # 优先查找已存储的关闭按钮元素
-    # close_button = get_stored_close_button(driver)
-    # if close_button:
-    #     # print("找到存储的关闭按钮元素")
-    #     return close_button
 
     # 多线程查找关闭按钮元素
     def get_elements(driver, by, value):
