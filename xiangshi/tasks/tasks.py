@@ -160,22 +160,28 @@ def mutual_assistance_reward(driver, account):
     max_attempts = 20  # 最大尝试次数
 
     while True:
-        start_time = time.time()
+        start_time = time.time()  # 记录循环开始时间
 
-        # 激励视频奖励
+        # 检查激励视频奖励
         try:
-            reward_layer = WebDriverWait(driver, 3).until(
-                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
+            # 激励视频奖励
+            reward_layer = driver.wait.until(
+                EC.element_to_be_clickable((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
             )
             time.sleep(random.randint(2, 5))
             reward_layer.click()
             print("点击了激励视频奖励")
+
+            # 等待页面完成加载
             time.sleep(1)
+            WebDriverWait(driver, 60).until(
+                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+            )
 
             # 检查头像是否消失
             try:
-                WebDriverWait(driver, 0).until(
-                    EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/avatar"))
+                WebDriverWait(driver, 3).until(
+                    EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/btn_appreciate"))
                 )
                 print("没检查到头像，加载展示页。")
                 if not handle_display_page(driver):
@@ -197,9 +203,9 @@ def mutual_assistance_reward(driver, account):
                         utils.log_mutual_assistance_reward(driver, account)
                         break
             except TimeoutException:
-                print("头像未消失，继续执行滑动操作。")
-        except TimeoutException:
-            print("未找到激励广告。")
+                print("检查到头像，继续执行滑动操作。")
+        except Exception as e:
+            print("未找到或不可点击激励广告。")
 
         # 执行滑动操作
         utils.swipe_to_scroll(driver)
@@ -395,9 +401,10 @@ def handle_display_page(driver):
     # 检查其他可能的倒计时元素
     def check_countdown_by_id():
         nonlocal element_to_wait
-        text_views = WebDriverWait(driver, 3).until(
+        countdown_element = WebDriverWait(driver, 3).until(
             EC.presence_of_all_elements_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id"))
         )
+        # countdown_element = driver.find_elements(MobileBy.ID, "com.xiangshi.bjxsgc:id/anythink_myoffer_count_down_view_id")
         if countdown_element:
             element_to_wait = countdown_element[0]
             print("找到倒计时元素（'ID'）")
