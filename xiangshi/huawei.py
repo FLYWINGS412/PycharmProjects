@@ -165,7 +165,7 @@ def main():
 
     # 任务菜单
     tasks_list = [
-        # KEEP: {'function': tasks.handle_home_page_video, 'name': '首页红包奖励'},
+        {'function': tasks.handle_home_page_video, 'name': '首页红包奖励'},
         {'function': tasks.mutual_assistance_reward, 'name': '激励视频奖励'},
         {'function': tasks.collect_rewards, 'name': '资产页广告奖励'},
         {'function': tasks.follow, 'name': '自动关注', 'task_args': [follow_list]},
