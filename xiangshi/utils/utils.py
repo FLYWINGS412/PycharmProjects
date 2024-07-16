@@ -167,18 +167,6 @@ def click_close_button(driver):
     print("尝试多次后仍未成功点击按钮。")
     return False
 
-# 多线程查找关闭按钮元素
-def get_elements(driver, by, value):
-    return driver.find_elements(by, value)
-    # try:
-    #     # 等待元素在DOM中出现，无论是否可见
-    #     return WebDriverWait(driver, 3).until(
-    #         EC.presence_of_all_elements_located((by, value))
-    #     )
-    # except TimeoutException:
-    #     # print("如果在指定时间内没有找到元素，则返回空列表")
-    #     return []
-
 # 获取关闭按钮
 def get_close_button(driver):
     attempts = 0
@@ -193,6 +181,10 @@ def get_close_button(driver):
     # if close_button:
     #     # print("找到存储的关闭按钮元素")
     #     return close_button
+
+    # 多线程查找关闭按钮元素
+    def get_elements(driver, by, value):
+        return driver.find_elements(by, value)
 
     while attempts < 5 and not close_button:  # 尝试次数限制
         with ThreadPoolExecutor(max_workers=2) as executor:
