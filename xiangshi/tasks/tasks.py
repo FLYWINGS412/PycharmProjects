@@ -348,7 +348,6 @@ def handle_display_page(driver):
     WebDriverWait(driver, 60).until(
         EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
-    print("展示页加载完成")
 
     try:
         elements = WebDriverWait(driver, 3).until(
@@ -359,7 +358,7 @@ def handle_display_page(driver):
             size = element.size
             if location['x'] < driver.width * 0.15 and location['y'] < driver.height * 0.15 and size['height'] < 70 and size['width'] < 70:
                 # print(f"找到左上角的 RelativeLayout, 位置: {location}, 大小: {size}")
-                print(f"找到左上角的 RelativeLayout")
+                print(f"进入直播间")
 
                 # 进入直播间
                 return browse_live_room(driver)
