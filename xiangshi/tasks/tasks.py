@@ -182,7 +182,7 @@ def mutual_assistance_reward(driver, account):
             )
 
             if not utils.is_on_ad_page(driver):
-                print("没检查到头像，加载展示页。")
+                print("加载展示页。")
                 if not handle_display_page(driver):
                     return False
 
@@ -205,6 +205,10 @@ def mutual_assistance_reward(driver, account):
                 print("检查到头像，继续执行滑动操作。")
         except Exception as e:
             print("未找到或不可点击激励广告。")
+
+        # 首页红包奖励
+        if not popups.home_video_bonus(driver):
+            return False
 
         # 执行滑动操作
         utils.swipe_to_scroll(driver)
