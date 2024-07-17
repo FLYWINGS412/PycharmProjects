@@ -366,7 +366,7 @@ def handle_display_page(driver):
                 return browse_live_room(driver)
     except TimeoutException:
         print("不在直播间")
-        pass  # 如果未找到元素，继续执行后续代码
+        # pass  # 如果未找到元素，继续执行后续代码
 
     element_to_wait = None  # 初始化 element_to_wait 为 None
     event = threading.Event()  # 用于同步倒计时结束的事件
