@@ -165,46 +165,42 @@ def mutual_assistance_reward(driver, account):
     while True:
         start_time = time.time()  # 记录循环开始时间
 
-        # 检查激励视频奖励
-        try:
-            # 激励视频奖励
-            reward_layer = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
-            )
-            time.sleep(random.randint(2, 5))
-            reward_layer.click()
-            print("点击了激励视频奖励")
+        # 激励视频奖励
+        reward_layer = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_reward_ad"))
+        )
+        time.sleep(random.randint(2, 5))
+        reward_layer.click()
+        print("点击了激励视频奖励")
 
-            # 等待页面完成加载
-            time.sleep(1)
-            WebDriverWait(driver, 60).until(
-                EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
-            )
+        # 等待页面完成加载
+        time.sleep(1)
+        WebDriverWait(driver, 60).until(
+            EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
+        )
 
-            if not utils.is_on_ad_page(driver):
-                print("加载展示页。")
-                if not handle_display_page(driver):
-                    return False
+        if not utils.is_on_ad_page(driver):
+            print("加载展示页。")
+            if not handle_display_page(driver):
+                return False
 
-                # 检查是否存在包含“每日”文本的元素
-                try:
-                    WebDriverWait(driver, 3).until(
-                        EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
-                    )
-                    print("检查到'每日20次'文本，程序终止并退出到系统桌面。")
+            # 检查是否存在包含“每日”文本的元素
+            try:
+                WebDriverWait(driver, 3).until(
+                    EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
+                )
+                print("检查到'每日20次'文本，程序终止并退出到系统桌面。")
+                utils.log_mutual_assistance_reward(driver, account)
+                break
+            except TimeoutException:
+                print("未检查到'每日20次'文本，继续执行。")
+                counter += 1
+                if counter >= max_attempts:
+                    print("达到最大尝试次数，退出循环。")
                     utils.log_mutual_assistance_reward(driver, account)
                     break
-                except TimeoutException:
-                    print("未检查到'每日20次'文本，继续执行。")
-                    counter += 1
-                    if counter >= max_attempts:
-                        print("达到最大尝试次数，退出循环。")
-                        utils.log_mutual_assistance_reward(driver, account)
-                        break
-            else:
-                print("检查到头像，继续执行滑动操作。")
-        except Exception as e:
-            print("未找到或不可点击激励广告。")
+        else:
+            print("没有加载展示页，继续执行滑动操作。")
 
         # 首页红包奖励
         if not popups.home_video_bonus(driver):
