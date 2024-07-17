@@ -349,22 +349,22 @@ def handle_display_page(driver):
         EC.invisibility_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/text"))
     )
 
-    try:
-        elements = WebDriverWait(driver, 3).until(
-            EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, "android.widget.RelativeLayout"))
-        )
-        for element in elements:
-            location = element.location
-            size = element.size
-
-            if location['x'] < driver.width * 0.15 and location['y'] < driver.height * 0.15 and size['height'] < 70 and size['width'] < 70:
-                # print(f"找到左上角的 RelativeLayout, 位置: {location}, 大小: {size}")
-                print(f"找到左上角的 RelativeLayout")
-
-                # 进入直播间
-                return browse_live_room(driver)
-    except TimeoutException:
-        pass  # 如果未找到元素，继续执行后续代码
+    # try:
+    #     elements = WebDriverWait(driver, 3).until(
+    #         EC.presence_of_all_elements_located((MobileBy.CLASS_NAME, "android.widget.RelativeLayout"))
+    #     )
+    #     for element in elements:
+    #         location = element.location
+    #         size = element.size
+    #
+    #         if location['x'] < driver.width * 0.15 and location['y'] < driver.height * 0.15 and size['height'] < 70 and size['width'] < 70:
+    #             # print(f"找到左上角的 RelativeLayout, 位置: {location}, 大小: {size}")
+    #             print(f"找到左上角的 RelativeLayout")
+    #
+    #             # 进入直播间
+    #             return browse_live_room(driver)
+    # except TimeoutException:
+    #     pass  # 如果未找到元素，继续执行后续代码
 
     element_to_wait = None  # 初始化 element_to_wait 为 None
     event = threading.Event()  # 用于同步倒计时结束的事件
