@@ -363,10 +363,8 @@ def handle_display_page(driver):
 
                 # 进入直播间
                 return browse_live_room(driver)
-    except TimeoutException:
-        pass  # 忽略超时异常
-    except StaleElementReferenceException:
-        pass  # 忽略元素过期异常
+    except (TimeoutException, StaleElementReferenceException):
+        pass  # 忽略超时异常和元素过期异常
 
     element_to_wait = None  # 初始化 element_to_wait 为 None
     event = threading.Event()  # 用于同步倒计时结束的事件
