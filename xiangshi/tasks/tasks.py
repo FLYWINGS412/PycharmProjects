@@ -533,7 +533,7 @@ def browse_live_room(driver):
                         return True
                     else:
                         print("未成功到达任何预期页面。")
-        except NoSuchElementException:
+        except (TimeoutException, NoSuchElementException):
             continue
         except Exception as e:
             print(f"查找元素时发生错误：{str(e)}")
