@@ -123,7 +123,7 @@ def get_stored_close_button(driver):
     return False
 
 # 点击关闭按钮
-def click_close_button(driver):
+def click_close_button(driver, popup_texts):
     attempts = 0
     while attempts < 5:
         try:
@@ -173,6 +173,8 @@ def click_close_button(driver):
                     return True
                 else:
                     print("未成功到达任何预期页面。")
+                    # 展示页弹窗
+                    popups.display_page_popup(driver, popup_texts)
             else:
                 print("未找到符合条件的右上角关闭按钮。")
         except StaleElementReferenceException:

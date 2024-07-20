@@ -472,7 +472,7 @@ def handle_display_page(driver):
     popups.display_page_popup(driver, popup_texts)
 
     # 调用点击元素函数
-    if not utils.click_close_button(driver):
+    if not utils.click_close_button(driver, popup_texts):
         return False
 
     return True
