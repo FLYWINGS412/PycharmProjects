@@ -117,7 +117,6 @@ def hourly_bonus(driver):
 
 # 展示页弹窗
 def display_page_popup(driver, popup_texts):
-    handled_popup = False
     for text in popup_texts:
         try:
             xpath_expression = f"//*[contains(@text, '{text}')]"
@@ -127,8 +126,7 @@ def display_page_popup(driver, popup_texts):
             time.sleep(random.randint(1, 3))
             popup_button.click()
             print(f"关闭了‘{text}’弹窗。")
-            handled_popup = True
-            break
+            return True
         except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
             continue
-    return handled_popup
+    return True
