@@ -153,13 +153,13 @@ def main():
         {'name': 'WY', 'phone': '18908361223', 'password': '412412'},
         {'name': 'WY', 'phone': '19122094023', 'password': '412412'},
         {'name': 'WY', 'phone': '18996925404', 'password': '412412'},
+        {'name': 'WY', 'phone': '17330963915', 'password': '412412'},
         {'name': 'WY', 'phone': '15523233363', 'password': '412412'},
         {'name': 'WY', 'phone': '18580757722', 'password': '412412'},
         {'name': 'WY', 'phone': '13752881027', 'password': '412412'},
         {'name': 'WY', 'phone': '13508310332', 'password': '412412'},
         {'name': 'WY', 'phone': '13594851384', 'password': '412412'},
         {'name': 'WY', 'phone': '18223780103', 'password': '412412'},
-        {'name': 'WY', 'phone': '17330963915', 'password': '412412'},
         {'name': 'WY', 'phone': '19502391794', 'password': '412412'},
     ]
 
