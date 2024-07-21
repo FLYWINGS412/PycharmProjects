@@ -161,6 +161,7 @@ def mutual_assistance_reward(driver, account):
 
     # 读取计数器值
     counter = utils.read_counter(driver)
+    print(f"当前计数器值：{counter}")
     max_attempts = 20  # 最大尝试次数
 
     while True:
