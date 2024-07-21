@@ -133,9 +133,43 @@ def click_close_button(driver, popup_texts):
                 button.click()
                 time.sleep(1)  # 等待页面加载
 
-                current_activity = get_current_activity(driver)
-                if current_activity in ["com.xiangshi.main.activity.MainActivity", "com.xiangshi.video.activity.VideoPlayActivity"]:
-                    print("已成功到达预期页面。")
+                assets_page_result = [False]
+                ad_page_result = [False]
+                event = threading.Event()
+
+                def check_assets_page():
+                    assets_page_result[0] = is_on_assets_page(driver)
+                    # print(f"检查资产页结果: {assets_page_result[0]}")
+                    if assets_page_result[0]:
+                        event.set()
+
+                def check_ad_page():
+                    ad_page_result[0] = is_on_ad_page(driver)
+                    # print(f"检查激励视频页结果: {ad_page_result[0]}")
+                    if ad_page_result[0]:
+                        event.set()
+
+                assets_page_thread = threading.Thread(target=check_assets_page)
+                ad_page_thread = threading.Thread(target=check_ad_page)
+
+                assets_page_thread.start()
+                ad_page_thread.start()
+
+                # 设置超时避免无限等待
+                event.wait(timeout=3)
+
+                # 确保线程结束
+                assets_page_thread.join()
+                ad_page_thread.join()
+
+                assets_result = assets_page_result[0]
+                ad_result = ad_page_result[0]
+
+                if assets_result or ad_result:
+                    if assets_result:
+                        print("已成功到达资产页。")
+                    if ad_result:
+                        print("已成功到达激励视频页")
                     return True
                 else:
                     print("未成功到达任何预期页面。")
@@ -143,8 +177,12 @@ def click_close_button(driver, popup_texts):
                     popups.display_page_popup(driver, popup_texts)
             else:
                 print("未找到符合条件的右上角关闭按钮。")
-        except (StaleElementReferenceException, NoSuchElementException, TimeoutException) as e:
-            print(f"处理元素时发生错误：{e}")
+        except StaleElementReferenceException:
+            print("元素状态已改变，正在重新获取元素。")
+        except NoSuchElementException:
+            print("未能定位到元素，可能页面已更新。")
+        except TimeoutException:
+            print("元素不可点击，超时。")
         except Exception as e:
             print(f"尝试点击右上角关闭按钮时发生错误：{str(e)}")
         attempts += 1
@@ -165,8 +203,6 @@ def get_close_button(driver):
         return driver.find_elements(by, value)
 
     while attempts < 5 and not close_button:  # 尝试次数限制
-        print(f"尝试 第{attempts+1}次 查找关闭按钮")
-
         with ThreadPoolExecutor(max_workers=2) as executor:
             # 创建两个查找任务
             futures = [
@@ -223,10 +259,11 @@ def get_close_button(driver):
             except StaleElementReferenceException:
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
-        attempts += 1
         if close_button:
             # print("找到可能的关闭按钮")
             break  # 找到合适的关闭按钮，提前退出循环
+
+        attempts += 1
 
     # 最终选择，考虑两个元素X坐标相同的情况
     if close_button and second_close_button:
