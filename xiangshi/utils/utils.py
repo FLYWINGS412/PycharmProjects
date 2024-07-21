@@ -430,6 +430,40 @@ def has_completed_mutual_assistance_reward(account, device_name):
                     return True
     return False
 
+# 激励视频奖励读取计数器值
+def read_counter(driver):
+    try:
+        # 确保driver有device_name属性
+        if not hasattr(driver, 'device_name') or not driver.device_name:
+            raise ValueError("Driver没有正确设置device_name属性")
+
+        directory = os.path.join("record", driver.device_name)
+        counter_file = os.path.join(directory, 'counter.txt')  # 存储计数器值的文件
+
+        if os.path.exists(counter_file):
+            with open(counter_file, 'r') as file:
+                return int(file.read().strip())
+    except Exception as e:
+        print(f"读取计数器时发生异常：{e}")
+    return 0
+
+# 激励视频奖励写入计数器值
+def write_counter(driver, counter):
+    try:
+        # 确保driver有device_name属性
+        if not hasattr(driver, 'device_name') or not driver.device_name:
+            raise ValueError("Driver没有正确设置device_name属性")
+
+        directory = os.path.join("record", driver.device_name)
+        if not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+        counter_file = os.path.join(directory, 'counter.txt')  # 存储计数器值的文件
+
+        with open(counter_file, 'w') as file:
+            file.write(str(counter))
+    except Exception as e:
+        print(f"写入计数器时发生异常：{e}")
+
 # 初始化系统日期
 def initialize_system_date(device_name):
     try:

@@ -159,8 +159,7 @@ def mutual_assistance_reward(driver, account):
     )
     print("页面已正常加载")
 
-    # 读取计数器值
-    counter = utils.read_counter(driver)
+    counter = 0  # 初始化计数器
     max_attempts = 20  # 最大尝试次数
 
     while True:
@@ -193,18 +192,13 @@ def mutual_assistance_reward(driver, account):
                         EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
                     )
                     print("检查到'每日20次'文本，程序终止并退出到系统桌面。")
-                    counter = 0  # 重置计数器
-                    utils.write_counter(driver, counter)
                     utils.log_mutual_assistance_reward(driver, account)
                     break
                 except TimeoutException:
                     print("未检查到'每日20次'文本，继续执行。")
                     counter += 1
-                    utils.write_counter(driver, counter)
                     if counter >= max_attempts:
                         print("达到最大尝试次数，退出循环。")
-                        counter = 0  # 重置计数器
-                        utils.write_counter(driver, counter)
                         utils.log_mutual_assistance_reward(driver, account)
                         break
             else:
