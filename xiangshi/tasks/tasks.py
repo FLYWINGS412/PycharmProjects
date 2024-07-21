@@ -210,6 +210,10 @@ def mutual_assistance_reward(driver, account):
         if not popups.home_video_bonus(driver):
             return False
 
+        # 检查激励视频页
+        if not utils.is_on_ad_page(driver):
+            return False
+
         # 执行滑动操作
         utils.swipe_to_scroll(driver)
 
