@@ -165,7 +165,7 @@ def get_close_button(driver):
         return driver.find_elements(by, value)
 
     while attempts < 5 and not close_button:  # 尝试次数限制
-        print(f"尝试 第{attempts+1}次 查找关闭按钮")
+        # print(f"尝试 第{attempts+1}次 查找关闭按钮")
 
         with ThreadPoolExecutor(max_workers=2) as executor:
             # 创建两个查找任务
