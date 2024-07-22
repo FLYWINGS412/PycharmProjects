@@ -70,8 +70,7 @@ def daily_dividend_distribution(driver):
             return False
 
         return True
-
-    except TimeoutException:
+    except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
         print("未找到每日股东分红")
         return True
 
@@ -107,7 +106,7 @@ def hourly_bonus(driver):
             # print("未找到关闭弹窗")
             pass
 
-    except TimeoutException:
+    except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
         print("未找到整点红包")
         return True
 
