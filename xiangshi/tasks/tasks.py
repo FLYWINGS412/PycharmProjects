@@ -256,9 +256,16 @@ def collect_rewards(driver, account):
         if not popups.daily_dividend_distribution(driver):
             return False
 
+        attempt_counter = 0
+        max_attempts = 20
         # 点击领取
         while True:
             start_time = time.time()  # 记录循环开始时间
+
+            # 检查是否达到最大尝试次数
+            if attempt_counter >= max_attempts:
+                print(f"已达到最大尝试次数 {max_attempts}，终止操作。")
+                return False
 
             # 整点红包奖励
             if not popups.hourly_bonus(driver):
@@ -290,6 +297,7 @@ def collect_rewards(driver, account):
 
             except TimeoutException:
                 print("等待元素超时")
+                attempt_counter += 1  # 增加计数器
             except NoSuchElementException:
                 print("未找到指定元素")
             except Exception as e:
