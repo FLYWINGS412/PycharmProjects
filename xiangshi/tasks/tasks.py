@@ -188,26 +188,14 @@ def mutual_assistance_reward(driver, account):
                 if not handle_display_page(driver):
                     return False
 
-                # 检查是否存在包含“每日”文本的元素
-                try:
-                    WebDriverWait(driver, 3).until(
-                        EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
-                    )
-                    print("检查到'每日20次'文本，程序终止并退出到系统桌面。")
+                counter += 1
+                utils.write_counter(driver, counter)
+                if counter >= max_attempts:
+                    print("达到最大尝试次数，退出循环。")
                     counter = 0  # 重置计数器
                     utils.write_counter(driver, counter)
                     utils.log_mutual_assistance_reward(driver, account)
                     break
-                except TimeoutException:
-                    print("未检查到'每日20次'文本，继续执行。")
-                    counter += 1
-                    utils.write_counter(driver, counter)
-                    if counter >= max_attempts:
-                        print("达到最大尝试次数，退出循环。")
-                        counter = 0  # 重置计数器
-                        utils.write_counter(driver, counter)
-                        utils.log_mutual_assistance_reward(driver, account)
-                        break
             else:
                 print("没有加载展示页，继续执行滑动操作。")
         except Exception as e:
@@ -436,7 +424,7 @@ def handle_display_page(driver):
 
     try:
         start_time = time.time()
-        timeout = 35
+        timeout = 30
         popup_texts = ["放弃", "离开", "取消"]
 
         while True:
@@ -453,7 +441,7 @@ def handle_display_page(driver):
             if element_to_wait and isinstance(element_to_wait, WebElement):
                 try:
                     WebDriverWait(driver, 0).until(
-                        lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None
+                        lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None or not element_to_wait.is_displayed()
                     )
                     print("倒计时结束。")
                     break  # 结束while循环
