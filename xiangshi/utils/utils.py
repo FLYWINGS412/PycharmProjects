@@ -152,7 +152,7 @@ def click_close_button(driver, popup_texts):
     return False
 
 # 获取关闭按钮
-def get_close_button(driver):
+def get_close_button(driver, attempts):
     attempts = 0
     min_distance = float('inf')
     second_min_distance = float('inf')
