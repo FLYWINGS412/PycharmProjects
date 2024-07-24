@@ -127,7 +127,7 @@ def click_close_button(driver, popup_texts):
     attempts = 0
     while attempts < 5:
         try:
-            button = get_close_button(driver, attempts)
+            button = get_close_button(driver)
             if button:
                 print(f"尝试点击右上角关闭按钮：类别-{button.get_attribute('className')}, 位置-{button.location}, 大小-{button.size}")
                 button.click()
@@ -152,8 +152,8 @@ def click_close_button(driver, popup_texts):
     return False
 
 # 获取关闭按钮
-def get_close_button(driver, attempts):
-    get_attempts = 0
+def get_close_button(driver):
+    attempts = 0
     min_distance = float('inf')
     second_min_distance = float('inf')
     close_button = None
@@ -164,7 +164,7 @@ def get_close_button(driver, attempts):
     def get_elements(driver, by, value):
         return driver.find_elements(by, value)
 
-    while get_attempts < 5 and not close_button:  # 尝试次数限制
+    while attempts < 5 and not close_button:  # 尝试次数限制
         # print(f"尝试 第{attempts+1}次 查找关闭按钮")
 
         with ThreadPoolExecutor(max_workers=2) as executor:
@@ -199,8 +199,8 @@ def get_close_button(driver, attempts):
                 if x_right_top < driver.width * 0.8 or y_right_top > driver.height * 0.15:
                     continue
 
-                # 如果 attempts 大于 0，排除指定坐标和大小的元素
-                if attempts > 0 and element.location['x'] == 646 and element.location['y'] == 48 and element.size['height'] == 25 and element.size['width'] == 25:
+                # 排除指定坐标和大小的元素
+                if element.location['x'] == 646 and element.location['y'] == 48 and element.size['height'] == 25 and element.size['width'] == 25:
                     continue
 
                 # 优先检查元素是否可见和可点击
@@ -223,7 +223,7 @@ def get_close_button(driver, attempts):
             except StaleElementReferenceException:
                 break  # 退出内部循环，将触发外部循环重新获取元素
 
-        get_attempts += 1
+        attempts += 1
         if close_button:
             # print("找到可能的关闭按钮")
             break  # 找到合适的关闭按钮，提前退出循环
