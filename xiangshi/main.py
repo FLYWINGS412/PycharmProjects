@@ -21,16 +21,16 @@ from popups import popups
 
 # 全局变量
 driver = None
-device_name = 'huawei'
+device_name = 'main'
 
 # 驱动参数
 def create_driver():
     global driver
     desired_caps = {
         'platformName': 'Android',
-        'platformVersion': '9',
+        'platformVersion': '12',
         'deviceName': device_name,
-        'udid': '8RYBB18404152438',
+        'udid': 'localhost:7555',
         'appPackage': 'com.xiangshi.bjxsgc',
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'automationName': 'UiAutomator2',
@@ -42,7 +42,7 @@ def create_driver():
         'noReset': True
     }
 
-    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+    driver = webdriver.Remote('http://localhost:4725/wd/hub', desired_caps)
     driver.wait = WebDriverWait(driver, 10)
     size = driver.get_window_size()
     driver.width = size['width']
