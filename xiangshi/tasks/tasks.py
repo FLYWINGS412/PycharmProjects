@@ -190,6 +190,7 @@ def mutual_assistance_reward(driver, account):
 
                 counter += 1
                 utils.write_counter(driver, counter)
+                print(f"已领取 {counter} 个激励视频奖励")
                 if counter >= max_attempts:
                     print("达到最大尝试次数，退出循环。")
                     counter = 0  # 重置计数器
