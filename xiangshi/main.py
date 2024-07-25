@@ -21,16 +21,16 @@ from popups import popups
 
 # 全局变量
 driver = None
-device_name = 'main'
+device_name = 'huawei'
 
 # 驱动参数
 def create_driver():
     global driver
     desired_caps = {
         'platformName': 'Android',
-        'platformVersion': '12',
+        'platformVersion': '9',
         'deviceName': device_name,
-        'udid': 'localhost:7555',
+        'udid': '8RYBB18404152438',
         'appPackage': 'com.xiangshi.bjxsgc',
         'appActivity': 'com.xiangshi.bjxsgc.activity.LauncherActivity',
         'automationName': 'UiAutomator2',
@@ -42,7 +42,7 @@ def create_driver():
         'noReset': True
     }
 
-    driver = webdriver.Remote('http://localhost:4725/wd/hub', desired_caps)
+    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
     driver.wait = WebDriverWait(driver, 10)
     size = driver.get_window_size()
     driver.width = size['width']
@@ -79,7 +79,7 @@ def execute_task(task_function, account, task_args=None):
 
         return True
     except Exception as e:
-        print(f"处理中发生异常: {type(e).__name__}, 信息: {str(e)}")
+        print(f"处理中发生异常: 信息: {str(e)}")
         return False
     finally:
         if driver:
@@ -156,7 +156,7 @@ def main():
 
     # 任务菜单
     tasks_list = [
-        # KEEP: {'function': tasks.handle_home_page_video, 'name': '首页红包奖励'},
+        {'function': tasks.handle_home_page_video, 'name': '首页红包奖励'},
         {'function': tasks.mutual_assistance_reward, 'name': '激励视频奖励'},
         {'function': tasks.collect_rewards, 'name': '资产页广告奖励'},
         {'function': tasks.follow, 'name': '自动关注', 'task_args': [follow_list]},
