@@ -54,7 +54,7 @@ def home_video_bonus(driver):
 # 每日股东分红
 def daily_dividend_distribution(driver):
     try:
-        receive_button = WebDriverWait(driver, 5).until(
+        receive_button = WebDriverWait(driver, 3).until(
             EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/txt_watch_ad"))
         )
         time.sleep(random.randint(2, 5))
@@ -95,7 +95,7 @@ def hourly_bonus(driver):
 
         # 尝试获取并点击关闭弹窗，仅在元素存在时执行
         try:
-            close_element = WebDriverWait(driver, 5).until(
+            close_element = WebDriverWait(driver, 3).until(
                 EC.presence_of_element_located((MobileBy.ID, "com.xiangshi.bjxsgc:id/iv_close"))
             )
             time.sleep(random.randint(2, 5))
