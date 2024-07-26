@@ -96,7 +96,7 @@ def mutual_assistance_reward(driver, account):
         print("首页红包奖励未完成，执行首页红包奖励任务")
         handle_home_page_video(driver, account)
         print("首页红包奖励已完成，继续下一步。")
-    except (TimeoutException, NoSuchElementException):
+    except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
         print("首页红包奖励已完成，继续下一步。")
 
     # 个人页面
@@ -230,7 +230,7 @@ def collect_rewards(driver, account):
             print("首页红包奖励未完成，执行首页红包奖励任务")
             handle_home_page_video(driver, account)
             print("首页红包奖励已完成，继续下一步。")
-        except (TimeoutException, NoSuchElementException):
+        except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
             print("首页红包奖励已完成，继续下一步。")
 
         # 跳转到资产页
@@ -369,7 +369,7 @@ def handle_display_page(driver):
 
                 # 进入直播间
                 return browse_live_room(driver)
-    except (TimeoutException, StaleElementReferenceException):
+    except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
         pass  # 忽略超时异常和元素过期异常
 
     element_to_wait = None  # 初始化 element_to_wait 为 None
@@ -507,7 +507,7 @@ def browse_live_room(driver):
                         return True
                     else:
                         print("未成功到达任何预期页面。")
-        except (TimeoutException, NoSuchElementException):
+        except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
             continue
         except Exception as e:
             print(f"查找元素时发生错误：{str(e)}")

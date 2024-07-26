@@ -321,10 +321,8 @@ def check_xpath(driver, xpath, idx, i):
             return f"成功点击第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
         else:
             return f"元素存在但未选中，未点击第 {i} 个奖励，使用的第 {idx + 1} 种XPath"
-    except TimeoutException:
+    except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
         return f"未能及时找到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
-    except NoSuchElementException:
-        return f"未能定位到第 {i} 个领取奖励，使用的第 {idx + 1} 种XPath"
     except Exception as e:
         return f"尝试点击第 {i} 个领取奖励时发生异常，使用的第 {idx + 1} 种XPath，异常：{e}"
 
