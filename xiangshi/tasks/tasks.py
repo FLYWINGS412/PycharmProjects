@@ -366,7 +366,6 @@ def handle_display_page(driver):
             size = element.size
             if location['x'] < driver.width * 0.15 and location['y'] < driver.height * 0.15 and size['height'] < 70 and size['width'] < 70:
                 # print(f"找到左上角的 RelativeLayout, 位置: {location}, 大小: {size}")
-                print(f"进入直播间")
 
                 # 进入直播间
                 return browse_live_room(driver)
@@ -487,15 +486,14 @@ def handle_display_page(driver):
 
 # 直播间
 def browse_live_room(driver):
-    print("未找到倒计时元素，随便逛逛。")
-
+    print("进入直播间")
     while True:
         time.sleep(random.randint(5, 8))
         utils.swipe_to_scroll(driver)
         try:
             element = driver.find_element(MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]")
             if element:
-                print(f"找到元素 “{element.text}”，退出逛街。")
+                print(f"找到元素 “{element.text}”，退出直播间。")
 
                 max_attempts = 5
                 attempts = 0
