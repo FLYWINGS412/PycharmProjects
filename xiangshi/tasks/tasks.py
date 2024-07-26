@@ -501,14 +501,14 @@ def browse_live_room(driver):
                 attempts = 0
                 while attempts < max_attempts:
                     driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
-                    time.sleep(1)
-
-                current_activity = get_current_activity(driver)
-                if current_activity in ["com.xiangshi.main.activity.MainActivity", "com.xiangshi.video.activity.VideoPlayActivity"]:
-                    print("已成功到达预期页面。")
-                    return True
-                else:
-                    print("未成功到达任何预期页面。")
+                    time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
+                    attempts += 1
+                    current_activity = utils.get_current_activity(driver)
+                    if current_activity in ["com.xiangshi.main.activity.MainActivity", "com.xiangshi.video.activity.VideoPlayActivity"]:
+                        print("已成功到达预期页面。")
+                        return True
+                    else:
+                        print("未成功到达任何预期页面。")
         except (TimeoutException, NoSuchElementException):
             continue
         except Exception as e:
