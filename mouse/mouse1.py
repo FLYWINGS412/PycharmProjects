@@ -3,7 +3,6 @@ import ctypes
 import threading
 import tkinter as tk
 from tkinter import messagebox
-import random
 from pynput import keyboard as pynput_keyboard
 
 # 加载user32.dll，用于模拟点击
@@ -20,25 +19,31 @@ current_keys = set()
 # 用于存储监听器对象
 keyboard_listener = None
 
-def click_mouse_left():
+def click_mouse_left(interval):
     """左键点击操作，按指定间隔进行点击"""
+    next_click = time.time()
     while clicking_left:
         user32.mouse_event(2, 0, 0, 0, 0)  # 鼠标左键按下
         user32.mouse_event(4, 0, 0, 0, 0)  # 鼠标左键松开
-        interval = 1 / clicks_per_second + random.uniform(-0.01, 0.01)  # 引入随机延迟
-        time.sleep(interval)
+        next_click += interval
+        sleep_time = next_click - time.time()
+        if sleep_time > 0:
+            time.sleep(sleep_time)
 
-def click_mouse_right():
+def click_mouse_right(interval):
     """右键点击操作，按指定间隔进行点击"""
+    next_click = time.time()
     while clicking_right:
         user32.mouse_event(8, 0, 0, 0, 0)  # 鼠标右键按下
         user32.mouse_event(16, 0, 0, 0, 0)  # 鼠标右键松开
-        interval = 1 / clicks_per_second + random.uniform(-0.01, 0.01)  # 引入随机延迟
-        time.sleep(interval)
+        next_click += interval
+        sleep_time = next_click - time.time()
+        if sleep_time > 0:
+            time.sleep(sleep_time)
 
 def toggle_clicking_left():
     """切换左键点击状态"""
-    global clicking_left, clicks_per_second
+    global clicking_left
     if clicking_left:
         clicking_left = False
         print("停止左键自动点击。")
@@ -46,13 +51,14 @@ def toggle_clicking_left():
         clicks_per_second = int(clicks_entry.get())
         if clicks_per_second <= 0:
             raise ValueError("点击次数必须大于0。")
+        click_interval = 1 / clicks_per_second
         clicking_left = True
-        threading.Thread(target=click_mouse_left).start()
+        threading.Thread(target=click_mouse_left, args=(click_interval,)).start()
         print("开始左键自动点击。")
 
 def toggle_clicking_right():
     """切换右键点击状态"""
-    global clicking_right, clicks_per_second
+    global clicking_right
     if clicking_right:
         clicking_right = False
         print("停止右键自动点击。")
@@ -60,8 +66,9 @@ def toggle_clicking_right():
         clicks_per_second = int(clicks_entry.get())
         if clicks_per_second <= 0:
             raise ValueError("点击次数必须大于0。")
+        click_interval = 1 / clicks_per_second
         clicking_right = True
-        threading.Thread(target=click_mouse_right).start()
+        threading.Thread(target=click_mouse_right, args=(click_interval,)).start()
         print("开始右键自动点击。")
 
 def on_press(key):
