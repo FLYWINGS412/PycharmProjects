@@ -441,11 +441,13 @@ def handle_display_page(driver):
             if element_to_wait and isinstance(element_to_wait, WebElement):
                 try:
                     WebDriverWait(driver, 0).until(
-                        lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None
+                        lambda driver: re.match(r"0\s*s?", element_to_wait.text) is not None or "恭喜" in element_to_wait.text
                     )
                     print("倒计时结束。")
+                    # print(f"倒计时结束，当前文本：{element_to_wait.text}")
                     break  # 结束while循环
                 except TimeoutException:
+                    # print(f"倒计时未结束，当前文本：{element_to_wait.text}")
                     continue  # 继续while循环
                 except (NoSuchElementException, StaleElementReferenceException):
                     print("倒计时元素已从DOM中移除，倒计时结束。")
