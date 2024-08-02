@@ -489,6 +489,9 @@ def handle_display_page(driver):
 # 直播间
 def browse_live_room(driver):
     print("进入直播间")
+    start_time = time.time()  # 记录开始时间
+    timeout = 60  # 设置超时时间为60秒
+
     while True:
         time.sleep(random.randint(5, 8))
         utils.swipe_to_scroll(driver)
