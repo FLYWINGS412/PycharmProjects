@@ -492,6 +492,12 @@ def browse_live_room(driver):
     while True:
         time.sleep(random.randint(5, 8))
         utils.swipe_to_scroll(driver)
+
+        current_time = time.time()  # 记录当前时间
+        if current_time - start_time > timeout:
+            print("已超过最大等待时间，终止直播间浏览。")
+            break
+
         try:
             element = driver.find_element(MobileBy.XPATH, "//android.view.View[contains(@text, '已发放') or contains(@text, '已完成')]")
             if element:
@@ -514,6 +520,20 @@ def browse_live_room(driver):
         except Exception as e:
             print(f"查找元素时发生错误：{str(e)}")
             return False
+
+    # 超时处理
+    max_attempts = 5
+    attempts = 0
+    while attempts < max_attempts:
+        driver.press_keycode(AndroidKey.BACK)  # 发送物理返回键命令
+        time.sleep(random.randint(2, 5))  # 等待2秒以观察效果
+        attempts += 1
+        current_activity = utils.get_current_activity(driver)
+        if current_activity in ["com.xiangshi.main.activity.MainActivity", "com.xiangshi.video.activity.VideoPlayActivity"]:
+            print("已成功到达预期页面。")
+            return True
+        else:
+            print("未成功到达任何预期页面。")
 
 # 关注
 def follow(driver, account, follow_list):
