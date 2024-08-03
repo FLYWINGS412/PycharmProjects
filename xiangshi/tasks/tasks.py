@@ -188,15 +188,26 @@ def mutual_assistance_reward(driver, account):
                 if not handle_display_page(driver):
                     return False
 
-                counter += 1
-                utils.write_counter(driver, counter)
-                print(f"已领取 {counter} 个激励视频奖励")
-                if counter >= max_attempts:
-                    print("达到最大尝试次数，退出循环。")
+                # 检查是否存在包含“每日”文本的元素
+                try:
+                    WebDriverWait(driver, 3).until(
+                        EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '每日20次')]"))
+                    )
+                    print("检查到'每日20次'文本，程序终止并退出到系统桌面。")
                     counter = 0  # 重置计数器
                     utils.write_counter(driver, counter)
                     utils.log_mutual_assistance_reward(driver, account)
                     break
+                except TimeoutException:
+                    counter += 1
+                    utils.write_counter(driver, counter)
+                    print(f"已领取 {counter} 个激励视频奖励")
+                    if counter >= max_attempts:
+                        print("达到最大尝试次数，退出循环。")
+                        counter = 0  # 重置计数器
+                        utils.write_counter(driver, counter)
+                        utils.log_mutual_assistance_reward(driver, account)
+                        break
             else:
                 print("没有加载展示页，继续执行滑动操作。")
         except Exception as e:
