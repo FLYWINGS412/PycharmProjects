@@ -560,8 +560,19 @@ def browse_live_room(driver):
         if current_activity in ["com.xiangshi.main.activity.MainActivity", "com.xiangshi.video.activity.VideoPlayActivity"]:
             print("已成功到达预期页面。")
             return True
-        else:
-            print("未成功到达任何预期页面。")
+    else:
+        print("未成功到达任何预期页面。")
+        try:
+            # 查找并点击含有“退出”文本的元素
+            exit_element = WebDriverWait(driver, 3).until(
+                EC.presence_of_element_located((MobileBy.XPATH, "//*[contains(@text, '退出')]"))
+            )
+            time.sleep(random.randint(1, 3))
+            exit_element.click()
+            print("点击了‘退出’按钮。")
+            return True
+        except (TimeoutException, NoSuchElementException):
+            print("未找到‘退出’按钮。")
 
 # 关注
 def follow(driver, account, follow_list):
