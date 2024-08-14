@@ -255,7 +255,7 @@ def swipe_up(driver):
     duration = random.randint(200, 500)
     action = TouchAction(driver)
     action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
-    print(f"从 ({start_x}, {start_y}) 滑动到 ({end_x}, {end_y})，持续时间为 {duration} 毫秒")
+    print(f"Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) with duration {duration}ms")
 
 # 滑屏翻页（向下）
 def swipe_to_scroll(driver):
