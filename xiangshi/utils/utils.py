@@ -246,7 +246,18 @@ def get_close_button(driver):
 
     return close_button
 
-# 滑屏翻页
+# 滑屏翻页（向上）
+def swipe_up(driver):
+    start_x = random.randint(driver.width * 5 // 10, driver.width * 6 // 10)
+    start_y = random.randint(driver.height * 1 // 10, driver.height * 1 // 10)
+    end_x = random.randint(driver.width * 4 // 10, driver.width * 5 // 10)
+    end_y = random.randint(driver.height * 8 // 10, driver.height * 8 // 10)
+    duration = random.randint(200, 500)
+    action = TouchAction(driver)
+    action.press(x=start_x, y=start_y).wait(duration).move_to(x=end_x, y=end_y).release().perform()
+    print(f"从 ({start_x}, {start_y}) 滑动到 ({end_x}, {end_y})，持续时间为 {duration} 毫秒")
+
+# 滑屏翻页（向下）
 def swipe_to_scroll(driver):
     start_x = random.randint(driver.width * 4 // 10, driver.width * 5 // 10)
     start_y = random.randint(driver.height * 8 // 10, driver.height * 8 // 10)

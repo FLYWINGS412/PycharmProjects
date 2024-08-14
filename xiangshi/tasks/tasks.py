@@ -503,9 +503,23 @@ def browse_live_room(driver):
     start_time = time.time()  # 记录开始时间
     timeout = 60  # 设置超时时间为60秒
 
+    down_swipes = 0  # 记录向下滑动的次数
+    up_swipes = 0  # 记录向上滑动的次数
+
     while True:
         time.sleep(random.randint(5, 8))
-        utils.swipe_to_scroll(driver)
+
+        # 控制滑动方向
+        if down_swipes < 2:
+            utils.swipe_to_scroll(driver)  # 向下滑动
+            down_swipes += 1
+        elif up_swipes < 2:
+            utils.swipe_up(driver)  # 向上滑动
+            up_swipes += 1
+        else:
+            # 当向下和向上都滑动了2次后，重置计数器
+            down_swipes = 0
+            up_swipes = 0
 
         current_time = time.time()  # 记录当前时间
         if current_time - start_time > timeout:
