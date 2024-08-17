@@ -501,7 +501,7 @@ def handle_display_page(driver):
 def browse_live_room(driver):
     print("进入直播间")
     start_time = time.time()  # 记录开始时间
-    timeout = 60  # 设置超时时间为60秒
+    timeout = 90  # 设置超时时间为60秒
 
     down_swipes = 0  # 记录向下滑动的次数
     up_swipes = 0  # 记录向上滑动的次数
