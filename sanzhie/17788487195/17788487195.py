@@ -75,11 +75,11 @@ def find_close_button(driver):
             continue  # 继续查找“跳过”按钮
         else:
             # print("[DEBUG] 未检测到'跳过'按钮，继续查找其他元素...")
+            time.sleep(5)
             break  # 退出查找“跳过”按钮的循环
 
     # 查找其他关闭按钮元素
     while attempts < max_attempts:
-        time.sleep(5)
         # print(f"[DEBUG] 尝试次数: {attempts + 1}/{max_attempts}")
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = []

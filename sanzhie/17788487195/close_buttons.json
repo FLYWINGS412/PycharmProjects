@@ -6,3 +6,4 @@
 {"size": {"height": 66, "width": 66}, "location": {"x": 912, "y": 476}, "class_name": "android.widget.ImageView"}
 {"size": {"height": 58, "width": 58}, "location": {"x": 80, "y": 383}, "class_name": "android.widget.ImageView"}
 {"size": {"height": 66, "width": 66}, "location": {"x": 955, "y": 357}, "class_name": "android.widget.ImageView"}
+{"size": {"height": 72, "width": 72}, "location": {"x": 958, "y": 255}, "class_name": "android.widget.ImageView"}
