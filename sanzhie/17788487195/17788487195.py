@@ -225,7 +225,7 @@ def main():
     desired_caps = {
         'platformName': 'Android',
         'platformVersion': '13',
-        'deviceName': '192.168.0.213:43359',
+        'deviceName': 'MI 10',
         'udid': '192.168.0.40:42635',
         # 'appPackage': 'com.guokun.darenzhushou',
         # 'appActivity': 'com.example.advertisinglibrary.activity.MainActivity',
