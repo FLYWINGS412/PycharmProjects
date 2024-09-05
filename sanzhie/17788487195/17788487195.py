@@ -146,9 +146,9 @@ def click_close_button(driver):
 
             if len(matched_elements) == 1:
                 # 随机等待 30 到 60 秒
-                sleep_duration = random.randint(10, 30)
-                print(f"[DEBUG] 成功匹配广告，等待 {sleep_duration} 秒")
-                time.sleep(sleep_duration)
+                # sleep_duration = random.randint(10, 30)
+                # print(f"[DEBUG] 成功匹配广告，等待 {sleep_duration} 秒")
+                # time.sleep(sleep_duration)
 
                 selected_element = matched_elements[0]
                 class_name = selected_element.get_attribute("class")
@@ -156,7 +156,6 @@ def click_close_button(driver):
                 location = selected_element.location
                 selected_element.click()
                 print(f"[DEBUG] 已点击: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
-
 
             elif len(matched_elements) > 1:
                 print("[DEBUG] 匹配到多个关闭按钮元素，请选择一个：")
@@ -185,8 +184,9 @@ def click_close_button(driver):
                     continue
             else:
                 if retry_count < 3:
-                    print("[DEBUG] 未匹配到任何存储的关闭按钮元素，重新查找一次...")
                     retry_count += 1
+                    print(f"[DEBUG] 未匹配到任何存储的关闭按钮元素，重试第 {retry_count} 次...")
+                    time.sleep(2)  # 每次重试前等待
                     continue  # 重新查找一次
 
                 else:
@@ -226,7 +226,7 @@ def main():
         'platformName': 'Android',
         'platformVersion': '13',
         'deviceName': 'MI 10',
-        'udid': '192.168.0.213:42195',
+        'udid': '192.168.0.40:38205',
         # 'appPackage': 'com.guokun.darenzhushou',
         # 'appActivity': 'com.example.advertisinglibrary.activity.MainActivity',
         'automationName': 'UiAutomator2',
