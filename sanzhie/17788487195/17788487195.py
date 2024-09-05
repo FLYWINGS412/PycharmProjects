@@ -138,7 +138,7 @@ def click_close_button(driver):
 
             if len(matched_elements) == 1:
                 # 随机等待 30 到 90 秒
-                sleep_duration = random.randint(10, 30)
+                sleep_duration = random.randint(10, 60)
                 print(f"[DEBUG] 成功匹配广告，等待 {sleep_duration} 秒")
                 time.sleep(sleep_duration)
 
