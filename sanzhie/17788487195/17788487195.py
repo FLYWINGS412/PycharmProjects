@@ -65,14 +65,22 @@ def find_close_button(driver):
     max_attempts = 20
     attempts = 0
     found_elements = []
+    skip_start_time = time.time()  # 记录“跳过”按钮首次检测到的时间
 
     # 循环查找“跳过”按钮，直到未找到为止
     while True:
         skip_elements = driver.find_elements(By.XPATH, "//android.widget.TextView[contains(@text, '跳过')]")
         if skip_elements:
-            # print("[DEBUG] 检测到'跳过'按钮，重新查找...")
-            time.sleep(5)
-            continue  # 继续查找“跳过”按钮
+            # 检测是否超过2分钟
+            elapsed_time = time.time() - skip_start_time
+            if elapsed_time > 120:  # 超过2分钟
+                print(f"[DEBUG] 检测到'跳过'按钮超过2分钟，点击跳过...")
+                skip_elements[0].click()  # 点击第一个“跳过”按钮
+                break  # 退出循环
+            else:
+                # print(f"[DEBUG] '跳过'按钮存在，等待 {elapsed_time} 秒...")
+                time.sleep(5)  # 等待5秒继续检查
+                continue  # 继续查找“跳过”按钮
         else:
             # print("[DEBUG] 未检测到'跳过'按钮，继续查找其他元素...")
             time.sleep(5)
@@ -137,8 +145,8 @@ def click_close_button(driver):
             print(f"[DEBUG] 匹配到的存储元素数量: {len(matched_elements)}")
 
             if len(matched_elements) == 1:
-                # 随机等待 30 到 90 秒
-                sleep_duration = random.randint(10, 60)
+                # 随机等待 30 到 60 秒
+                sleep_duration = random.randint(10, 30)
                 print(f"[DEBUG] 成功匹配广告，等待 {sleep_duration} 秒")
                 time.sleep(sleep_duration)
 
@@ -218,7 +226,7 @@ def main():
         'platformName': 'Android',
         'platformVersion': '13',
         'deviceName': '192.168.0.213:43359',
-        'udid': '192.168.0.213:39723',
+        'udid': '192.168.0.40:42635',
         # 'appPackage': 'com.guokun.darenzhushou',
         # 'appActivity': 'com.example.advertisinglibrary.activity.MainActivity',
         'automationName': 'UiAutomator2',
