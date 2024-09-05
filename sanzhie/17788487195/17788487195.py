@@ -111,7 +111,7 @@ def find_close_button(driver):
                             # print(f"[DEBUG] 检查元素: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
 
                             # 筛选符合条件的元素
-                            if (15 < size['width'] < 80 and 15 < size['height'] < 80 and location['y'] < screen_height / 2):
+                            if (15 < size['width'] < 90 and 15 < size['height'] < 90 and location['y'] < screen_height / 2):
                                 found_elements.append(element)
                                 # print("[DEBUG] 添加符合条件的元素到found_elements列表中")
                         except StaleElementReferenceException:
