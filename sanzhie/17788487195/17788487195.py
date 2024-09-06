@@ -158,7 +158,7 @@ def view_details(driver):
         print(f"[DEBUG] 点击时发生错误: {e}")
 
     # 随机等待10到20秒后返回
-    sleep_time = random.randint(10, 20)
+    sleep_time = random.randint(5, 15)
     print(f"[DEBUG] 等待 {sleep_time} 秒后返回广告页")
     time.sleep(sleep_time)
 
@@ -169,6 +169,15 @@ def view_details(driver):
         time.sleep(random.randint(2, 5))
     except Exception as e:
         print(f"[DEBUG] 返回时发生错误: {e}")
+
+    # 查找是否出现“离开”按钮
+    try:
+        leave_elements = driver.find_elements(By.XPATH, "//android.widget.TextView[contains(@text, '离开')]")
+        if leave_elements:
+            print("[DEBUG] 检测到'离开'按钮，点击离开")
+            leave_elements[0].click()  # 点击第一个“离开”按钮
+    except Exception as e:
+        print(f"[DEBUG] 查找或点击'离开'按钮时发生错误: {e}")
 
 # 点击关闭按钮
 def click_close_button(driver):
