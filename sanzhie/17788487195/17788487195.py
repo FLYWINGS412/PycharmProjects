@@ -158,7 +158,7 @@ def view_details(driver):
         print(f"[DEBUG] 点击时发生错误: {e}")
 
     # 随机等待10到20秒后返回
-    sleep_time = random.randint(5, 15)
+    sleep_time = random.randint(10, 20)
     print(f"[DEBUG] 等待 {sleep_time} 秒后返回广告页")
     time.sleep(sleep_time)
 
