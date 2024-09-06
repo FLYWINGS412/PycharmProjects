@@ -138,10 +138,11 @@ def view_details(driver):
         return driver.find_elements(By.XPATH, f"//android.widget.TextView[contains(@text, '{text}')]")
 
     # 并行查找‘支付宝’和‘拼多多’
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {
             executor.submit(find_element_by_text, "支付宝"): "支付宝",
             executor.submit(find_element_by_text, "拼多多"): "拼多多",
+            executor.submit(find_element_by_text, "抖音"): "公益",
             executor.submit(find_element_by_text, "抖音"): "抖音"
         }
 
