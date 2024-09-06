@@ -293,7 +293,7 @@ def main():
         'platformName': 'Android',
         'platformVersion': '13',
         'deviceName': 'MI 10',
-        'udid': '192.168.0.40:40123',
+        'udid': '192.168.0.213:39103',
         # 'appPackage': 'com.guokun.darenzhushou',
         # 'appActivity': 'com.example.advertisinglibrary.activity.MainActivity',
         'automationName': 'UiAutomator2',
