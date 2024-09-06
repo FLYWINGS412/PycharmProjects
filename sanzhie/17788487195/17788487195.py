@@ -133,12 +133,27 @@ def find_close_button(driver):
 
 # 查看广告详情
 def view_details(driver):
-    # 首先查找‘支付宝’元素
-    alipay_elements = driver.find_elements(By.XPATH, "//android.widget.TextView[contains(@text, '支付宝')]")
+    def find_element_by_text(text):
+        # 查找包含指定文本的TextView元素
+        return driver.find_elements(By.XPATH, f"//android.widget.TextView[contains(@text, '{text}')]")
 
-    if alipay_elements:
-        print("[DEBUG] 检测到'支付宝'元素，跳过查看详情。")
-        return  # 直接返回，不执行后续代码
+    # 并行查找‘支付宝’和‘拼多多’
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = {
+            executor.submit(find_element_by_text, "支付宝"): "支付宝",
+            executor.submit(find_element_by_text, "拼多多"): "拼多多"
+        }
+
+        # 等待结果
+        for future in as_completed(futures):
+            platform = futures[future]
+            try:
+                elements = future.result()
+                if elements:
+                    print(f"[DEBUG] 检测到'{platform}'元素，跳过查看详情。")
+                    return  # 直接返回，不执行后续代码
+            except Exception as e:
+                print(f"[DEBUG] 查找'{platform}'元素时发生错误: {e}")
 
     # 获取屏幕的宽度和高度
     screen_width = driver.get_window_size()['width']
