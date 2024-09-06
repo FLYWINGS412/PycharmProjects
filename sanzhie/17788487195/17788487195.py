@@ -4,8 +4,10 @@ import random
 from appium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from appium.webdriver.common.touch_action import TouchAction
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium.webdriver.support import expected_conditions as EC
+from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 
 # 用于存储正确的关闭按钮元素信息
@@ -129,6 +131,45 @@ def find_close_button(driver):
 
     return found_elements
 
+# 查看广告详情
+def view_details(driver):
+    # 首先查找‘支付宝’元素
+    alipay_elements = driver.find_elements(By.XPATH, "//android.widget.TextView[contains(@text, '支付宝')]")
+
+    if alipay_elements:
+        print("[DEBUG] 检测到'支付宝'元素，跳过查看详情。")
+        return  # 直接返回，不执行后续代码
+
+    # 获取屏幕的宽度和高度
+    screen_width = driver.get_window_size()['width']
+    screen_height = driver.get_window_size()['height']
+
+    # 计算x轴和y轴的随机位置
+    x = random.randint(screen_width // 4, 3 * screen_width // 4)
+    y = random.randint(3 * screen_height // 5, 4 * screen_height // 5)
+    # print(f"[DEBUG] 随机点击位置: x={x}, y={y}")
+
+    # 使用TouchAction来点击该位置
+    try:
+        action = TouchAction(driver)
+        action.tap(x=x, y=y).perform()
+        # print("[DEBUG] 点击查看详情")
+    except Exception as e:
+        print(f"[DEBUG] 点击时发生错误: {e}")
+
+    # 随机等待10到20秒后返回
+    sleep_time = random.randint(10, 20)
+    print(f"[DEBUG] 等待 {sleep_time} 秒后返回广告页")
+    time.sleep(sleep_time)
+
+    # 模拟返回键
+    try:
+        driver.press_keycode(AndroidKey.BACK)
+        # print("[DEBUG] 成功按下返回键")
+        time.sleep(random.randint(2, 5))
+    except Exception as e:
+        print(f"[DEBUG] 返回时发生错误: {e}")
+
 # 点击关闭按钮
 def click_close_button(driver):
     retry_count = 0  # 用于记录未匹配到存储元素时的重试次数
@@ -146,14 +187,15 @@ def click_close_button(driver):
 
             if len(matched_elements) == 1:
                 # 随机等待 30 到 60 秒
-                # sleep_duration = random.randint(10, 30)
-                # print(f"[DEBUG] 成功匹配广告，等待 {sleep_duration} 秒")
-                # time.sleep(sleep_duration)
+                sleep_duration = random.randint(10, 30)
+                print(f"[DEBUG] 成功匹配广告，等待 {sleep_duration} 秒")
+                time.sleep(sleep_duration)
 
                 selected_element = matched_elements[0]
                 class_name = selected_element.get_attribute("class")
                 size = selected_element.size
                 location = selected_element.location
+                view_details(driver)
                 selected_element.click()
                 print(f"[DEBUG] 已点击: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
 
@@ -226,7 +268,7 @@ def main():
         'platformName': 'Android',
         'platformVersion': '13',
         'deviceName': 'MI 10',
-        'udid': '192.168.0.40:38205',
+        'udid': '192.168.0.40:40123',
         # 'appPackage': 'com.guokun.darenzhushou',
         # 'appActivity': 'com.example.advertisinglibrary.activity.MainActivity',
         'automationName': 'UiAutomator2',
