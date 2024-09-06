@@ -142,8 +142,8 @@ def view_details(driver):
         futures = {
             executor.submit(find_element_by_text, "支付宝"): "支付宝",
             executor.submit(find_element_by_text, "拼多多"): "拼多多",
-            executor.submit(find_element_by_text, "抖音"): "公益",
-            executor.submit(find_element_by_text, "抖音"): "抖音"
+            executor.submit(find_element_by_text, "抖音"): "抖音",
+            executor.submit(find_element_by_text, "善意"): "善意"
         }
 
         # 等待结果
