@@ -118,12 +118,13 @@ def find_close_button(driver):
                                 class_name = element.get_attribute("class")
 
                                 # 手动排除指定元素
-                                # if (
-                                #     (class_name == "android.widget.ImageView" and size['height'] == 58 and size['width'] == 58 and location['x'] == 963 and location['y'] == 362) or
-                                #     (class_name == "android.widget.ImageView" and size['height'] == 72 and size['width'] == 72 and location['x'] == 978 and location['y'] == 99)
-                                # ):
-                                #     print(f"[DEBUG] 排除指定元素: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
-                                #     continue  # 跳过这两个元素
+                                if (
+                                    (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 804) or
+                                    (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 955) or
+                                    (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 1106)
+                                ):
+                                    # print(f"[DEBUG] 排除指定元素: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
+                                    continue  # 跳过这两个元素
 
                                 # 如果元素符合条件，且不被排除，添加到列表中
                                 found_elements.append(element)
