@@ -17,9 +17,10 @@ def get_screenshot_number(folder_path, current_date):
     if os.path.exists(folder_path):
         existing_files = [f for f in os.listdir(folder_path) if f.startswith(current_date) and f.endswith(".png")]
         if existing_files:
-            existing_files.sort()
+            # 按照数字部分排序文件名
+            existing_files.sort(key=lambda f: int(re.search(r'-(\d+)', f).group(1)))
             last_file = existing_files[-1]
-            last_number = int(last_file.split('-')[-1].split('.')[0])
+            last_number = int(re.search(r'-(\d+)', last_file).group(1))
             screenshot_number = last_number + 1
     return screenshot_number
 
