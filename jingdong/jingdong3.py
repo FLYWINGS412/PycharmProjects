@@ -78,7 +78,7 @@ def find_and_click_shop(driver, shop_name, max_attempts=5):
                 current_text = element.text
                 if current_text:
                     # 优先匹配店铺名称的前三个字，确保它是店铺而非商品
-                    if shop_main_part in current_text and ('旗舰店' in current_text or '专营店' in current_text or '自营' in current_text):
+                    if shop_main_part in current_text and ('旗舰店' in current_text or '专营店' in current_text or '自营' in current_textor or '专卖店' in current_text):
                         similarity = difflib.SequenceMatcher(None, shop_main_part, current_text[:len(shop_main_part)]).ratio()
                         matches.append((element, similarity))
 
@@ -348,7 +348,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '12',
     'deviceName': 'MI 10',
-    'udid': '192.168.0.213:38425',
+    'udid': '192.168.0.176:40777',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
