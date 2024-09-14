@@ -1,6 +1,7 @@
 import json
 import time
 import random
+import threading
 from appium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -68,6 +69,7 @@ def find_close_button(driver):
     attempts = 0
     found_elements = []
     skip_start_time = time.time()  # 记录“跳过”按钮首次检测到的时间
+    time.sleep(3)  # 等待2秒再试
 
     # 循环查找“跳过”按钮，直到未找到为止
     while True:
@@ -119,9 +121,9 @@ def find_close_button(driver):
 
                                 # 手动排除指定元素
                                 if (
-                                    (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 804) or
-                                    (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 955) or
-                                    (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 1106)
+                                        (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 804) or
+                                        (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 955) or
+                                        (class_name == "android.widget.ImageView" and size['height'] == 69 and size['width'] == 69 and location['x'] == 69 and location['y'] == 1106)
                                 ):
                                     # print(f"[DEBUG] 排除指定元素: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
                                     continue  # 跳过这两个元素
@@ -157,7 +159,7 @@ def view_details(driver):
         return driver.find_elements(By.XPATH, f"//android.widget.TextView[contains(@text, '{text}')]")
 
     # 并行查找关键字
-    with ThreadPoolExecutor(max_workers=9) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {
             executor.submit(find_element_by_text, "立即安装"): "立即安装",
             executor.submit(find_element_by_text, "立即打开"): "立即打开",
@@ -167,7 +169,8 @@ def view_details(driver):
             executor.submit(find_element_by_text, "快手"): "快手",
             executor.submit(find_element_by_text, "百度"): "百度",
             executor.submit(find_element_by_text, "好看"): "好看",
-            executor.submit(find_element_by_text, "善意"): "善意"
+            executor.submit(find_element_by_text, "善意"): "善意",
+            executor.submit(find_element_by_text, "应用商店"): "应用商店"
         }
 
         # 等待结果
@@ -198,8 +201,8 @@ def view_details(driver):
     except Exception as e:
         print(f"[DEBUG] 点击时发生错误: {e}")
 
-    # 随机等待10到20秒后返回
-    sleep_time = random.randint(10, 20)
+    # 随机等待一些时间后返回
+    sleep_time = random.randint(5, 10)
     print(f"[DEBUG] 等待 {sleep_time} 秒后返回广告页")
     time.sleep(sleep_time)
 
@@ -229,15 +232,14 @@ def click_close_button(driver):
             found_elements = find_close_button(driver)
             if not found_elements:
                 print("[DEBUG] 未找到任何符合条件的关闭按钮元素。")
-                time.sleep(2)  # 等待2秒再试
                 continue  # 继续循环，重新查找
 
             matched_elements = match_close_button(found_elements)
             print(f"[DEBUG] 匹配到的存储元素数量: {len(matched_elements)}")
 
             if len(matched_elements) == 1:
-                # 随机等待 10 到 30 秒
-                sleep_duration = random.randint(10, 30)
+                # 随机等待一些时间
+                sleep_duration = random.randint(5, 15)
                 print(f"[DEBUG] 成功匹配广告，等待 {sleep_duration} 秒")
                 time.sleep(sleep_duration)
 
@@ -275,7 +277,7 @@ def click_close_button(driver):
                     print("[DEBUG] 无效的选择，重新查找...")
                     continue
             else:
-                if retry_count < 5:
+                if retry_count < 3:
                     retry_count += 1
                     print(f"[DEBUG] 未匹配到任何存储的关闭按钮元素，重试第 {retry_count} 次...")
                     time.sleep(2)  # 每次重试前等待
@@ -289,27 +291,38 @@ def click_close_button(driver):
                         class_name = element.get_attribute("class")
                         print(f"{i}: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
 
-                    user_input = input("请选择要点击的元素序号（按回车键重新查找）：")
-                    if user_input.strip() == "":
-                        print("[DEBUG] 重新查找关闭按钮元素...")
-                        retry_count = 0  # 重置重试计数器
-                        continue  # 如果用户按回车键，则重新进入循环，查找关闭按钮元素
+                    # 初始化为None
+                    user_input = [None]
+                    input_thread = threading.Thread(target=lambda: user_input.__setitem__(0, input("请选择要点击的元素序号（按回车键重新查找）：")))
+                    input_thread.start()
+                    input_thread.join(60)  # 等待1分钟或按下回车
 
-                    index = int(user_input)
-                    if 1 <= index <= len(found_elements):
-                        selected_element = found_elements[index - 1]
-                        class_name = selected_element.get_attribute("class")
-                        size = selected_element.size
-                        location = selected_element.location
-                        store_close_button_info(selected_element)  # 存储新的关闭按钮信息
-                        selected_element.click()
-                        print(f"[DEBUG] 已点击: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
-                    else:
-                        print("[DEBUG] 无效的选择，重新查找...")
+                    # 如果按回车或者1分钟超时，没有选择则重新查找
+                    if user_input[0] is None or user_input[0].strip() == "":
+                        print("\n[DEBUG] 超时或无效输入，重新查找关闭按钮元素...")
+                        retry_count = 0  # 重置重试计数器
+                        continue  # 继续循环重新查找关闭按钮
+
+                    # 确保输入的是有效数字并且在范围内
+                    try:
+                        index = int(user_input[0])
+                        if 1 <= index <= len(found_elements):
+                            selected_element = found_elements[index - 1]
+                            class_name = selected_element.get_attribute("class")
+                            size = selected_element.size
+                            location = selected_element.location
+                            store_close_button_info(selected_element)  # 存储新的关闭按钮信息
+                            selected_element.click()
+                            print(f"[DEBUG] 已点击: [元素名: {class_name}, 大小: {size}, 坐标: {location}]")
+                        else:
+                            print("[DEBUG] 无效的选择，重新查找...")
+                            continue
+                    except ValueError:
+                        print("[DEBUG] 输入的不是有效的数字，重新查找关闭按钮元素...")
                         continue
 
         except Exception as e:
-            # print(f"[DEBUG] 发生异常: {e}")
+            print(f"[DEBUG] 发生异常: {e}")
             time.sleep(2)  # 遇到错误时，等待一段时间再继续
 
 def main():
@@ -317,8 +330,8 @@ def main():
     desired_caps = {
         'platformName': 'Android',
         'platformVersion': '13',
-        'deviceName': 'MI 10',
-        'udid': '192.168.0.40:40581',
+        'deviceName': 'LD',
+        'udid': 'emulator-5554',
         # 'appPackage': 'com.guokun.darenzhushou',
         # 'appActivity': 'com.example.advertisinglibrary.activity.MainActivity',
         'automationName': 'UiAutomator2',
