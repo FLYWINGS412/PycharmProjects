@@ -77,8 +77,8 @@ def find_and_click_shop(driver, shop_name, max_attempts=5):
             for element in text_views:
                 current_text = element.text
                 if current_text:
-                    # 优先匹配店铺名称的前三个字，避免专营店等后缀的影响
-                    if shop_main_part in current_text:  # 确保包含店铺名称的前三个字
+                    # 优先匹配店铺名称的前三个字，确保它是店铺而非商品
+                    if shop_main_part in current_text and ('旗舰店' in current_text or '专营店' in current_text or '自营' in current_text):
                         similarity = difflib.SequenceMatcher(None, shop_main_part, current_text[:len(shop_main_part)]).ratio()
                         matches.append((element, similarity))
 
@@ -370,6 +370,7 @@ try:
     )
     loading_state_button.click()
     print("页面已刷新")
+    time.sleep(5)
 except Exception:
     print("刷新页面失败")
 
