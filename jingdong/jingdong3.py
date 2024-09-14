@@ -1,3 +1,4 @@
+import re
 import os
 import time
 import difflib
@@ -349,7 +350,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '12',
     'deviceName': 'MI 10',
-    'udid': '192.168.0.176:40777',
+    'udid': '192.168.0.176:42637',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
