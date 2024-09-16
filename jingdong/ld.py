@@ -291,7 +291,7 @@ def browse_items():
                     try:
                         time.sleep(10)
                         submit_button = WebDriverWait(first_item, 10).until(
-                            EC.presence_of_element_located((By.XPATH, './/android.view.View[@text="提交"]'))
+                            EC.presence_of_element_located((By.XPATH, './/android.View.View[@text="提交"]'))
                         )  # 注意这里的括号关闭
                         submit_button.click()  # 这一行要缩进到try块内部
                         print("成功点击第一行商品的'提交'按钮")
@@ -332,7 +332,7 @@ def browse_items():
                                 # 点击 "确定" 按钮后再检查是否有 "任务不匹配"
                                 time.sleep(5)  # 等待可能的弹出窗口
                                 new_elements = WebDriverWait(driver, 10).until(
-                                    EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
+                                    EC.presence_of_all_elements_located((By.XPATH, '//android.View.View | //android.widget.Button'))
                                 )
 
                                 # 遍历新元素，检查是否有 "任务不匹配" 和 "确定"
@@ -388,7 +388,7 @@ def browse_items():
             try:
                 time.sleep(5)
                 WebDriverWait(first_item, 30).until(
-                    EC.presence_of_element_located((By.XPATH, './/android.widget.TextView[@text="已完成"]'))
+                    EC.presence_of_element_located((By.XPATH, './/android.view.View[@text="已完成"]'))
                 )
                 print("'已完成'第一行商品任务")
                 first_item_completed = True
@@ -399,7 +399,7 @@ def browse_items():
             second_item_completed = False
             try:
                 WebDriverWait(second_item, 5).until(
-                    EC.presence_of_element_located((By.XPATH, './/android.widget.TextView[@text="已完成"]'))
+                    EC.presence_of_element_located((By.XPATH, './/android.view.View[@text="已完成"]'))
                 )
                 print("'已完成'第二行商品任务")
                 second_item_completed = True
