@@ -163,26 +163,28 @@ def perform_tasks():
             except Exception as e:
                 print("点击'获取任务'按钮失败")
 
-            # 查找是否存在 "明日再试" 或 "暂无任务" 按钮
+            # 查找是否存在 "明日再试" 或 "暂无任务" 或 "任务已达限额"
             try:
                 time.sleep(5)
-                # 查找 "明日再试" 或 "暂无任务"
+                # 查找 "明日再试" 或 "暂无任务" 或 "任务已达限额"
                 message_button = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//android.widget.TextView[contains(@text, "明日再试") or contains(@text, "暂无任务")]'))
+                    EC.presence_of_element_located((By.XPATH, '//android.widget.TextView[contains(@text, "明日再试") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
                 )
-                # 如果找到 "明日再试" 或 "暂无任务"，结束程序
+                # 如果找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，结束程序
                 text = message_button.text
                 if "明日再试" in text:
                     print("检测到 '明日再试' ，程序结束。")
                 elif "暂无任务" in text:
                     print("检测到 '暂无任务'，程序结束。")
+                elif "任务已达限额" in text:
+                    print("检测到 '任务已达限额'，程序结束。")
 
                 driver.quit()  # 结束程序运行
                 exit()  # 终止脚本执行
 
             except Exception:
-                # 未找到 "明日再试" 或 "暂无任务"，继续执行
-                print("未检测到 '明日再试' 或 '暂无任务'，继续任务。")
+                # 未找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，继续执行
+                print("未检测到 '明日再试' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
 
 
             # 查找并获取 dp-main 父容器下 "店铺名称"
@@ -281,19 +283,30 @@ def browse_items():
                 print(f"未找到第一行商品的'详情'按钮: {e}")
 
             # 在第一行商品下查找 "提交" 按钮并点击
-            while True:
-                try:
-                    time.sleep(10)
-                    submit_button = WebDriverWait(first_item, 10).until(
-                        EC.presence_of_element_located((By.XPATH, './/android.widget.TextView[@text="提交"]'))
-                    )  # 注意这里的括号关闭
-                    submit_button.click()  # 这一行要缩进到try块内部
-                    print("成功点击第一行商品的'提交'按钮")
-                    break  # 找到并点击后，跳出循环
-                except Exception:
-                    print("未找到第一行商品的'提交'按钮，重试查找")
-                    # 刷新页面
-                    refresh_page(driver)
+            try:
+                attempt = 0  # 初始化计数器
+                max_attempts = 3  # 最大尝试次数
+
+                while attempt < max_attempts:
+                    try:
+                        time.sleep(10)
+                        submit_button = WebDriverWait(first_item, 10).until(
+                            EC.presence_of_element_located((By.XPATH, './/android.widget.TextView[@text="提交"]'))
+                        )  # 注意这里的括号关闭
+                        submit_button.click()  # 这一行要缩进到try块内部
+                        print("成功点击第一行商品的'提交'按钮")
+                        break  # 找到并点击后，跳出循环
+                    except Exception:
+                        attempt += 1  # 增加计数器
+                        print(f"未找到第一行商品的'提交'按钮，重试查找 ({attempt}/{max_attempts})")
+
+                        if attempt < max_attempts:
+                            # 刷新页面
+                            refresh_page(driver)
+                        else:
+                            print("已达到最大尝试次数，停止查找 '提交' 按钮")
+            except Exception as e:
+                print(f"在第一行商品下查找 '提交' 按钮时出错")
 
             # 处理“提交”时的异常
             try:
@@ -301,54 +314,74 @@ def browse_items():
                 elements = WebDriverWait(driver, 10).until(
                     EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
                 )
-                # 遍历找到的所有元素，检查是否包含 "任务不匹配" 或 "确定"
-                confirm_button = None
+
+                # 遍历找到的所有元素，检查是否包含 "确定提交商品" 或 "确定"
                 for element in elements:
                     text = element.text
 
-                    # 如果找到 "确定提交商品"，点击确定后退出循环
+                    # 1. 检查是否存在 "确定提交商品"
                     if "确定提交商品" in text:
                         print(f"检测到 '确定提交商品'，完整文本为: {text}")
+
                         # 查找并点击 "确定" 按钮
                         for btn in elements:
                             if "确定" == btn.text:
                                 btn.click()
                                 print("成功点击 '确定' 按钮，提交商品")
-                                break  # 找到并点击 "确定" 后退出循环
-                        break  # 找到 "确定提交商品" 后退出循环
 
-                    elif "任务不匹配" in text:  # 使用 in 检查部分匹配
-                        print(f"检测到 '任务不匹配'，完整文本为: {text}")
-                        # 点击 "确定" 按钮
-                        for btn in elements:
-                            if "确定" == btn.text:
-                                btn.click()
-                                print("成功点击 '确定' 按钮")
-                                task_mismatch_detected = True  # 设置标志以退出最外层循环
-                                break
-                        break  # 找到 "任务不匹配" 后退出当前循环
+                                # 点击 "确定" 按钮后再检查是否有 "任务不匹配"
+                                time.sleep(5)  # 等待可能的弹出窗口
+                                new_elements = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
+                                )
 
-                    # 如果找到 "BAD REQUEST"，点击返回并截图
-                    elif "BAD REQUEST" in text:
-                        print("检测到 'BAD REQUEST'，准备返回")
-                        driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
-                        break
+                                # 遍历新元素，检查是否有 "任务不匹配" 和 "确定"
+                                for new_element in new_elements:
+                                    new_text = new_element.text
 
-                    # 如果找到 "活动太火爆啦"，点击返回并截图
+                                    # 1. 检查是否存在 "任务不匹配"
+                                    if "任务不匹配" in new_text:  # 如果找到 "任务不匹配"
+                                        print(f"检测到 '任务不匹配'，完整文本为: {new_text}")
+
+                                        # 查找并点击 "确定" 按钮
+                                        for btn in new_elements:
+                                            if "确定" == btn.text:
+                                                btn.click()
+                                                print("成功点击 '确定' 按钮，处理任务不匹配")
+                                                task_mismatch_detected = True  # 设置标志以退出最外层循环
+                                                break  # 跳出 "确定" 按钮查找循环
+                                        break  # 跳出 "任务不匹配" 检查循环
+
+                                    # 2. 检查是否存在 "BAD REQUEST"
+                                    elif "BAD REQUEST" in text:
+                                        print("检测到 'BAD REQUEST'，准备返回")
+                                        driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
+                                        break
+
+                                if task_mismatch_detected:
+                                    break  # 跳出 "确定提交商品" 检查循环
+                        if task_mismatch_detected:
+                            break  # 跳出 elements 循环
+
+                    # 2. 检查是否存在 "活动太火爆啦"
                     elif "活动太火爆啦" in text:
                         print("检测到 '活动太火爆啦'，准备返回并截图")
                         driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
+                        time.sleep(5)
                         take_screenshot_with_date(driver, os.getcwd())  # 截图操作
                         print("已返回并截图，终止程序。")
                         exit()  # 终止程序
 
-                    # 如果找到 "请检查您的账号状态"，点击返回并截图
+                    # 3. 检查是否存在 "请检查您的账号状态"
                     elif "请检查您的账号状态" in text:
                         print("检测到 '请检查您的账号状态'，终止程序。")
                         exit()  # 终止程序
 
+                if task_mismatch_detected:
+                    break  # 跳出处理“提交”时的异常的 try 块
+
             except Exception as e:
-                print("检测到异常")
+                print(f"处理提交时出现异常: {e}")
 
             # 检查第一行商品是否 "已完成"
             first_item_completed = False
@@ -393,7 +426,7 @@ def browse_items():
         Task_Completed.click()
         print("成功点击'任务完成'按钮")
     except Exception as e:
-        print(f"点击'任务完成'按钮失败: {e}")
+        print(f"点击'任务完成'按钮失败")
 
     # 确定 "任务完成"
     try:
@@ -403,6 +436,7 @@ def browse_items():
         )
         confirm_button.click()
         print("成功点击全屏的'确定'按钮")
+        time.sleep(10)
     except Exception as e:
         print(f"未找到全屏的'确定'按钮: {e}")
 
@@ -411,7 +445,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '12',
     'deviceName': 'WY',
-    'udid': '192.168.0.213:42413',
+    'udid': '192.168.0.176:42157',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,

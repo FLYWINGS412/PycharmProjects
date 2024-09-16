@@ -37,8 +37,8 @@ def create_driver():
         'settings[waitForIdleTimeout]': 10,
         'settings[waitForSelectorTimeout]': 10,
         'newCommandTimeout': 21600,
-        'unicodeKeyboard': True,
-        'resetKeyboard': True,
+        # 'unicodeKeyboard': True,
+        # 'resetKeyboard': True,
         'noReset': True
     }
 
