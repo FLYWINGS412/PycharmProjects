@@ -459,7 +459,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
     'deviceName': 'WY',
-    'udid': 'emulator-5582',
+    'udid': 'emulator-5566',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
@@ -468,7 +468,7 @@ desired_caps = {
     'dontStopAppOnReset': True,  # 保持浏览器运行状态
     # 'unicodeKeyboard': False,
     # 'resetKeyboard': False,
-    'noReset': True,  # 不重置应用oo
+    'noReset': True,  # 不重置应用
 }
 
 # 启动 Appium 驱动，不重新启动浏览器
