@@ -192,7 +192,7 @@ def perform_tasks():
                 time.sleep(5)
                 shop_name_view = main_view.find_element(By.XPATH, './/android.view.View[6]')
                 shop_name = shop_name_view.text  # 获取店铺名称
-                print(f"成功找到店铺名称，其文本值为: {shop_name}")
+                print(f"成功找到店铺: {shop_name}")
             except Exception as e:
                 print(f"获取店铺名称失败")
 

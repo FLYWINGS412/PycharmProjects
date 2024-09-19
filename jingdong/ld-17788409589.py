@@ -1,9 +1,9 @@
 import re
 import os
 import time
-import difflib
 from appium import webdriver
 from datetime import datetime
+from difflib import SequenceMatcher
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from appium.webdriver.common.touch_action import TouchAction
@@ -74,63 +74,75 @@ def take_screenshot_with_date(driver, folder_path):
     driver.save_screenshot(screenshot_path)
     print(f"截图保存为: {screenshot_path}")
 
-# 查找店铺
-def find_and_click_shop(driver, shop_name, max_attempts=5):
-    time.sleep(10)
+def find_and_click_shop(driver, target_shop_name, max_attempts=5):
     attempts = 0
     shop_found = False
-    shop_main_part = shop_name[:3]  # 获取店铺名称的前三个字
 
     while attempts < max_attempts and not shop_found:
         try:
-            time.sleep(5)
-
-            # 重新获取所有 TextView 元素，避免 StaleElementReferenceException
-            text_views = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, 'android.view.View'))
+            # 获取父容器，包含所有店铺项的列表，一次性查找元素
+            parent_containers = WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located(
+                    (By.XPATH, '//android.view.View[contains(@resource-id, "pro_info_below_")]')
+                )
             )
+
+            # 使用正确的变量名 parent_containers
+            print(f"找到 {len(parent_containers)} 个店铺项")
 
             matches = []
 
-            # 遍历所有找到的 TextView 元素，计算与目标文本的相似度，并匹配至少连续3个字
-            for element in text_views:
-                current_text = element.text
-                if current_text:
-                    # 优先匹配店铺名称的前三个字，确保它是店铺而非商品
-                    if shop_main_part in current_text and ('旗舰店' in current_text or '京东自营' in current_text or '专营店' in current_text or '自营' in current_text or '专卖店' in current_text or '卖场店' in current_text):
-                        similarity = difflib.SequenceMatcher(None, shop_main_part, current_text[:len(shop_main_part)]).ratio()
-                        matches.append((element, similarity))
+            # 遍历每个父容器，查找店铺名称
+            for index, parent_container in enumerate(parent_containers, start=1):
+                try:
+                    # 查找该容器中的所有 android.view.View 元素
+                    shop_name_elements = parent_container.find_elements(By.XPATH, './/android.view.View')
 
-            # 按相似度排序，匹配度最高的排在前面
-            matches = sorted(matches, key=lambda x: x[1], reverse=True)
+                    # 遍历每个元素的 text 属性
+                    for shop_name_element in shop_name_elements:
+                        shop_name = shop_name_element.get_attribute('text').strip()
 
-            # 如果找到足够的匹配元素，点击第二个匹配度最高的
-            if len(matches) > 1:
-                second_best_match = matches[1][0]
-                print(f"点击了匹配度第二高的店铺，文本为: {second_best_match.text}")
+                        # # 打印店铺名称
+                        # print(f"找到店铺名称: {shop_name}")
 
-                # 直接使用 WebDriver 提供的 click() 方法点击元素
-                second_best_match.click()
-                print("成功点击进入店铺")
+                        # 计算与目标店铺名称的相似度
+                        similarity = SequenceMatcher(None, target_shop_name, shop_name).ratio()
+                        matches.append((parent_container, similarity, shop_name, index))
 
-                # 添加等待，确认页面跳转成功
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, './/android.widget.ListView'))
-                )
-                shop_found = True
-                break  # 成功点击后，立即退出循环
+                except NoSuchElementException:
+                    print(f"在店铺项 {index} 中未找到店铺名称元素")
+                    continue
+
+            # 如果找到匹配项，按相似度排序并点击最匹配的店铺
+            if matches:
+                matches.sort(key=lambda x: x[1], reverse=True)
+                best_match_item, best_similarity, shop_name, index = matches[0]
+
+                # 输出匹配结果
+                print(f"最匹配的店铺名称: {shop_name}, 相似度: {best_similarity}")
+
+                # 如果相似度超过阈值，则点击店铺
+                if best_similarity > 0.8:  # 相似度阈值
+                    best_match_item.click()
+                    print(f"成功点击最匹配的店铺: {shop_name}")
+                    shop_found = True
+                else:
+                    print("未找到高相似度的店铺，尝试翻页...")
+                    perform_page_scroll(driver)
+                    time.sleep(3)  # 等待页面加载
+                    attempts += 1
             else:
-                print("未找到足够匹配的店铺，尝试翻页...")
-                attempts += 1
+                print("未找到任何店铺名称匹配")
                 perform_page_scroll(driver)
-                print(f"当前第 {attempts} 次翻页")
+                time.sleep(3)  # 等待页面加载
+                attempts += 1
 
         except Exception as e:
-            print(f"查找店铺或点击失败: {e}")
-            break
+            print(f"查找店铺时出错: {e}")
+            attempts += 1
 
     if not shop_found:
-        print(f"经过 {max_attempts} 次翻页后仍未找到匹配的店铺，程序终止")
+        print(f"经过 {max_attempts} 次尝试后仍未找到匹配的店铺")
 
 # 执行任务
 def perform_tasks():
@@ -154,47 +166,56 @@ def perform_tasks():
             except Exception as e:
                 print(f"点击'回到首页'按钮失败: {e}")
 
-            # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
-            try:
-                time.sleep(5)
-                Get_Task = main_view.find_element(By.XPATH, './/android.widget.Button[@text="获取任务"]')
-                Get_Task.click()
-                print("成功点击'获取任务'按钮")
-            except Exception as e:
-                print("点击'获取任务'按钮失败")
+            # 获取任务
+            while True:
+                # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
+                try:
+                    time.sleep(5)
+                    Get_Task = main_view.find_element(By.XPATH, './/android.widget.Button[@text="获取任务"]')
+                    Get_Task.click()
+                    print("成功点击'获取任务'按钮")
+                except Exception as e:
+                    print(f"点击'获取任务'按钮失败")
 
-            # 查找是否存在 "明日再试" 或 "暂无任务" 或 "任务已达限额"
-            try:
-                time.sleep(5)
-                # 查找 "明日再试" 或 "暂无任务" 或 "任务已达限额"
-                message_button = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "明日再试") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
-                )
-                # 如果找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，结束程序
-                text = message_button.text
-                if "明日再试" in text:
-                    print("检测到 '明日再试' ，程序结束。")
-                elif "暂无任务" in text:
-                    print("检测到 '暂无任务'，程序结束。")
-                elif "任务已达限额" in text:
-                    print("检测到 '任务已达限额'，程序结束。")
+                # 查找是否存在 "明日再试" 或 "暂无任务" 或 "任务已达限额"
+                try:
+                    time.sleep(5)
+                    # 查找 "明日再试" 或 "暂无任务" 或 "任务已达限额"
+                    message_button = WebDriverWait(driver, 5).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "明日再试") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
+                    )
+                    # 如果找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，结束程序
+                    text = message_button.text
+                    if "明日再试" in text:
+                        print("检测到 '明日再试' ，程序结束。")
+                    elif "暂无任务" in text:
+                        print("检测到 '暂无任务'，程序结束。")
+                    elif "任务已达限额" in text:
+                        print("检测到 '任务已达限额'，程序结束。")
 
-                driver.quit()  # 结束程序运行
-                exit()  # 终止脚本执行
+                    driver.quit()  # 结束程序运行
+                    exit()  # 终止脚本执行
 
-            except Exception:
-                # 未找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，继续执行
-                print("未检测到 '明日再试' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
+                except Exception:
+                    # 未找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，继续执行
+                    print("未检测到 '明日再试' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
 
+                # 查找并获取 dp-main 父容器下 "店铺名称"
+                try:
+                    shop_name_view = main_view.find_element(By.XPATH, './/android.view.View[6]')
+                    shop_name = shop_name_view.text  # 获取店铺名称
+                    print(f"成功找到店铺: {shop_name}")
 
-            # 查找并获取 dp-main 父容器下 "店铺名称"
-            try:
-                time.sleep(5)
-                shop_name_view = main_view.find_element(By.XPATH, './/android.view.View[6]')
-                shop_name = shop_name_view.text  # 获取店铺名称
-                print(f"成功找到店铺名称，其文本值为: {shop_name}")
-            except Exception as e:
-                print(f"获取店铺名称失败")
+                    # 如果店铺名称包含 "-"，重新获取任务
+                    if "-" in shop_name:
+                        print("检测到店铺名称包含 '-'，重新获取任务")
+                        continue  # 重新开始 while 循环，跳过后续操作
+                    else:
+                        print("成功获取任务")
+                        break  # 店铺名称不包含 '-'，跳出循环，执行后续任务
+                except Exception as e:
+                    print(f"获取店铺名称失败，异常: {e}")
+                    break  # 如果获取店铺名称失败，退出循环
 
             # 查找并点击包含 m_common_tip_x_0 的按钮
             try:
