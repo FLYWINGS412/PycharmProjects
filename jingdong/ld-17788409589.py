@@ -203,8 +203,8 @@ def perform_tasks():
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
                     shop_name_view = main_view.find_element(By.XPATH, './/android.view.View[6]')
-                    shop_name = shop_name_view.text  # 获取店铺名称
-                    print(f"成功找到店铺: {shop_name}")
+                    target_shop_name = shop_name_view.text  # 获取店铺名称
+                    print(f"成功找到店铺: {target_shop_name}")
 
                     # 如果店铺名称包含 "-"，重新获取任务
                     if "-" in shop_name:
@@ -236,13 +236,13 @@ def perform_tasks():
                 )
                 keyword_button.click()
                 print("成功点击包含 msKeyWord 的搜索栏")
-                keyword_button.send_keys(shop_name)
-                print(f"成功输入店铺名称: {shop_name}")
+                keyword_button.send_keys(target_shop_name)
+                print(f"成功输入店铺名称: {target_shop_name}")
                 time.sleep(5)
                 driver.press_keycode(AndroidKey.ENTER)
 
                 # 调用查找店铺的函数
-                find_and_click_shop(driver, shop_name)
+                find_and_click_shop(driver, target_shop_name)
             except Exception as e:
                 print(f"未找到包含 msKeyWord 的搜索栏: {e}")
 
