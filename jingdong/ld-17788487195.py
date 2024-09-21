@@ -21,7 +21,7 @@ def refresh_page(driver):
         print("页面已刷新")
         time.sleep(5)  # 等待页面加载完成
     except Exception as e:
-        print(f"刷新页面失败: {e}")
+        print(f"刷新页面失败")
 
 # 执行翻页
 def perform_page_scroll(driver):
@@ -40,7 +40,7 @@ def perform_page_scroll(driver):
         TouchAction(driver).press(x=start_x, y=start_y).wait(500).move_to(x=start_x, y=end_y).release().perform()
         print("成功模拟全屏向上翻页动作")
     except Exception as e:
-        print(f"全屏翻页失败: {e}")
+        print(f"全屏翻页失败")
 
 # 定义函数，获取截图编号
 def get_screenshot_number(folder_path, current_date):
@@ -78,16 +78,18 @@ def take_screenshot_with_date(driver, folder_path):
 def submit_task_completion(driver, main_view):
     # 查找并点击 "任务完成" 按钮
     try:
-        time.sleep(5)
-        Task_Completed = main_view.find_element(By.XPATH, './/android.widget.Button[@text="任务完成"]')
+        # time.sleep(5)
+        Task_Completed = WebDriverWait(main_view, 10).until(
+            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
+        )
         Task_Completed.click()
         print("成功点击'任务完成'按钮")
     except Exception as e:
-        print(f"点击'任务完成'按钮失败: {e}")
+        print(f"点击'任务完成'按钮失败")
 
     # 确定 "任务完成"
     try:
-        time.sleep(5)
+        # time.sleep(5)
         confirm_button = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, '//android.widget.Button[@text="确定"]'))
         )
@@ -95,7 +97,7 @@ def submit_task_completion(driver, main_view):
         print("成功点击全屏的'确定'按钮")
         time.sleep(10)
     except Exception as e:
-        print(f"未找到全屏的'确定'按钮: {e}")
+        print(f"未找到全屏的'确定'按钮")
 
 # 查找商店
 def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
@@ -120,7 +122,9 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
             for index, parent_container in enumerate(parent_containers, start=1):
                 try:
                     # 在父容器下查找所有具有 text 属性的 android.view.View 元素
-                    shop_name_elements = parent_container.find_elements(By.XPATH, './/android.view.View[@text]')
+                    shop_name_elements = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, './/android.view.View[@text]'))
+                    )
 
                     # 遍历每个具有 text 的元素
                     for shop_name_element in shop_name_elements:
@@ -191,8 +195,9 @@ def perform_tasks():
 
             # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
             try:
-                time.sleep(5)
-                home_button = main_view.find_element(By.XPATH, './/android.widget.Button[@text="回到首页"]')
+                home_button = WebDriverWait(main_view, 10).until(
+                    EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
+                )
                 home_button.click()
                 print("成功点击'回到首页'按钮")
             except Exception as e:
@@ -202,8 +207,11 @@ def perform_tasks():
             while True:
                 # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
                 try:
-                    time.sleep(5)
-                    Get_Task = main_view.find_element(By.XPATH, './/android.widget.Button[@text="获取任务"]')
+                    # time.sleep(5)
+                    Get_Task = WebDriverWait(main_view, 10).until(
+                        EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="获取任务"]'))
+                    )
+
                     Get_Task.click()
                     print("成功点击'获取任务'按钮")
                 except Exception as e:
@@ -234,7 +242,9 @@ def perform_tasks():
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
-                    shop_name_view = main_view.find_element(By.XPATH, './/android.view.View[6]')
+                    shop_name_view = WebDriverWait(main_view, 10).until(
+                        EC.presence_of_element_located((By.XPATH, './/android.view.View[6]'))
+                    )
                     target_shop_name = shop_name_view.text  # 获取店铺名称
                     print(f"成功找到店铺: {target_shop_name}")
 
@@ -270,7 +280,7 @@ def perform_tasks():
                 print("成功点击包含 msKeyWord 的搜索栏")
                 keyword_button.send_keys(target_shop_name)
                 print(f"成功输入店铺名称: {target_shop_name}")
-                time.sleep(5)
+                time.sleep(1)
                 driver.press_keycode(AndroidKey.ENTER)
 
                 # 调用查找店铺的函数
@@ -302,7 +312,7 @@ def browse_items():
             EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
         )
         print("成功找到dp-main父容器")
-    except Exception:
+    except Exception as e:
         print("未找到dp-main父容器")
 
     # 在 dp-main 容器下查找第一行商品
@@ -311,7 +321,7 @@ def browse_items():
             EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[1]'))
         )
         print("成功找到第一行商品")
-    except Exception:
+    except Exception as e:
         print("未找到第一行商品")
 
     # 在 dp-main 容器下查找第二行商品，如果没有找到则标记
@@ -333,7 +343,7 @@ def browse_items():
             # 在第一行商品下查找 "详情" 按钮并点击
             try:
                 # time.sleep(5)
-                detail_button = WebDriverWait(first_item, 10).until(
+                detail_button = WebDriverWait(first_item, 5).until(
                     EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "详情")]'))
                 )
                 detail_button.click()
@@ -342,8 +352,7 @@ def browse_items():
                 # 点击 "详情" 后，检查是否有 "活动太火爆啦"
                 try:
                     # time.sleep(5)
-                    # 动态等待页面是否加载并出现 "活动太火爆啦"的提示
-                    over_activity_message = WebDriverWait(driver, 10).until(
+                    over_activity_message = WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
                     )
                     if over_activity_message:
@@ -353,8 +362,6 @@ def browse_items():
                         print("已返回并截图")
                         submit_task_completion(driver, main_view)
                         exit()  # 终止程序
-                except TimeoutException:
-                    print("未检测到 '活动太火爆啦'，继续执行后续操作")
 
                 except Exception as e:
                     print("未检测到 '活动太火爆啦'，继续执行后续操作")
