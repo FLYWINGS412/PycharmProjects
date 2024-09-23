@@ -95,7 +95,7 @@ def submit_task_completion(driver, main_view):
         )
         confirm_button.click()
         print("成功点击全屏的'确定'按钮")
-        time.sleep(5)
+        time.sleep(10)
     except Exception as e:
         print(f"未找到全屏的'确定'按钮")
 
@@ -350,6 +350,7 @@ def browse_items():
 
                 # 点击 "详情" 后，检查是否有 "活动太火爆啦"
                 try:
+                    # time.sleep(5)
                     over_activity_message = WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
                     )
@@ -536,7 +537,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
     'deviceName': 'WY',
-    'udid': 'emulator-5556',
+    'udid': 'emulator-5600',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
