@@ -417,9 +417,9 @@ def browse_items():
                                 break  # 点击后跳出内层循环
 
                         # 点击 "确定" 按钮后，界面可能发生变化，避免使用旧的元素
-                        time.sleep(3)  # 等待可能的弹出窗口
+                        time.sleep(5)  # 等待可能的弹出窗口
 
-                        # 点击 "确定" 按钮后再检查是否有 "任务不匹配"
+                        # 点击 "确定" 按钮后再检查是否有异常
                         new_elements = WebDriverWait(driver, 10).until(
                             EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
                         )
@@ -536,7 +536,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
     'deviceName': 'TJ',
-    'udid': 'emulator-5658',
+    'udid': 'emulator-5666',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,

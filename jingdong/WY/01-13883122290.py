@@ -381,7 +381,6 @@ def browse_items():
                         )  # 注意这里的括号关闭
                         submit_button.click()  # 这一行要缩进到try块内部
                         print("成功点击第一行商品的'提交'按钮")
-                        time.sleep(5)
                         break  # 找到并点击后，跳出循环
                     except Exception:
                         attempt += 1  # 增加计数器
@@ -397,6 +396,7 @@ def browse_items():
 
             # 处理“提交”时的异常
             try:
+                time.sleep(5)
                 elements = WebDriverWait(driver, 10).until(
                     EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
                 )
@@ -416,10 +416,8 @@ def browse_items():
                                 print("成功点击 '确定' 按钮，提交商品")
                                 break  # 点击后跳出内层循环
 
-                        # 点击 "确定" 按钮后，界面可能发生变化，避免使用旧的元素
-                        time.sleep(3)  # 等待可能的弹出窗口
-
-                        # 点击 "确定" 按钮后再检查是否有 "任务不匹配"
+                        # 点击 "确定" 按钮后再检查是否有异常
+                        time.sleep(5)  # 等待可能的弹出窗口
                         new_elements = WebDriverWait(driver, 10).until(
                             EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
                         )
