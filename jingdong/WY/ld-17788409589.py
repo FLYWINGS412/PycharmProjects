@@ -376,7 +376,7 @@ def browse_items():
 
                 while attempt < max_attempts:
                     try:
-                        # time.sleep(10)
+                        time.sleep(3)
                         submit_button = WebDriverWait(first_item, 10).until(
                             EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "提交")]'))
                         )  # 注意这里的括号关闭

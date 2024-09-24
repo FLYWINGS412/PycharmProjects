@@ -350,6 +350,7 @@ def browse_items():
 
                 # 点击 "详情" 后，检查是否有 "活动太火爆啦"
                 try:
+                    time.sleep(3)
                     over_activity_message = WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
                     )
@@ -375,7 +376,6 @@ def browse_items():
 
                 while attempt < max_attempts:
                     try:
-                        # time.sleep(10)
                         submit_button = WebDriverWait(first_item, 10).until(
                             EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "提交")]'))
                         )  # 注意这里的括号关闭
