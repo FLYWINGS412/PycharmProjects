@@ -1,6 +1,7 @@
 import re
 import os
 import time
+import portalocker
 from appium import webdriver
 from datetime import datetime
 from difflib import SequenceMatcher
@@ -41,6 +42,96 @@ def perform_page_scroll(driver):
         print("成功模拟全屏向上翻页动作")
     except Exception as e:
         print(f"全屏翻页失败")
+
+# 定义函数：保存浏览商品的数量到同一个文件中（按deviceName区分，并更新总浏览数量）
+def save_browsed_item_count(count):
+    # 从 desired_caps 中获取设备名称，假设 deviceName 是手机号
+    device_name = desired_caps.get('deviceName', 'UnknownDevice')
+
+    # 在函数内部定义目录路径
+    log_directory = os.path.join(os.getcwd(), "logs")
+
+    # 确保目录存在，如果不存在则创建
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+
+    current_date = datetime.now().strftime("%Y%m%d")
+    file_name = f"{current_date}.txt"  # 文件名为当前日期
+    file_path = os.path.join(log_directory, file_name)
+
+    # 初始化数据列表
+    data_lines = []
+    total_count = 0  # 用于存储总浏览数量
+
+    # 使用文件锁，确保只有一个进程可以访问文件
+    with open(file_path, 'a+') as f:
+        portalocker.lock(f, portalocker.LOCK_EX)  # 加锁
+
+        f.seek(0)  # 移动到文件开头
+        data_lines = f.readlines()  # 读取现有数据
+
+        # 更新当前 deviceName 的数据
+        updated = False
+        f.seek(0)  # 再次移动到开头，准备重写文件
+        f.truncate(0)  # 清空文件内容
+
+        for line in data_lines:
+            # 如果当前行包含该设备名称，更新其数量
+            if line.startswith(device_name):
+                f.write(f"{device_name}: {count}\n")
+                updated = True
+            # 如果是记录总浏览数量的行，跳过（我们稍后重新计算）
+            elif line.startswith("Total:"):
+                continue
+            else:
+                f.write(line)
+
+        # 如果未更新，说明是新设备，追加数据
+        if not updated:
+            f.write(f"{device_name}: {count}\n")
+
+        # 重新计算总浏览数量
+        total_count = 0
+        # 此处已经更新设备的数据，因此用最新的文件内容来重新计算总数
+        for line in data_lines:
+            if ":" in line and not line.startswith("Total:"):
+                total_count += int(line.split(":")[1].strip())
+        total_count += count  # 加上当前设备的浏览数量
+
+        # 写入新的总浏览数量
+        f.write(f"Total: {total_count}\n")
+
+# 定义函数：从文件中加载已浏览商品的数量（按deviceName区分）
+def load_browsed_item_count():
+    # 从 desired_caps 中获取设备名称
+    device_name = desired_caps.get('deviceName', 'UnknownDevice')
+
+    # 在函数内部定义目录路径
+    log_directory = os.path.join(os.getcwd(), "logs")
+
+    # 确保目录存在
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+
+    current_date = datetime.now().strftime("%Y%m%d")
+    file_name = f"{current_date}.txt"  # 文件名为当前日期
+    file_path = os.path.join(log_directory, file_name)
+
+    # 初始化计数
+    count = 0
+
+    # 使用文件锁，确保只有一个进程可以访问文件
+    with open(file_path, 'r') as f:
+        portalocker.lock(f, portalocker.LOCK_SH)  # 加锁，允许其他进程读取
+
+        data_lines = f.readlines()
+        for line in data_lines:
+            # 找到该设备名称对应的记录并提取数量
+            if line.startswith(device_name):
+                count = int(line.split(":")[1].strip())
+                break
+
+    return count
 
 # 定义函数，获取截图编号
 def get_screenshot_number(folder_path, current_date):
@@ -464,6 +555,13 @@ def browse_items():
                     )
                     print("'已完成'第一行商品任务")
                     first_item_completed = True
+
+                    # 如果商品已完成浏览，增加浏览计数并保存
+                    if first_item_completed:
+                        browsed_item_count += 1
+                        save_browsed_item_count(browsed_item_count)
+                        print(f"浏览商品数量更新为：{browsed_item_count}")
+
                     break  # 找到后跳出循环
                 except Exception:
                     print(f"'未完成'第一行商品任务")
@@ -523,6 +621,9 @@ driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
 # 刷新页面
 refresh_page(driver)
+
+# 初始化商品浏览数量
+browsed_item_count = load_browsed_item_count()
 
 # 调用执行任务函数
 perform_tasks()
