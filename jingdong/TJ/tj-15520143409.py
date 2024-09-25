@@ -505,7 +505,7 @@ def browse_items():
 desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'deviceName': 'TJ',
+    'deviceName': 'tj-15520143409',
     'udid': 'emulator-5656',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
