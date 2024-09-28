@@ -14,10 +14,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 
-# 任务结束提示
-def show_popup(driver, message):
-    driver.execute_script("mobile: alert", {'message': message})
-
 # 刷新页面
 def refresh_page(driver):
     try:
@@ -231,7 +227,7 @@ def submit_first_item_task(main_view, first_item):
                         EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
                     )
 
-                    # 遍历新元素，检查是否有 "任务不匹配" 和 "确定"
+                    # 遍历新元素，检查是否有异常
                     for new_element in new_elements:
                         new_text = new_element.text
 
@@ -268,16 +264,14 @@ def submit_first_item_task(main_view, first_item):
                     time.sleep(5)
                     take_screenshot_with_date(driver, os.getcwd())  # 截图操作
                     print("已返回并截图")
-
-                    # 在屏幕上显示消息
-                    show_popup(driver, "活动太火爆啦")  # 调用函数在屏幕上显示消息
+                    submit_task_completion(driver, main_view)
+                    driver.execute_script("mobile: alert", {'message': "活动太火爆啦"})
+                    exit()  # 终止程序
 
                 # 3. 检查是否存在 "请检查您的账号状态"
                 elif "请检查您的账号状态" in text:
                     print("检测到 '请检查您的账号状态'，终止程序。")
-
-                    # 在屏幕上显示消息
-                    show_popup(driver, "请检查您的账号状态")  # 调用函数在屏幕上显示消息
+                    exit()  # 终止程序
 
         except Exception as e:
             print(f"处理提交时出现异常")
@@ -361,9 +355,6 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
                     # 遍历每个具有 text 的元素
                     for shop_name_element in shop_name_elements:
                         shop_name = shop_name_element.get_attribute('text').strip()
-
-                        # # 打印店铺名称
-                        # print(f"找到店铺名称: {shop_name}")
 
                         # 计算与目标店铺名称的相似度
                         similarity = SequenceMatcher(None, target_shop_name, shop_name).ratio()
@@ -457,15 +448,12 @@ def perform_tasks():
                     )
                     # 如果找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，结束程序
                     text = message_button.text
-                    if "明日再试" in text:
-                        print("质量不合格，明日再试。")
-                        show_popup(driver, "质量不合格，明日再试。")
+                    if "质量不合格" in text:
+                        print("质量不合格")
                     elif "暂无任务" in text:
                         print("检测到 '暂无任务'，程序结束。")
-                        show_popup(driver, "暂无任务，程序结束。")
                     elif "任务已达限额" in text:
                         print("检测到 '任务已达限额'，程序结束。")
-                        show_popup(driver, "任务已达限额，程序结束。")
 
                     driver.quit()  # 结束程序运行
                     exit()  # 终止脚本执行
@@ -481,13 +469,14 @@ def perform_tasks():
                     target_shop_name = shop_name_view.text  # 获取店铺名称
                     print(f"成功找到店铺: {target_shop_name}")
 
-                    # 如果店铺名称包含 "-"，重新获取任务
-                    if "-" in target_shop_name:
-                        print("检测到店铺名称包含 '-'，重新获取任务")
+                    # 如果店铺名称只有 "-"，重新获取任务
+                    if target_shop_name == "-":
+                        print("检测到店铺名称为 '-'，重新获取任务")
                         continue  # 重新开始 while 循环，跳过后续操作
                     else:
                         print("成功获取任务")
-                        break  # 店铺名称不包含 '-'，跳出循环，执行后续任务
+                        break  # 店铺名称不为 '-'，跳出循环，执行后续任务
+
                 except Exception as e:
                     print(f"获取店铺名称失败，异常: {e}")
                     break  # 如果获取店铺名称失败，退出循环
@@ -592,9 +581,8 @@ def browse_items():
                 take_screenshot_with_date(driver, os.getcwd())  # 截图操作
                 print("已返回并截图")
                 submit_task_completion(driver, main_view)
-
-                # 在屏幕上显示消息
-                show_popup(driver, "活动太火爆啦")  # 调用函数在屏幕上显示消息
+                driver.execute_script("mobile: alert", {'message': "活动太火爆啦"})
+                exit()  # 终止程序
 
         except Exception as e:
             print("未检测到 '活动太火爆啦'，继续执行后续操作")
