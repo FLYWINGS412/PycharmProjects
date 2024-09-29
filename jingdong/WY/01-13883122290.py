@@ -191,7 +191,7 @@ def submit_first_item_task(main_view, first_item):
     while True:  # 无限循环
         # 在第一行商品下查找 "提交" 按钮并点击
         try:
-            submit_button = WebDriverWait(first_item, 10).until(
+            submit_button = WebDriverWait(first_item, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "提交")]'))
             )  # 注意这里的括号关闭
             submit_button.click()  # 这一行要缩进到try块内部
@@ -202,7 +202,7 @@ def submit_first_item_task(main_view, first_item):
         # 处理“提交”时的异常
         try:
             time.sleep(5)
-            elements = WebDriverWait(driver, 10).until(
+            elements = WebDriverWait(driver, 5).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
             )
 
@@ -223,7 +223,7 @@ def submit_first_item_task(main_view, first_item):
 
                     # 点击 "确定" 按钮后再检查是否有异常
                     time.sleep(5)  # 等待可能的弹出窗口
-                    new_elements = WebDriverWait(driver, 10).until(
+                    new_elements = WebDriverWait(driver, 5).until(
                         EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
                     )
 
@@ -259,13 +259,29 @@ def submit_first_item_task(main_view, first_item):
 
                 # 2. 检查是否存在 "活动太火爆啦"
                 elif "活动太火爆啦" in text:
-                    print("检测到 '活动太火爆啦'，准备返回并截图")
-                    driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
-                    time.sleep(5)
-                    take_screenshot_with_date(driver, os.getcwd())  # 截图操作
+                    print("检测到 '活动太火爆啦'，进入等待循环")
+
+                    # 持续检查 "活动太火爆啦" 是否消失
+                    while True:
+                        time.sleep(3)  # 等待3秒，避免频繁操作
+                        try:
+                            # 重新检测 "活动太火爆啦" 提示
+                            over_activity_message = WebDriverWait(driver, 5).until(
+                                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
+                            )
+
+                            if over_activity_message:
+                                continue  # 如果仍然存在 "活动太火爆啦"，继续循环等待
+                        except Exception:
+                            print("检测到 '活动太火爆啦' 消失，准备返回并执行后续操作")
+                            break  # 退出循环，继续执行后面的代码
+
+                    # 提示消失后，执行返回操作
+                    time.sleep(3)  # 等待3秒，确保返回操作完成
+                    # 进行截图操作
+                    take_screenshot_with_date(driver, os.getcwd())
                     print("已返回并截图")
-                    submit_task_completion(driver, main_view)
-                    driver.execute_script("mobile: alert", {'message': "活动太火爆啦"})
+                    submit_task_completion(driver, main_view)  # 提交任务完成的状态
                     exit()  # 终止程序
 
                 # 3. 检查是否存在 "请检查您的账号状态"
@@ -334,12 +350,6 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
                 )
             )
 
-            if len(parent_containers) == 0:  # 如果没有找到店铺项
-                print("未找到任何店铺项，刷新页面并重试...")
-                refresh_page(driver)  # 刷新页面
-                attempts += 1  # 增加尝试次数
-                continue  # 重新开始while循环
-
             print(f"找到 {len(parent_containers)} 个店铺项")
 
             matches = []
@@ -390,6 +400,7 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
 
         except Exception as e:
             print(f"查找店铺时出错")
+            refresh_page(driver)  # 刷新页面
             attempts += 1
 
     if not shop_found:
@@ -567,21 +578,40 @@ def browse_items():
             print("成功点击第一行商品的'详情'按钮")
         except Exception as e:
             print(f"未找到第一行商品的'详情'按钮:")
+            continue
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦"
         try:
-            time.sleep(3)
+            # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 提示
             over_activity_message = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
             )
+
+            # 如果第一次检查到 "活动太火爆啦"
             if over_activity_message:
-                print("检测到 '活动太火爆啦'，准备返回并截图")
-                driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
-                time.sleep(5)
-                take_screenshot_with_date(driver, os.getcwd())  # 截图操作
+                print("检测到 '活动太火爆啦'，进入等待循环")
+
+                # 持续检查 "活动太火爆啦" 是否消失
+                while True:
+                    time.sleep(3)  # 等待3秒，避免频繁操作
+                    try:
+                        # 重新检测 "活动太火爆啦" 提示
+                        over_activity_message = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
+                        )
+
+                        if over_activity_message:
+                            continue  # 如果仍然存在 "活动太火爆啦"，继续循环等待
+                    except Exception:
+                        print("检测到 '活动太火爆啦' 消失，准备返回并执行后续操作")
+                        break  # 退出循环，继续执行后面的代码
+
+                # 提示消失后，执行返回操作
+                time.sleep(3)  # 等待3秒，确保返回操作完成
+                # 进行截图操作
+                take_screenshot_with_date(driver, os.getcwd())
                 print("已返回并截图")
-                submit_task_completion(driver, main_view)
-                driver.execute_script("mobile: alert", {'message': "活动太火爆啦"})
+                submit_task_completion(driver, main_view)  # 提交任务完成的状态
                 exit()  # 终止程序
 
         except Exception as e:
