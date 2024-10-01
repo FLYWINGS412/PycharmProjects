@@ -196,10 +196,10 @@ def submit_first_item_task(main_view, first_item):
             )  # 注意这里的括号关闭
             submit_button.click()  # 这一行要缩进到try块内部
             print("成功点击第一行商品的'提交'按钮")
-        except Exception:
+        except Exception as e:
             print(f"未找到第一行商品的'提交'按钮")
 
-        # 处理“提交”时的异常
+        # 确定提交商品
         try:
             time.sleep(5)
             elements = WebDriverWait(driver, 5).until(
@@ -210,7 +210,7 @@ def submit_first_item_task(main_view, first_item):
             for element in elements:
                 text = element.text
 
-                # 1. 检查是否存在 "确定提交商品"
+                # 检查是否存在 "确定提交商品"
                 if "确定提交商品" in text:
                     print(f"检测到 '确定提交商品'，完整文本为: {text}")
 
@@ -221,43 +221,7 @@ def submit_first_item_task(main_view, first_item):
                             print("成功点击 '确定' 按钮，提交商品")
                             break  # 点击后跳出内层循环
 
-                    # 点击 "确定" 按钮后再检查是否有异常
-                    time.sleep(5)  # 等待可能的弹出窗口
-                    new_elements = WebDriverWait(driver, 5).until(
-                        EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
-                    )
-
-                    # 遍历新元素，检查是否有异常
-                    for new_element in new_elements:
-                        new_text = new_element.text
-
-                        # 检查是否存在 "任务不匹配"
-                        if "任务不匹配" in new_text:
-                            print(f"检测到 '任务不匹配'，完整文本为: {new_text}")
-                            driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
-                            return False  # 返回 False，表示任务不匹配
-
-                        # 检查是否存在 "任务已过期"
-                        elif "任务已过期" in new_text:
-                            print("检测到 '任务已过期'，重新获取任务")
-                            driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
-                            return False  # 返回 False，表示任务已过期
-
-                        # 检查是否存在 "BAD REQUEST"
-                        elif "BAD REQUEST" in new_text:
-                            print("检测到 'BAD REQUEST'，准备返回")
-                            driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
-                            continue  # 重新进入 while True 循环
-
-                        # 检查是否存在 "正在提交"
-                        elif "正在提交" in new_text:
-                            print("检测到 '正在提交'，准备返回")
-                            driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
-                            continue  # 重新进入 while True 循环
-
-                    break  # 跳出 "确定提交商品" 检查循环
-
-                # 2. 检查是否存在 "活动太火爆啦"
+                # 检查是否存在 "活动太火爆啦"
                 elif "活动太火爆啦" in text:
                     print("检测到 '活动太火爆啦'，进入等待循环")
 
@@ -284,13 +248,47 @@ def submit_first_item_task(main_view, first_item):
                     submit_task_completion(driver, main_view)  # 提交任务完成的状态
                     exit()  # 终止程序
 
-                # 3. 检查是否存在 "请检查您的账号状态"
-                elif "请检查您的账号状态" in text:
-                    print("检测到 '请检查您的账号状态'，终止程序。")
-                    exit()  # 终止程序
+        except Exception as e:
+            print(f"'确定提交商品'时出现异常")
+
+        # 处理“提交商品”时的异常
+        try:
+            # 点击 "确定" 按钮后再检查是否有异常
+            time.sleep(5)  # 等待可能的弹出窗口
+            new_elements = WebDriverWait(driver, 5).until(
+                EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
+            )
+
+            # 遍历新元素，检查是否有异常
+            for new_element in new_elements:
+                new_text = new_element.text
+
+                # 检查是否存在 "任务不匹配"
+                if "任务不匹配" in new_text:
+                    print(f"检测到 '任务不匹配'，完整文本为: {new_text}")
+                    driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
+                    return False  # 返回 False，表示任务不匹配
+
+                # 检查是否存在 "任务已过期"
+                elif "任务已过期" in new_text:
+                    print("检测到 '任务已过期'，重新获取任务")
+                    driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
+                    return False  # 返回 False，表示任务已过期
+
+                # 检查是否存在 "BAD REQUEST"
+                elif "BAD REQUEST" in new_text:
+                    print("检测到 'BAD REQUEST'，准备返回")
+                    driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
+                    continue  # 重新进入 while True 循环
+
+                # 检查是否存在 "正在提交"
+                elif "正在提交" in new_text:
+                    print("检测到 '正在提交'，准备返回")
+                    driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
+                    continue  # 重新进入 while True 循环
 
         except Exception as e:
-            print(f"处理提交时出现异常")
+            print(f"处理'提交商品'时出现异常")
 
         # 检查第一行商品是否 "已完成"
         try:
@@ -489,7 +487,7 @@ def perform_tasks():
                         break  # 店铺名称不为 '-'，跳出循环，执行后续任务
 
                 except Exception as e:
-                    print(f"获取店铺名称失败，异常: {e}")
+                    print(f"获取店铺名称失败")
                     break  # 如果获取店铺名称失败，退出循环
 
             # 查找并点击包含 m_common_tip_x_0 的按钮
