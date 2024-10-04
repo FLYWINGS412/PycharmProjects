@@ -210,7 +210,7 @@ def submit_first_item_task(main_view, first_item):
             for element in elements:
                 text = element.text
 
-                # 检查是否存在 "确定提交商品"
+                # 1. 检查是否存在 "确定提交商品"
                 if "确定提交商品" in text:
                     print(f"检测到 '确定提交商品'，完整文本为: {text}")
 
@@ -220,8 +220,9 @@ def submit_first_item_task(main_view, first_item):
                             btn.click()
                             print("成功点击 '确定' 按钮，提交商品")
                             break  # 点击后跳出内层循环
+                    break  # 点击 '确定' 后跳出外层循环，避免元素引用失效导致的异常
 
-                # 检查是否存在 "活动太火爆啦"
+                # 2. 检查是否存在 "活动太火爆啦"
                 elif "活动太火爆啦" in text:
                     print("检测到 '活动太火爆啦'，进入等待循环")
 
@@ -248,8 +249,13 @@ def submit_first_item_task(main_view, first_item):
                     submit_task_completion(driver, main_view)  # 提交任务完成的状态
                     exit()  # 终止程序
 
+                # 3. 检查是否存在 "请检查您的账号状态"
+                elif "请检查您的账号状态" in text:
+                    print("检测到 '请检查您的账号状态'，终止程序。")
+                    exit()  # 终止程序
+
         except Exception as e:
-            print(f"'确定提交商品'时出现异常")
+            print(f"'确定提交商品'时出现异常: {e}")
 
         # 处理“提交商品”时的异常
         try:
@@ -311,27 +317,41 @@ def submit_first_item_task(main_view, first_item):
 # 提交任务
 def submit_task_completion(driver, main_view):
     # 查找并点击 "任务完成" 按钮
-    try:
-        time.sleep(3)
-        Task_Completed = WebDriverWait(main_view, 10).until(
-            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
-        )
-        Task_Completed.click()
-        print("成功点击'任务完成'按钮")
-    except Exception as e:
-        print(f"点击'任务完成'按钮失败")
+    while True:  # 使用循环以防任务未完成时反复点击
+        try:
+            time.sleep(3)
+            Task_Completed = WebDriverWait(main_view, 10).until(
+                EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
+            )
+            Task_Completed.click()
+            print("成功点击'任务完成'按钮")
+        except Exception as e:
+            print(f"点击'任务完成'按钮失败")
+            break  # 如果点击任务失败，退出循环
 
-    # 确定 "任务完成"
-    try:
-        # time.sleep(5)
-        confirm_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//android.widget.Button[@text="确定"]'))
-        )
-        confirm_button.click()
-        print("成功点击全屏的'确定'按钮")
-        time.sleep(5)
-    except Exception as e:
-        print(f"未找到全屏的'确定'按钮")
+        # 确定 "任务完成"
+        try:
+            time.sleep(5)
+            confirm_button = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//android.widget.Button[@text="确定"]'))
+            )
+            confirm_button.click()
+            print("成功点击全屏的'确定'按钮")
+
+            # 检查 "任务完成" 是否消失
+            try:
+                WebDriverWait(driver, 5).until(
+                    EC.invisibility_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
+                )
+                print("'任务完成'按钮已消失")
+                break  # 如果"任务完成"已消失，退出循环
+            except TimeoutException:
+                print("'任务完成'按钮未消失，重新尝试点击")
+                continue  # 继续循环，重新点击"任务完成"按钮
+
+        except Exception as e:
+            print(f"未找到全屏的'确定'按钮")
+            break  # 如果找不到"确定"按钮，退出循环
 
 # 查找商店
 def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
@@ -384,9 +404,20 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
                 # 如果相似度超过阈值，则点击店铺名称元素
                 if best_similarity > 0.94:
                     best_match_item.click()  # 成功点击店铺
-                    print(f"成功点击最匹配的店铺: {shop_name}")
-                    shop_found = True  # 设置为已找到
-                    return True  # 成功找到并点击，返回 True
+
+                    # 检查父容器是否已消失，最大等待5秒
+                    try:
+                        WebDriverWait(driver, 5).until(
+                            EC.invisibility_of_element_located((By.XPATH, '//android.view.View[contains(@resource-id, "pro_info_below_")]'))
+                        )
+                        print(f"成功点击最匹配的店铺: {shop_name}")
+                        shop_found = True  # 设置为已找到
+                        return True  # 成功找到并点击，返回 True
+                    except TimeoutException:
+                        print("父容器未消失，刷新页面重新查找店铺...")
+                        refresh_page(driver)  # 调用页面刷新函数
+                        continue  # 重新开始 while 循环
+
                 else:
                     print("未找到高相似度的店铺，尝试翻页...")
                     perform_page_scroll(driver)
