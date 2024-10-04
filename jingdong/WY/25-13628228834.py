@@ -191,7 +191,7 @@ def submit_first_item_task(main_view, first_item):
     while True:  # 无限循环
         # 在第一行商品下查找 "提交" 按钮并点击
         try:
-            submit_button = WebDriverWait(first_item, 5).until(
+            submit_button = WebDriverWait(first_item, 3).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "提交")]'))
             )  # 注意这里的括号关闭
             submit_button.click()  # 这一行要缩进到try块内部
@@ -201,8 +201,8 @@ def submit_first_item_task(main_view, first_item):
 
         # 确定提交商品
         try:
-            time.sleep(5)
-            elements = WebDriverWait(driver, 5).until(
+            time.sleep(3)
+            elements = WebDriverWait(driver, 3).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
             )
 
@@ -255,13 +255,13 @@ def submit_first_item_task(main_view, first_item):
                     exit()  # 终止程序
 
         except Exception as e:
-            print(f"'确定提交商品'时出现异常: {e}")
+            print(f"'确定提交商品'时出现异常")
 
         # 处理“提交商品”时的异常
         try:
             # 点击 "确定" 按钮后再检查是否有异常
-            time.sleep(5)  # 等待可能的弹出窗口
-            new_elements = WebDriverWait(driver, 5).until(
+            time.sleep(3)  # 等待可能的弹出窗口
+            new_elements = WebDriverWait(driver, 3).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
             )
 
@@ -298,7 +298,7 @@ def submit_first_item_task(main_view, first_item):
 
         # 检查第一行商品是否 "已完成"
         try:
-            WebDriverWait(first_item, 5).until(
+            WebDriverWait(first_item, 3).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
             )
             print("'已完成'第一行商品任务")
@@ -313,6 +313,7 @@ def submit_first_item_task(main_view, first_item):
 
         except Exception:
             print("'未完成'第一行商品任务，继续提交任务")
+            refresh_page(driver)
 
 # 提交任务
 def submit_task_completion(driver, main_view):
@@ -454,7 +455,7 @@ def perform_tasks():
                 )
                 print("成功找到dp-main父容器")
             except Exception as e:
-                print(f"未找到dp-main父容器: {e}")
+                print(f"未找到dp-main父容器")
 
             # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
             try:
@@ -464,7 +465,7 @@ def perform_tasks():
                 home_button.click()
                 print("成功点击'回到首页'按钮")
             except Exception as e:
-                print(f"点击'回到首页'按钮失败: {e}")
+                print(f"点击'回到首页'按钮失败")
 
             # 获取任务
             while True:
@@ -519,7 +520,6 @@ def perform_tasks():
 
                 except Exception as e:
                     print(f"获取店铺名称失败")
-                    break  # 如果获取店铺名称失败，退出循环
 
             # 查找并点击包含 m_common_tip_x_0 的按钮
             try:
@@ -555,10 +555,10 @@ def perform_tasks():
                     browse_items()  # 成功点击店铺后调用浏览商品函数
 
             except Exception as e:
-                print(f"未找到包含 msKeyWord 的搜索栏: {e}")
+                print(f"未找到包含 msKeyWord 的搜索栏")
 
         except Exception as e:
-            print(f"执行任务时出现问题: {e}")
+            print(f"执行任务时出现问题")
 
             # 暂停一段时间
             time.sleep(5)
@@ -575,7 +575,7 @@ def browse_items():
         )
         print("成功找到dp-main父容器")
     except Exception as e:
-        print("未找到dp-main父容器:")
+        print("未找到dp-main父容器")
 
     # 在 dp-main 容器下查找第一行商品
     try:
@@ -606,7 +606,8 @@ def browse_items():
             detail_button.click()
             print("成功点击第一行商品的'详情'按钮")
         except Exception as e:
-            print(f"未找到第一行商品的'详情'按钮:")
+            print(f"未找到第一行商品的'详情'按钮")
+            refresh_page(driver)
             continue
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦"
@@ -662,6 +663,27 @@ def browse_items():
 
         # 检查第二行商品是否 "已完成"
         second_item_completed = False
+        try:
+            WebDriverWait(second_item, 0).until(
+                EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
+            )
+            print("'已完成'第二行商品任务")
+            second_item_completed = True
+        except Exception:
+            print("'未完成'第二行商品任务")
+
+        # 如果两行商品都完成了，截图并退出循环
+        if first_item_completed and second_item_completed:
+            print("所有商品任务均已完成，退出循环并截图")
+            take_screenshot_with_date(driver, os.getcwd())  # 调用截图函数
+            break  # 退出循环
+
+        # 模拟按下返回键
+        driver.press_keycode(AndroidKey.BACK)
+        print("成功返回店铺")
+
+    # 提交任务
+    submit_task_completion(driver, main_view)
         try:
             WebDriverWait(second_item, 0).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
