@@ -201,7 +201,7 @@ def submit_first_item_task(main_view, first_item):
 
         # 确定提交商品
         try:
-            time.sleep(3)
+            time.sleep(5)
             elements = WebDriverWait(driver, 3).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
             )
@@ -298,7 +298,7 @@ def submit_first_item_task(main_view, first_item):
 
         # 检查第一行商品是否 "已完成"
         try:
-            WebDriverWait(first_item, 3).until(
+            WebDriverWait(first_item, 10).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
             )
             print("'已完成'第一行商品任务")
@@ -338,6 +338,9 @@ def submit_task_completion(driver, main_view):
             )
             confirm_button.click()
             print("成功点击全屏的'确定'按钮")
+
+            time.sleep(5)
+            refresh_page(driver)
 
             # 检查 "任务完成" 是否消失
             try:
@@ -568,23 +571,29 @@ def browse_items():
     time.sleep(5)
     second_item_found = True  # 预先将变量设置为 True
 
-    # 定位 dp-main 父容器
-    try:
-        main_view = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
-        )
-        print("成功找到dp-main父容器")
-    except Exception as e:
-        print("未找到dp-main父容器")
+    while True:
+        # 定位 dp-main 父容器
+        try:
+            main_view = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
+            )
+            print("成功找到dp-main父容器")
+        except Exception as e:
+            print("未找到dp-main父容器，继续尝试...")
+            refresh_page(driver)
+            continue  # 未找到 dp-main，重新进入 while 循环
 
-    # 在 dp-main 容器下查找第一行商品
-    try:
-        first_item = WebDriverWait(main_view, 10).until(
-            EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[1]'))
-        )
-        print("成功找到第一行商品")
-    except Exception as e:
-        print("未找到第一行商品")
+        # 在 dp-main 容器下查找第一行商品
+        try:
+            first_item = WebDriverWait(main_view, 10).until(
+                EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[1]'))
+            )
+            print("成功找到第一行商品")
+            break  # 找到第一行商品，退出 while 循环
+        except Exception as e:
+            print("未找到第一行商品，继续尝试...")
+            refresh_page(driver)
+            continue  # 未找到第一行商品，重新进入 while 循环
 
     # 在 dp-main 容器下查找第二行商品，如果没有找到则标记
     try:
@@ -664,13 +673,14 @@ def browse_items():
         # 检查第二行商品是否 "已完成"
         second_item_completed = False
         try:
-            WebDriverWait(second_item, 0).until(
+            WebDriverWait(second_item, 3).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
             )
             print("'已完成'第二行商品任务")
             second_item_completed = True
         except Exception:
-            print("'未完成'第二行商品任务")
+            second_item_text = second_item.text if second_item else "未能获取文本"
+            print(f"'未完成'第二行商品任务, 第二行商品文本为: {second_item_text}")
 
         # 如果两行商品都完成了，截图并退出循环
         if first_item_completed and second_item_completed:
