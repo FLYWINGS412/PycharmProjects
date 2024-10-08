@@ -488,13 +488,13 @@ def perform_tasks():
                 except Exception as e:
                     print(f"点击'获取任务'按钮失败")
 
-                # 查找是否存在 "明日再试" 或 "暂无任务" 或 "任务已达限额"
+                # 查找是否存在 "质量不合格" 或 "暂无任务" 或 "任务已达限额"
                 try:
-                    # 查找 "明日再试" 或 "暂无任务" 或 "任务已达限额"
+                    # 查找 "质量不合格" 或 "暂无任务" 或 "任务已达限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "明日再试") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "质量不合格") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
                     )
-                    # 如果找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，结束程序
+                    # 如果找到 "质量不合格" 或 "暂无任务" 或 "任务已达限额"，结束程序
                     text = message_button.text
                     if "质量不合格" in text:
                         print("质量不合格")
@@ -507,7 +507,7 @@ def perform_tasks():
                     exit()  # 终止脚本执行
 
                 except Exception:
-                    print("未检测到 '明日再试' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
+                    print("未检测到 '质量不合格' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
