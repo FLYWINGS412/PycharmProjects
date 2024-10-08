@@ -307,7 +307,11 @@ def submit_first_item_task(main_view, first_item):
             browsed_item_count = load_browsed_item_count()  # 重新加载计数
             browsed_item_count += 1
             print(f"浏览商品数量更新为：{browsed_item_count}")
-            save_browsed_item_count(browsed_item_count)
+
+            try:
+                save_browsed_item_count(browsed_item_count)
+            except Exception as e:
+                print(f"保存浏览商品数量时出错")
 
             return True  # 返回检查第一行商品 "已完成"
 
@@ -484,13 +488,13 @@ def perform_tasks():
                 except Exception as e:
                     print(f"点击'获取任务'按钮失败")
 
-                # 查找是否存在 "明日再试" 或 "暂无任务" 或 "任务已达限额"
+                # 查找是否存在 "质量不合格" 或 "暂无任务" 或 "任务已达限额"
                 try:
-                    # 查找 "明日再试" 或 "暂无任务" 或 "任务已达限额"
+                    # 查找 "质量不合格" 或 "暂无任务" 或 "任务已达限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "明日再试") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "质量不合格") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
                     )
-                    # 如果找到 "明日再试" 或 "暂无任务" 或 "任务已达限额"，结束程序
+                    # 如果找到 "质量不合格" 或 "暂无任务" 或 "任务已达限额"，结束程序
                     text = message_button.text
                     if "质量不合格" in text:
                         print("质量不合格")
@@ -503,7 +507,7 @@ def perform_tasks():
                     exit()  # 终止脚本执行
 
                 except Exception:
-                    print("未检测到 '明日再试' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
+                    print("未检测到 '质量不合格' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
@@ -548,17 +552,17 @@ def perform_tasks():
                 time.sleep(1)
                 driver.press_keycode(AndroidKey.ENTER)
 
-                # 调用查找店铺的函数
-                if not find_and_click_shop(driver, target_shop_name, main_view):
-                    print("未找到店铺，重新执行任务")
-                    perform_tasks()  # 如果未找到店铺，重新执行任务
-                    return  # 确保函数不继续执行
-                else:
-                    # 进入店铺后，浏览商品
-                    browse_items()  # 成功点击店铺后调用浏览商品函数
-
             except Exception as e:
                 print(f"未找到包含 msKeyWord 的搜索栏")
+
+            # 调用查找店铺的函数
+            if not find_and_click_shop(driver, target_shop_name, main_view):
+                print("未找到店铺，重新执行任务")
+                perform_tasks()  # 如果未找到店铺，重新执行任务
+                return  # 确保函数不继续执行
+            else:
+                # 进入店铺后，浏览商品
+                browse_items()  # 成功点击店铺后调用浏览商品函数
 
         except Exception as e:
             print(f"执行任务时出现问题")
@@ -606,7 +610,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(3)
+        time.sleep(5)
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
