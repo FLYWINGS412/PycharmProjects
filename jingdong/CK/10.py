@@ -184,6 +184,41 @@ def load_browsed_item_count():
 
     return count
 
+# 更换账号
+def switch_account(main_view):
+    # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
+    try:
+        time.sleep(5)
+        home_button = WebDriverWait(main_view, 10).until(
+            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
+        )
+        home_button.click()
+        print("成功点击'回到首页'按钮")
+    except Exception as e:
+        print(f"点击'回到首页'按钮失败")
+
+    # 查找并点击 "我的" 按钮
+    try:
+        time.sleep(5)
+        mcommon_my_view = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "mCommonMy")]'))
+        )
+        mcommon_my_view.click()  # 直接点击 mCommonMy 父容器
+        print("成功点击'我的'按钮")
+    except Exception as e:
+        print(f"点击'我的'按钮失败")
+
+    # 在 dp-main 父容器下查找并点击 "更换账号" 按钮
+    try:
+        time.sleep(5)
+        switch_account_button = WebDriverWait(main_view, 10).until(
+            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="更换账号"]'))
+        )
+        switch_account_button.click()
+        print("成功点击'更换账号'按钮")
+    except Exception as e:
+        print(f"点击'更换账号'按钮失败")
+
 # 提交第一行商品任务
 def submit_first_item_task(main_view, first_item):
     first_item_completed = False  # 第一行商品标记为“未完成”
@@ -498,13 +533,18 @@ def perform_tasks():
                     text = message_button.text
                     if "质量不合格" in text:
                         print("质量不合格")
-                    elif "暂无任务" in text:
-                        print("检测到 '暂无任务'，程序结束。")
+                        driver.press_keycode(AndroidKey.BACK)
+                        switch_account(main_view)
+                        continue
                     elif "任务已达限额" in text:
                         print("检测到 '任务已达限额'，程序结束。")
-
-                    driver.quit()  # 结束程序运行
-                    exit()  # 终止脚本执行
+                        driver.press_keycode(AndroidKey.BACK)
+                        switch_account(main_view)
+                        continue
+                    elif "暂无任务" in text:
+                        print("检测到 '暂无任务'，程序结束。")
+                        driver.quit()  # 结束程序运行
+                        exit()  # 终止脚本执行
 
                 except Exception:
                     print("未检测到 '质量不合格' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
