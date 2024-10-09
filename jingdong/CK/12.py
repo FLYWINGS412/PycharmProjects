@@ -22,7 +22,7 @@ def refresh_page(driver):
         )
         loading_state_button.click()
         print("页面已刷新")
-        time.sleep(5)  # 等待页面加载完成
+        time.sleep(8)  # 等待页面加载完成
     except Exception as e:
         print(f"刷新页面失败")
 
@@ -378,12 +378,12 @@ def submit_task_completion(driver, main_view):
             confirm_button.click()
             print("成功点击全屏的'确定'按钮")
 
-            time.sleep(5)
+            time.sleep(10)
             refresh_page(driver)
 
             # 检查 "任务完成" 是否消失
             try:
-                WebDriverWait(driver, 5).until(
+                WebDriverWait(driver, 10).until(
                     EC.invisibility_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
                 )
                 print("'任务完成'按钮已消失")
@@ -744,7 +744,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
     'deviceName': '12',
-    'udid': 'emulator-5638',
+    'udid': 'emulator-5642',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
