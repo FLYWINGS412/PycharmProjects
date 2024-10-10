@@ -666,6 +666,7 @@ def browse_items():
         # 点击 "详情" 后，检查是否有 "活动太火爆啦"
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 提示
+            time.sleep(3)
             over_activity_message = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
             )
