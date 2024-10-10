@@ -744,7 +744,7 @@ desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
     'deviceName': '11',
-    'udid': 'emulator-5640',
+    'udid': 'emulator-5636',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
