@@ -310,6 +310,11 @@ def submit_first_item_task(main_view, first_item):
                     driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
                     return False  # 返回 False，表示任务不匹配
 
+                # 检查是否存在 "质量不合格"
+                    if "质量不合格" in text:
+                    print("质量不合格")
+                    exit()  # 终止程序
+
                 # 检查是否存在 "任务已过期"
                 elif "任务已过期" in new_text:
                     print("检测到 '任务已过期'，重新获取任务")
@@ -490,27 +495,27 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
 def perform_tasks():
     while True:  # 无限循环
         try:
-            # 定位 dp-main 父容器
-            try:
-                main_view = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
-                )
-                print("成功找到dp-main父容器")
-            except Exception as e:
-                print(f"未找到dp-main父容器")
-
-            # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
-            try:
-                home_button = WebDriverWait(main_view, 10).until(
-                    EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
-                )
-                home_button.click()
-                print("成功点击'回到首页'按钮")
-            except Exception as e:
-                print(f"点击'回到首页'按钮失败")
-
             # 获取任务
             while True:
+                # 定位 dp-main 父容器
+                try:
+                    main_view = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
+                    )
+                    print("成功找到dp-main父容器")
+                except Exception as e:
+                    print(f"未找到dp-main父容器")
+
+                # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
+                try:
+                    home_button = WebDriverWait(main_view, 10).until(
+                        EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
+                    )
+                    home_button.click()
+                    print("成功点击'回到首页'按钮")
+                except Exception as e:
+                    print(f"点击'回到首页'按钮失败")
+
                 # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
                 try:
                     time.sleep(3)
@@ -543,7 +548,6 @@ def perform_tasks():
                         continue
                     elif "暂无任务" in text:
                         print("检测到 '暂无任务'，程序结束。")
-                        driver.quit()  # 结束程序运行
                         exit()  # 终止脚本执行
 
                 except Exception:
@@ -613,7 +617,7 @@ def perform_tasks():
 # 浏览商品
 def browse_items():
     time.sleep(5)
-    second_item_found = True  # 预先将变量设置为 True
+    second_item_found = True
 
     while True:
         # 定位 dp-main 父容器
