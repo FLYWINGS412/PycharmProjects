@@ -311,7 +311,7 @@ def submit_first_item_task(main_view, first_item):
                     return False  # 返回 False，表示任务不匹配
 
                 # 检查是否存在 "质量不合格"
-                    if "质量不合格" in text:
+                elif "质量不合格" in new_text:
                     print("质量不合格")
                     exit()  # 终止程序
 
@@ -543,9 +543,7 @@ def perform_tasks():
                         continue
                     elif "任务已达限额" in text:
                         print("检测到 '任务已达限额'，程序结束。")
-                        driver.press_keycode(AndroidKey.BACK)
-                        switch_account(main_view)
-                        continue
+                        exit()  # 终止脚本执行
                     elif "暂无任务" in text:
                         print("检测到 '暂无任务'，程序结束。")
                         exit()  # 终止脚本执行
