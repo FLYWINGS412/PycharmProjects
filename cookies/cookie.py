@@ -12,7 +12,7 @@ def load_cookies_from_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         return [line.strip() for line in f if line.strip()]
 
-# 将验证结果写回 cookies.txt 文件
+# 将验证结果写回 result.txt 文件
 def write_cookies_to_file(file_path, cookies_with_results):
     with open(file_path, 'w', encoding='utf-8') as f:
         for cookie in cookies_with_results:
@@ -80,7 +80,7 @@ def validate_cookie(cookie, retry_count=3):
                     else:
                         return f"{cookie}（有效，但 pt_pin 不匹配）"
                 else:
-                    print(f"返回的原始数据：{data}")  # 记录未符合预期的数据
+                    print(f"调试信息: 返回的原始数据 {data}, 处理的 Cookie: {cookie}")
                     return f"{cookie}（返回的数据结构不符合预期）"
             else:
                 return f"{cookie}（请求失败，状态码: {response.status_code}）"
@@ -88,16 +88,19 @@ def validate_cookie(cookie, retry_count=3):
         except requests.exceptions.RequestException as e:
             return f"{cookie}（请求失败: {e}）"
 
-        time.sleep(1)  # 添加适当的间隔，避免触发频率限制
-
     # 如果多次重试后依然失败
     return f"{cookie}（请求失败，状态码: 503，多次尝试后放弃）"
 
 # 从文件中加载 Cookie 列表，并移除空格
 cookies = load_cookies_from_file('cookies.txt')
 
-# 只对尚未验证为 "（有效）" 或 "（无效）" 的 Cookie 进行验证
-cookies_with_results = [validate_cookie(cookie) for cookie in cookies]
+cookies_with_results = []
 
-# 将结果写回 cookies.txt 文件
-write_cookies_to_file('cookies.txt', cookies_with_results)
+# 只对尚未验证为 "（有效）" 或 "（无效）" 的 Cookie 进行验证
+for cookie in cookies:
+    result = validate_cookie(cookie)
+    cookies_with_results.append(result)
+    time.sleep(5)  # 每条 Cookie 验证后等待 5 秒
+
+# 将验证结果写回 result.txt 文件
+write_cookies_to_file('result.txt', cookies_with_results)

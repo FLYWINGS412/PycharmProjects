@@ -310,6 +310,11 @@ def submit_first_item_task(main_view, first_item):
                     driver.press_keycode(AndroidKey.BACK)  # 模拟返回操作
                     return False  # 返回 False，表示任务不匹配
 
+                # 检查是否存在 "当前账号暂时无法做任务"
+                elif "当前账号暂时无法做任务" in new_text:
+                    print("当前账号暂时无法做任务")
+                    exit()  # 终止程序
+
                 # 检查是否存在 "质量不合格"
                 elif "质量不合格" in new_text:
                     print("质量不合格")
