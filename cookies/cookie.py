@@ -81,7 +81,7 @@ def validate_cookie(cookie, retry_count=3):
                         return f"{cookie}（有效，但 pt_pin 不匹配）"
                 else:
                     print(f"返回的原始数据：{data}")  # 记录未符合预期的数据
-                    return f"{cookie}（无法获取用户信息，返回的数据结构不符合预期）"
+                    return f"{cookie}（返回的数据结构不符合预期）"
             else:
                 return f"{cookie}（请求失败，状态码: {response.status_code}）"
 
