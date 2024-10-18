@@ -315,9 +315,9 @@ def submit_first_item_task(main_view, first_item):
                     print("当前账号暂时无法做任务")
                     exit()  # 终止程序
 
-                # 检查是否存在 "质量不合格"
-                elif "质量不合格" in new_text:
-                    print("质量不合格")
+                # 检查是否存在 "任务不合格"
+                elif "任务不合格" in new_text:
+                    print("任务不合格")
                     exit()  # 终止程序
 
                 # 检查是否存在 "任务已过期"
@@ -533,28 +533,29 @@ def perform_tasks():
                 except Exception as e:
                     print(f"点击'获取任务'按钮失败")
 
-                # 查找是否存在 "质量不合格" 或 "暂无任务" 或 "任务已达限额"
+                # 查找是否存在 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                 try:
-                    # 查找 "质量不合格" 或 "暂无任务" 或 "任务已达限额"
+                    # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "质量不合格") or contains(@text, "暂无任务") or contains(@text, "任务已达限额")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "暂无任务") or contains(@text, "提交已限额")]'))
                     )
-                    # 如果找到 "质量不合格" 或 "暂无任务" 或 "任务已达限额"，结束程序
+                    # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
                     text = message_button.text
-                    if "质量不合格" in text:
-                        print("质量不合格")
-                        driver.press_keycode(AndroidKey.BACK)
-                        switch_account(main_view)
-                        continue
-                    elif "任务已达限额" in text:
-                        print("检测到 '任务已达限额'，程序结束。")
+                    if "任务不合格" in text:
+                        print("任务不合格")
+                        exit()  # 终止程序
+                        # driver.press_keycode(AndroidKey.BACK)
+                        # switch_account(main_view)
+                        # continue
+                    elif "提交已限额" in text:
+                        print("检测到 '提交已限额'，程序结束。")
                         exit()  # 终止脚本执行
                     elif "暂无任务" in text:
                         print("检测到 '暂无任务'，程序结束。")
                         exit()  # 终止脚本执行
 
                 except Exception:
-                    print("未检测到 '质量不合格' 或 '暂无任务' 或 '任务已达限额'，继续任务。")
+                    print("未检测到 '任务不合格' 或 '暂无任务' 或 '提交已限额'，继续任务。")
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
