@@ -226,7 +226,7 @@ def submit_first_item_task(main_view, first_item):
     while True:  # 无限循环
         # 在第一行商品下查找 "提交" 按钮并点击
         try:
-            submit_button = WebDriverWait(first_item, 3).until(
+            submit_button = WebDriverWait(first_item, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "提交")]'))
             )  # 注意这里的括号关闭
             submit_button.click()  # 这一行要缩进到try块内部
@@ -237,7 +237,7 @@ def submit_first_item_task(main_view, first_item):
         # 确定提交商品
         try:
             time.sleep(5)
-            elements = WebDriverWait(driver, 3).until(
+            elements = WebDriverWait(driver, 5).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
             )
 
@@ -263,7 +263,7 @@ def submit_first_item_task(main_view, first_item):
 
                     # 持续检查 "活动太火爆啦" 是否消失
                     while True:
-                        time.sleep(3)  # 等待3秒，避免频繁操作
+                        time.sleep(5)  # 等待3秒，避免频繁操作
                         try:
                             # 重新检测 "活动太火爆啦" 提示
                             over_activity_message = WebDriverWait(driver, 5).until(
@@ -277,7 +277,7 @@ def submit_first_item_task(main_view, first_item):
                             break  # 退出循环，继续执行后面的代码
 
                     # 提示消失后，执行返回操作
-                    time.sleep(3)  # 等待3秒，确保返回操作完成
+                    time.sleep(5)  # 等待3秒，确保返回操作完成
                     # 进行截图操作
                     take_screenshot_with_date(driver, os.getcwd())
                     print("已返回并截图")
@@ -295,8 +295,8 @@ def submit_first_item_task(main_view, first_item):
         # 处理“提交商品”时的异常
         try:
             # 点击 "确定" 按钮后再检查是否有异常
-            time.sleep(3)  # 等待可能的弹出窗口
-            new_elements = WebDriverWait(driver, 3).until(
+            time.sleep(5)  # 等待可能的弹出窗口
+            new_elements = WebDriverWait(driver, 5).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
             )
 
@@ -369,7 +369,7 @@ def submit_task_completion(driver, main_view):
     # 查找并点击 "任务完成" 按钮
     while True:  # 使用循环以防任务未完成时反复点击
         try:
-            time.sleep(3)
+            time.sleep(5)
             Task_Completed = WebDriverWait(main_view, 10).until(
                 EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
             )
@@ -674,7 +674,7 @@ def browse_items():
         # 点击 "详情" 后，检查是否有 "活动太火爆啦"
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 提示
-            time.sleep(3)
+            time.sleep(5)
             over_activity_message = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
             )
@@ -685,7 +685,7 @@ def browse_items():
 
                 # 持续检查 "活动太火爆啦" 是否消失
                 while True:
-                    time.sleep(3)  # 等待3秒，避免频繁操作
+                    time.sleep(10)  # 等待3秒，避免频繁操作
                     try:
                         # 重新检测 "活动太火爆啦" 提示
                         over_activity_message = WebDriverWait(driver, 5).until(
@@ -699,7 +699,7 @@ def browse_items():
                         break  # 退出循环，继续执行后面的代码
 
                 # 提示消失后，执行返回操作
-                time.sleep(3)  # 等待3秒，确保返回操作完成
+                time.sleep(5)  # 等待3秒，确保返回操作完成
                 # 进行截图操作
                 take_screenshot_with_date(driver, os.getcwd())
                 print("已返回并截图")
@@ -726,7 +726,7 @@ def browse_items():
         # 检查第二行商品是否 "已完成"
         second_item_completed = False
         try:
-            WebDriverWait(second_item, 3).until(
+            WebDriverWait(second_item, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
             )
             print("'已完成'第二行商品任务")
