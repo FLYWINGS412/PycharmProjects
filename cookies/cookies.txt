@@ -1,3 +1,0 @@
-pt_pin=jd_JvxFyVGrbgqZ;pt_key=AAJnDU-UADDow1Tk7T5uZrxNoERQNJ8Rdc2G1RjnMJeLjl8fPvV8VUai5u9liZ4qpcPsuKf3cq8;
-pt_pin=jd_YhhPaHveMZeT;pt_key=AAJnDU-UADC_fRhHwUzDL_xt6XF3fMPxWKVTVbLHBCgdq-D-OkMVXtWRl38K_DKS4AqV_D4Xx3o;
-pt_pin=jd_tMTNjDxwoRUn;pt_key=AAJnDU-VADA_9trqEW9rJQqm0Jil2Adzt4pN_Qw2AUcPz3m4Y4qmvboMfSHGd1KEhpgdbfa_MXc;pwdt_id=jd_tMTNjDxwoRUn;

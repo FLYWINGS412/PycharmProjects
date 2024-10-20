@@ -2,8 +2,10 @@ import re
 import os
 import sys
 import time
+import json
 import portalocker
 import tkinter as tk
+import multiprocessing
 from appium import webdriver
 from datetime import datetime
 from difflib import SequenceMatcher
@@ -755,8 +757,8 @@ def browse_items():
 desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'deviceName': '03-16623490422',
-    'udid': 'emulator-5660',
+    'deviceName': '01-13883122290',
+    'udid': 'emulator-5556',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
