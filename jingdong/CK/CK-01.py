@@ -658,7 +658,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(5)
+        time.sleep(10)
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
@@ -752,7 +752,7 @@ def browse_items():
 desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'deviceName': '01',
+    'deviceName': 'CK-01',
     'udid': 'emulator-5616',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,

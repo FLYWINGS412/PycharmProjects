@@ -226,7 +226,7 @@ def submit_first_item_task(main_view, first_item):
     while True:  # 无限循环
         # 在第一行商品下查找 "提交" 按钮并点击
         try:
-            submit_button = WebDriverWait(first_item, 3).until(
+            submit_button = WebDriverWait(first_item, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "提交")]'))
             )  # 注意这里的括号关闭
             submit_button.click()  # 这一行要缩进到try块内部
@@ -237,7 +237,7 @@ def submit_first_item_task(main_view, first_item):
         # 确定提交商品
         try:
             time.sleep(5)
-            elements = WebDriverWait(driver, 3).until(
+            elements = WebDriverWait(driver, 5).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button'))
             )
 
@@ -263,7 +263,7 @@ def submit_first_item_task(main_view, first_item):
 
                     # 持续检查 "活动太火爆啦" 是否消失
                     while True:
-                        time.sleep(3)  # 等待3秒，避免频繁操作
+                        time.sleep(5)  # 等待3秒，避免频繁操作
                         try:
                             # 重新检测 "活动太火爆啦" 提示
                             over_activity_message = WebDriverWait(driver, 5).until(
@@ -277,7 +277,7 @@ def submit_first_item_task(main_view, first_item):
                             break  # 退出循环，继续执行后面的代码
 
                     # 提示消失后，执行返回操作
-                    time.sleep(3)  # 等待3秒，确保返回操作完成
+                    time.sleep(5)  # 等待3秒，确保返回操作完成
                     # 进行截图操作
                     take_screenshot_with_date(driver, os.getcwd())
                     print("已返回并截图")
@@ -295,8 +295,8 @@ def submit_first_item_task(main_view, first_item):
         # 处理“提交商品”时的异常
         try:
             # 点击 "确定" 按钮后再检查是否有异常
-            time.sleep(3)  # 等待可能的弹出窗口
-            new_elements = WebDriverWait(driver, 3).until(
+            time.sleep(5)  # 等待可能的弹出窗口
+            new_elements = WebDriverWait(driver, 5).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//android.widget.TextView | //android.widget.Button | //android.view.View'))
             )
 
@@ -369,7 +369,7 @@ def submit_task_completion(driver, main_view):
     # 查找并点击 "任务完成" 按钮
     while True:  # 使用循环以防任务未完成时反复点击
         try:
-            time.sleep(3)
+            time.sleep(5)
             Task_Completed = WebDriverWait(main_view, 10).until(
                 EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
             )
@@ -658,7 +658,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(5)
+        time.sleep(10)
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
@@ -671,21 +671,24 @@ def browse_items():
             refresh_page(driver)
             continue
 
-        # 点击 "详情" 后，检查是否有 "活动太火爆啦"
+        # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
-            # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 提示
-            time.sleep(3)
-            over_activity_message = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
+            # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
+            time.sleep(5)
+            message_element = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
             )
 
+            # 检查文本内容
+            message_text = message_element.text
+
             # 如果第一次检查到 "活动太火爆啦"
-            if over_activity_message:
+            if "活动太火爆啦" in message_text:
                 print("检测到 '活动太火爆啦'，进入等待循环")
 
                 # 持续检查 "活动太火爆啦" 是否消失
                 while True:
-                    time.sleep(3)  # 等待3秒，避免频繁操作
+                    time.sleep(10)  # 等待10秒，避免频繁操作
                     try:
                         # 重新检测 "活动太火爆啦" 提示
                         over_activity_message = WebDriverWait(driver, 5).until(
@@ -699,15 +702,34 @@ def browse_items():
                         break  # 退出循环，继续执行后面的代码
 
                 # 提示消失后，执行返回操作
-                time.sleep(3)  # 等待3秒，确保返回操作完成
+                time.sleep(5)  # 等待5秒，确保返回操作完成
                 # 进行截图操作
                 take_screenshot_with_date(driver, os.getcwd())
                 print("已返回并截图")
                 submit_task_completion(driver, main_view)  # 提交任务完成的状态
                 exit()  # 终止程序
 
+            # 如果第一次检查到 "验证"
+            elif "验证" in message_text:
+                print("检测到 '验证'，进入等待循环")
+
+                # 持续检查 "验证" 是否消失
+                while True:
+                    time.sleep(10)  # 等待10秒，避免频繁操作
+                    try:
+                        # 重新检测 "验证" 提示
+                        verify_message = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+                        )
+
+                        if verify_message:
+                            continue  # 如果仍然存在 "验证"，继续循环等待
+                    except Exception:
+                        print("检测到 '验证' 消失，继续执行后续操作")
+                        break  # 退出循环，继续执行后面的代码
+
         except Exception as e:
-            print("未检测到 '活动太火爆啦'，继续执行后续操作")
+            print("未检测到 '活动太火爆啦' 或 '验证'，继续执行后续操作")
 
         # 提交第一行商品任务，更新任务完成标志
         first_item_completed = submit_first_item_task(main_view, first_item)
@@ -726,7 +748,7 @@ def browse_items():
         # 检查第二行商品是否 "已完成"
         second_item_completed = False
         try:
-            WebDriverWait(second_item, 3).until(
+            WebDriverWait(second_item, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
             )
             print("'已完成'第二行商品任务")
@@ -752,7 +774,7 @@ def browse_items():
 desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'deviceName': '11',
+    'deviceName': 'CK-11',
     'udid': 'emulator-5636',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
