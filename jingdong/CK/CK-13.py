@@ -537,7 +537,7 @@ def perform_tasks():
                 try:
                     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "暂无任务") or contains(@text, "提交已限额")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
                     )
                     # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
                     text = message_button.text
@@ -549,6 +549,9 @@ def perform_tasks():
                         # continue
                     elif "提交已限额" in text:
                         print("检测到 '提交已限额'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "任务已暂停" in text:
+                        print("检测到 '任务已暂停'，程序结束。")
                         exit()  # 终止脚本执行
                     elif "暂无任务" in text:
                         print("检测到 '暂无任务'，程序结束。")
@@ -658,7 +661,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(10)
+        time.sleep(5)
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
@@ -676,7 +679,8 @@ def browse_items():
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
             time.sleep(5)
             message_element = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
             )
 
             # 检查文本内容

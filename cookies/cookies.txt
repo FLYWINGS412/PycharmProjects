@@ -1,0 +1,2 @@
+pt_pin=jd_yLJHVBsFqJiZ;pt_key=AAJnD8ONADA8z5mX4G7MZIVedJfNKOu8YyDYDxpoU4RjgJb0mSrhR7uR8jolwOgwfhHF6nFOucY;pwdt_id=jd_yLJHVBsFqJiZ;
+pt_pin=jd_nqvnogwWbnFY;pt_key=AAJnD8OLADC8DFKgCYW4vXmcir_8NlQtuel9U-ZJ0ZNPHnPx1riilfzWU7Y-i7m6TbJqpnci8-c;pwdt_id=jd_nqvnogwWbnFY;
