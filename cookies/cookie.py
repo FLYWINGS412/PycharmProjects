@@ -101,7 +101,7 @@ for cookie in cookies:
     result = validate_cookie(cookie)
     cookies_with_results.append(result)
     print(result)  # 输出每条 Cookie 的验证结果到控制台
-    time.sleep(5)  # 每条 Cookie 验证后等待 30 秒
+    # time.sleep(5)  # 每条 Cookie 验证后等待 30 秒
 
 # 将验证结果写回 result.txt 文件
 write_cookies_to_file('result.txt', cookies_with_results)
