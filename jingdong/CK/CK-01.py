@@ -15,12 +15,34 @@ from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 
 # 刷新页面
+# def refresh_page(driver):
+#     pass
+    # try:
+    #     loading_state_button = WebDriverWait(driver, 10).until(
+    #         EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
+    #     )
+    #     loading_state_button.click()
+    #     print("页面已刷新")
+    #     time.sleep(8)  # 等待页面加载完成
+    # except Exception as e:
+    #     print(f"刷新页面失败")
+
+# 刷新页面
 def refresh_page(driver):
     try:
-        loading_state_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
-        )
-        loading_state_button.click()
+        # 获取设备屏幕的尺寸
+        window_size = driver.get_window_size()
+        width = window_size['width']
+        height = window_size['height']
+
+        # 设置起始点和终止点的坐标，模拟从屏幕中间向下滑动
+        start_x = width / 2
+        start_y = height / 4
+        end_y = height * 3 / 4
+
+        # 执行下拉操作
+        action = TouchAction(driver)
+        action.press(x=start_x, y=start_y).wait(200).move_to(x=start_x, y=end_y).release().perform()
         print("页面已刷新")
         time.sleep(8)  # 等待页面加载完成
     except Exception as e:
@@ -220,19 +242,36 @@ def switch_account(main_view):
         print(f"点击'更换账号'按钮失败")
 
 # 提交第一行商品任务
-def submit_first_item_task(main_view, first_item):
-    first_item_completed = False  # 第一行商品标记为“未完成”
+def submit_first_item_task():
+    # 定位 dp-main 父容器
+    main_view = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
+    )
+    print("成功找到dp-main父容器")
 
-    while True:  # 无限循环
-        # 在第一行商品下查找 "提交" 按钮并点击
+    # 在 dp-main 容器下查找第一行商品
+    try:
+        first_item = WebDriverWait(main_view, 10).until(
+            EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[1]'))
+        )
+        print("成功找到第一行商品")
+    except Exception as e:
+        print("未找到第一行商品，继续尝试...")
+
+    while True:  # 无限循环，直到第一行商品完成
+        time.sleep(5)
+        # 在第一行商品下查找 "详情" 按钮并点击
         try:
-            submit_button = WebDriverWait(first_item, 5).until(
-                EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "提交")]'))
-            )  # 注意这里的括号关闭
-            submit_button.click()  # 这一行要缩进到try块内部
-            print("成功点击第一行商品的'提交'按钮")
+            # 尝试查找包含 dp-good-detail 的按钮
+            detail_button = WebDriverWait(first_item, 5).until(
+                EC.presence_of_element_located((By.XPATH, './/android.view.View[contains(@resource-id, "dp-good-submit")]'))
+            )
+            detail_button.click()
+            print("成功点击第一行商品的'详情'按钮")
         except Exception as e:
-            print(f"未找到第一行商品的'提交'按钮")
+            print(f"未找到第一行商品的'详情'按钮")
+            page_source = driver.page_source
+            print(page_source)  # 打印页面的完整XML结构，便于调试
 
         # 确定提交商品
         try:
@@ -511,73 +550,92 @@ def perform_tasks():
                 except Exception as e:
                     print(f"未找到dp-main父容器")
 
-                # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
+                # # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
+                # try:
+                #     home_button = WebDriverWait(main_view, 10).until(
+                #         EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
+                #     )
+                #     home_button.click()
+                #     print("成功点击'回到首页'按钮")
+                # except Exception as e:
+                #     print(f"点击'回到首页'按钮失败")
+                #
+                # # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
+                # try:
+                #     time.sleep(3)
+                #     Get_Task = WebDriverWait(main_view, 10).until(
+                #         EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="获取任务"]'))
+                #     )
+                #
+                #     Get_Task.click()
+                #     print("成功点击'获取任务'按钮")
+                # except Exception as e:
+                #     print(f"点击'获取任务'按钮失败")
+                #
+                # # 查找是否存在 "任务不合格" 或 "暂无任务" 或 "提交已限额"
+                # try:
+                #     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
+                #     message_button = WebDriverWait(driver, 5).until(
+                #         EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
+                #     )
+                #     # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
+                #     text = message_button.text
+                #     if "任务不合格" in text:
+                #         print("任务不合格")
+                #         exit()  # 终止程序
+                #         # driver.press_keycode(AndroidKey.BACK)
+                #         # switch_account(main_view)
+                #         # continue
+                #     elif "提交已限额" in text:
+                #         print("检测到 '提交已限额'，程序结束。")
+                #         exit()  # 终止脚本执行
+                #     elif "任务已暂停" in text:
+                #         print("检测到 '任务已暂停'，程序结束。")
+                #         exit()  # 终止脚本执行
+                #     elif "暂无任务" in text:
+                #         print("检测到 '暂无任务'，程序结束。")
+                #         exit()  # 终止脚本执行
+                #
+                # except Exception:
+                #     print("未检测到 '任务不合格' 或 '暂无任务' 或 '提交已限额'，继续任务。")
+
+                # 查找并获取 dp-main 父容器下的 "店铺名称"
                 try:
-                    home_button = WebDriverWait(main_view, 10).until(
-                        EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
+                    view_element_index_5 = WebDriverWait(main_view, 10).until(
+                        EC.presence_of_element_located((By.XPATH, './/android.view.View[@index="5"]'))
                     )
-                    home_button.click()
-                    print("成功点击'回到首页'按钮")
+
+                    # 查找 android.view.View[@index='5'] 下的店铺名称
+                    target_shop_name = None
+                    child_elements = view_element_index_5.find_elements(By.XPATH, './/android.view.View')
+
+                    for child in child_elements:
+                        text_value = child.text
+
+                        # 判断是否是店铺名称，过滤掉无效的文本
+                        if text_value:
+                            target_shop_name = text_value
+
+                            # 检查店铺名称是否为 '-'
+                            if target_shop_name == "-":
+                                print("检测到店铺名称为 '-'，重新获取任务")
+                                target_shop_name = None  # 重置 shop_name，继续寻找
+                                break  # 跳出内层 for 循环，重新开始 while 循环
+                            else:
+                                print(f"成功找到店铺: {target_shop_name}")
+                                break  # 找到有效店铺名称，跳出内层 while 循环
+
+                    # 如果没有找到有效的店铺名称，则重新获取任务
+                    if target_shop_name is None:
+                        print("未找到有效的店铺名称，重新获取任务")
+                        continue  # 重新开始外层 while 循环，跳过后续操作
+
+                    print("成功获取任务")
+                    break  # 跳出内层 while 循环，执行后续任务
+
                 except Exception as e:
-                    print(f"点击'回到首页'按钮失败")
-
-                # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
-                try:
-                    time.sleep(3)
-                    Get_Task = WebDriverWait(main_view, 10).until(
-                        EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="获取任务"]'))
-                    )
-
-                    Get_Task.click()
-                    print("成功点击'获取任务'按钮")
-                except Exception as e:
-                    print(f"点击'获取任务'按钮失败")
-
-                # 查找是否存在 "任务不合格" 或 "暂无任务" 或 "提交已限额"
-                try:
-                    # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
-                    message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
-                    )
-                    # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
-                    text = message_button.text
-                    if "任务不合格" in text:
-                        print("任务不合格")
-                        exit()  # 终止程序
-                        # driver.press_keycode(AndroidKey.BACK)
-                        # switch_account(main_view)
-                        # continue
-                    elif "提交已限额" in text:
-                        print("检测到 '提交已限额'，程序结束。")
-                        exit()  # 终止脚本执行
-                    elif "任务已暂停" in text:
-                        print("检测到 '任务已暂停'，程序结束。")
-                        exit()  # 终止脚本执行
-                    elif "暂无任务" in text:
-                        print("检测到 '暂无任务'，程序结束。")
-                        exit()  # 终止脚本执行
-
-                except Exception:
-                    print("未检测到 '任务不合格' 或 '暂无任务' 或 '提交已限额'，继续任务。")
-
-                # 查找并获取 dp-main 父容器下 "店铺名称"
-                try:
-                    shop_name_view = WebDriverWait(main_view, 10).until(
-                        EC.presence_of_element_located((By.XPATH, './/android.view.View[6]'))
-                    )
-                    target_shop_name = shop_name_view.text  # 获取店铺名称
-                    print(f"成功找到店铺: {target_shop_name}")
-
-                    # 如果店铺名称只有 "-"，重新获取任务
-                    if target_shop_name == "-":
-                        print("检测到店铺名称为 '-'，重新获取任务")
-                        continue  # 重新开始 while 循环，跳过后续操作
-                    else:
-                        print("成功获取任务")
-                        break  # 店铺名称不为 '-'，跳出循环，执行后续任务
-
-                except Exception as e:
-                    print(f"获取店铺名称失败")
+                    print(f"获取店铺名称失败：{e}")
+                    continue  # 如果获取店铺名称失败，重新开始 while 循环
 
             # 查找并点击包含 m_common_tip_x_0 的按钮
             try:
@@ -664,13 +722,16 @@ def browse_items():
         time.sleep(5)
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
+            # 在第一行商品下查找 "详情" 按钮并点击
             detail_button = WebDriverWait(first_item, 5).until(
-                EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "详情")]'))
+                EC.presence_of_element_located((By.XPATH, './/android.view.View[contains(@resource-id, "dp-good-detail")]'))
             )
             detail_button.click()
             print("成功点击第一行商品的'详情'按钮")
         except Exception as e:
             print(f"未找到第一行商品的'详情'按钮")
+            page_source = driver.page_source
+            print(page_source)  # 打印页面的完整XML结构，便于调试
             refresh_page(driver)
             continue
 
@@ -736,7 +797,7 @@ def browse_items():
             print("未检测到 '活动太火爆啦' 或 '验证'，继续执行后续操作")
 
         # 提交第一行商品任务，更新任务完成标志
-        first_item_completed = submit_first_item_task(main_view, first_item)
+        first_item_completed = submit_first_item_task()
 
         # 如果返回 False，表示任务失败，退出循环
         if not first_item_completed:
@@ -786,12 +847,10 @@ desired_caps = {
     'newCommandTimeout': 21600,
     'ignoreHiddenApiPolicyError': True,
     'dontStopAppOnReset': True,  # 保持浏览器运行状态
-    # 'unicodeKeyboard': False,
-    # 'resetKeyboard': False,
     'noReset': True,  # 不重置应用
 }
 
-# 启动 Appium 驱动，不重新启动浏览器
+# 启动 Appium 驱动
 driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
 # 刷新页面

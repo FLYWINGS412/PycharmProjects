@@ -16,15 +16,37 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 
 # 刷新页面
 def refresh_page(driver):
-    try:
-        loading_state_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
-        )
-        loading_state_button.click()
-        print("页面已刷新")
-        time.sleep(8)  # 等待页面加载完成
-    except Exception as e:
-        print(f"刷新页面失败")
+    pass
+    # try:
+    #     loading_state_button = WebDriverWait(driver, 10).until(
+    #         EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
+    #     )
+    #     loading_state_button.click()
+    #     print("页面已刷新")
+    #     time.sleep(8)  # 等待页面加载完成
+    # except Exception as e:
+    #     print(f"刷新页面失败")
+
+# # 刷新页面
+# def refresh_page(driver):
+#     try:
+#         # 获取设备屏幕的尺寸
+#         window_size = driver.get_window_size()
+#         width = window_size['width']
+#         height = window_size['height']
+#
+#         # 设置起始点和终止点的坐标，模拟从屏幕中间向下滑动
+#         start_x = width / 2
+#         start_y = height / 4
+#         end_y = height * 3 / 4
+#
+#         # 执行下拉操作
+#         action = TouchAction(driver)
+#         action.press(x=start_x, y=start_y).wait(200).move_to(x=start_x, y=end_y).release().perform()
+#         print("页面已刷新")
+#         time.sleep(8)  # 等待页面加载完成
+#     except Exception as e:
+#         print(f"刷新页面失败")
 
 # 执行翻页
 def perform_page_scroll(driver):
