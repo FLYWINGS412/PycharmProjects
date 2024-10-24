@@ -16,16 +16,15 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 
 # 刷新页面
 def refresh_page(driver):
-    pass
-    # try:
-    #     loading_state_button = WebDriverWait(driver, 10).until(
-    #         EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
-    #     )
-    #     loading_state_button.click()
-    #     print("页面已刷新")
-    #     time.sleep(8)  # 等待页面加载完成
-    # except Exception as e:
-    #     print(f"刷新页面失败")
+    try:
+        loading_state_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
+        )
+        loading_state_button.click()
+        print("页面已刷新")
+        time.sleep(8)  # 等待页面加载完成
+    except Exception as e:
+        print(f"刷新页面失败")
 
 # # 刷新页面
 # def refresh_page(driver):
@@ -683,7 +682,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(5)
+        time.sleep(10)
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
@@ -699,7 +698,7 @@ def browse_items():
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
-            time.sleep(5)
+            time.sleep(3)
             message_element = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located(
                     (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))

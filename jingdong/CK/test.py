@@ -52,12 +52,11 @@ while True:  # 无限循环，直到第一行商品完成
     # 在第一行商品下查找 "详情" 按钮并点击
     try:
         # 尝试查找包含 dp-good-detail 的按钮
-        # detail_button = WebDriverWait(first_item, 5).until(
-        #     EC.presence_of_element_located((By.XPATH, './/android.view.View[contains(@resource-id, "dp-good-submit")]'))
-        # )
-        # detail_button.click()
-        driver.execute_script("arguments[0].click();", submit_button)
-        print("成功点击第一行商品的'详情'按钮")
+        detail_button = WebDriverWait(first_item, 5).until(
+            EC.presence_of_element_located((By.XPATH, './/android.view.View[contains(@resource-id, "dp-good-submit")]'))
+        )
+        detail_button.click()
+        print("成功点击第一行商品的'提交'按钮")
     except Exception as e:
-        print(f"未找到第一行商品的'详情'按钮")
+        print(f"未找到第一行商品的'提交'按钮")
         continue
