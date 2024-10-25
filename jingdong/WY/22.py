@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import time
+import random
 import portalocker
 import tkinter as tk
 from appium import webdriver
@@ -682,7 +683,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(10)
+        time.sleep(random.randint(10, 20))
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
