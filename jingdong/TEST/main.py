@@ -559,7 +559,7 @@ def perform_tasks():
                 try:
                     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
                     )
                     # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
                     text = message_button.text
@@ -572,6 +572,9 @@ def perform_tasks():
                     elif "提交已限额" in text:
                         print("检测到 '提交已限额'，程序结束。")
                         exit()  # 终止脚本执行
+                    elif "已轮休" in text:
+                        print("检测到 '已轮休'，程序结束。")
+                        exit()  # 终止脚本执行
                     elif "任务已暂停" in text:
                         print("检测到 '任务已暂停'，程序结束。")
                         exit()  # 终止脚本执行
@@ -580,7 +583,7 @@ def perform_tasks():
                         exit()  # 终止脚本执行
 
                 except Exception:
-                    print("未检测到 '任务不合格' 或 '暂无任务' 或 '提交已限额'，继续任务。")
+                    print("未检测到 '任务不合格' 或 '提交已限额' 或 '已轮休' 或 '任务已暂停' 或 '暂无任务'，继续任务。")
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
@@ -683,7 +686,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(10)
+        time.sleep(random.randint(10, 20))
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
@@ -692,14 +695,24 @@ def browse_items():
             detail_button.click()
             print("成功点击第一行商品的'详情'按钮")
         except Exception as e:
-            print(f"未找到第一行商品的'详情'按钮")
+            print("未找到第一行商品的'详情'按钮")
+            try:
+                # 检查是否存在 "跳转数据"
+                over_activity_message = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((MobileBy.XPATH, '//*[contains(@text, "跳转数据")]'))
+                )
+                # 如果找到 "跳转数据"，则模拟按下返回键
+                driver.press_keycode(AndroidKey.BACK)
+                print("成功返回店铺")
+            except Exception as inner_e:
+                print("未找到 '跳转数据'，未执行返回操作")
             refresh_page(driver)
             continue
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
-            time.sleep(3)
+            time.sleep(5)
             message_element = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located(
                     (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
@@ -781,7 +794,7 @@ def browse_items():
             second_item_completed = True
         except Exception:
             second_item_text = second_item.text if second_item else "未能获取文本"
-            print(f"'未完成'第二行商品任务, 第二行商品文本为: {second_item_text}")
+            print(f"'未完成'第二行商品任务")
 
         # 如果两行商品都完成了，截图并退出循环
         if first_item_completed and second_item_completed:
@@ -789,9 +802,18 @@ def browse_items():
             take_screenshot_with_date(driver, os.getcwd())  # 调用截图函数
             break  # 退出循环
 
-        # 模拟按下返回键
-        driver.press_keycode(AndroidKey.BACK)
-        print("成功返回店铺")
+        # 在 dp-main 父容器下查找并点击 "前往店铺" 按钮
+        try:
+            home_button = WebDriverWait(main_view, 10).until(
+                EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="前往店铺"]'))
+            )
+            home_button.click()
+            print("成功点击'前往店铺'按钮")
+        except Exception as e:
+            print(f"点击'前往店铺'按钮失败")
+            # 模拟按下返回键
+            driver.press_keycode(AndroidKey.BACK)
+            print("成功返回店铺")
 
     # 提交任务
     submit_task_completion(driver, main_view)

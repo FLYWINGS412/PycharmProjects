@@ -25,30 +25,8 @@ def start_device(device_name, button):
     if not device_info:
         raise ValueError(f"Device '{device_name}' not found in config.json")
 
-    udid = device_info['udid']
-    device_name_value = device_info['deviceName']
-
-    # 修改 desired_caps 配置
-    desired_caps = {
-        'platformName': 'Android',
-        'platformVersion': '9',
-        'deviceName': device_name_value,  # 动态设置 deviceName
-        'udid': udid,  # 动态设置 udid
-        'automationName': 'UiAutomator2',
-        'settings[waitForIdleTimeout]': 10,
-        'settings[waitForSelectorTimeout]': 10,
-        'newCommandTimeout': 21600,
-        'ignoreHiddenApiPolicyError': True,
-        'dontStopAppOnReset': True,  # 保持浏览器运行状态
-        'noReset': True,  # 不重置应用
-    }
-
-    # 将修改后的配置写入一个临时 JSON 文件
-    with open('desired_caps.json', 'w') as f:
-        json.dump(desired_caps, f, indent=4)
-
     # 启动设备的自动化任务
-    print(f"Starting device {device_name}...")
+    print(f"启动设备 {device_name}...")
 
     # 设置编码为 'utf-8'，避免 gbk 编码问题
     process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
@@ -83,7 +61,7 @@ def stop_device(device_name, button):
         process = device_processes[device_name]
         if process.poll() is None:  # 进程仍在运行
             process.terminate()
-            print(f"Stopping device {device_name}...")
+            print(f"停止设备 {device_name}...")
         del device_processes[device_name]
 
         # 改变按钮颜色为灰色，表示设备已停止，并显示设备名
@@ -117,9 +95,9 @@ def show_or_hide_log(device_name):
         log_text.insert(tk.END, log_data[device_name])  # 显示当前设备的日志
         log_text.see(tk.END)
         current_log_display = device_name
-        log_tab_frame.pack(side=tk.TOP, fill=tk.X)  # 显示日志框
-        log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)  # 显示日志内容
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # 确保右侧日志区域显示
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # 显示右侧区域
+        log_tab_frame.pack(side=tk.TOP, fill=tk.X)  # 显示日志标签
+        log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)  # 显示日志内容框
 
 # 创建 GUI
 root = tk.Tk()
@@ -129,6 +107,7 @@ root.title("设备管理")
 device_frame = tk.Frame(root)
 device_canvas = tk.Canvas(device_frame)
 device_scrollbar = tk.Scrollbar(device_frame, orient="vertical", command=device_canvas.yview)
+
 scrollable_frame = tk.Frame(device_canvas)
 
 scrollable_frame.bind(
@@ -138,16 +117,18 @@ scrollable_frame.bind(
     )
 )
 
+# 将滚动条嵌入到设备画布中，这样滚动条不会影响右侧的布局
 device_canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 device_canvas.configure(yscrollcommand=device_scrollbar.set)
 
-device_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保设备框填满左侧
-device_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保画布填满空间
+# 更新布局参数，确保填满垂直区域
+device_frame.pack(side=tk.LEFT, fill=tk.Y, expand=False)
+device_canvas.pack(side=tk.LEFT, fill=tk.Y, expand=False)
 device_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 # 创建右侧显示区域，包含日志标签和日志显示框
 right_frame = tk.Frame(root)
-right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保右侧填满剩余空间
+right_frame.pack_forget()  # 初始状态不占用空间
 
 # 日志标签框，初始状态隐藏
 log_tab_frame = tk.Frame(right_frame)

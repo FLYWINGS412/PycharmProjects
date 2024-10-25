@@ -701,7 +701,6 @@ def browse_items():
                 over_activity_message = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((MobileBy.XPATH, '//*[contains(@text, "跳转数据")]'))
                 )
-
                 # 如果找到 "跳转数据"，则模拟按下返回键
                 driver.press_keycode(AndroidKey.BACK)
                 print("成功返回店铺")

@@ -8,15 +8,95 @@ from tkinter.scrolledtext import ScrolledText
 # 设备运行状态管理（存储设备与其对应的进程）
 device_processes = {}
 log_data = {}  # 存储设备的日志数据
-log_buttons = {}  # 存储日志标签按钮
 current_log_display = None  # 当前显示的日志
-log_text = None  # 全局日志文本框
-log_tab_frame = None  # 全局日志标签框
-log_display_frame = None  # 全局日志显示框
 
 # 读取 config.json 配置文件
-with open('config.json', 'r') as f:
+with open('config.json', 'r', encoding='utf-8') as f:
     config = json.load(f)
+
+# 创建 GUI
+root = tk.Tk()
+root.title("设备管理")
+
+# 获取屏幕尺寸
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+# 设置左侧设备区域的最大高度为屏幕高度的80%
+MAX_HEIGHT = int(screen_height * 0.8)
+
+# 创建左侧容器框架
+left_frame = tk.Frame(root)
+left_frame.pack(side=tk.LEFT, anchor='nw')
+
+# 创建 Canvas 和 Scrollbar
+device_canvas = tk.Canvas(left_frame)
+device_scrollbar = tk.Scrollbar(left_frame, orient="vertical", command=device_canvas.yview)
+device_canvas.configure(yscrollcommand=device_scrollbar.set)
+
+device_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+device_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+# 创建设备列表框架，放置在 Canvas 中
+device_frame = tk.Frame(device_canvas)
+device_canvas.create_window((0, 0), window=device_frame, anchor='nw')
+
+# 为每个设备创建按钮和日志按钮
+device_buttons = {}
+for device_name in config.keys():
+    frame = tk.Frame(device_frame)
+    frame.pack(fill=tk.X, pady=1)
+
+    device_button = tk.Button(frame, text=device_name, width=12)
+    device_button.pack(side=tk.LEFT, padx=3)
+
+    log_button = tk.Button(frame, text="日志", width=5)
+    log_button.pack(side=tk.RIGHT, padx=3)
+
+    # 使用闭包确保每个按钮传递正确的 device_name
+    def make_toggle_device(name):
+        return lambda btn=device_button: toggle_device(name, btn)
+
+    def make_show_log(name):
+        return lambda: show_or_hide_log(name)
+
+    # 为按钮配置命令
+    device_button.config(command=make_toggle_device(device_name))
+    log_button.config(command=make_show_log(device_name))
+
+    device_buttons[device_name] = device_button
+
+# 调整左侧容器框架的高度和 Canvas 滚动区域
+def adjust_left_frame_height(event=None):
+    device_frame.update_idletasks()
+    total_height = device_frame.winfo_height()
+    total_width = device_frame.winfo_width()
+
+    if total_height > MAX_HEIGHT:
+        height = MAX_HEIGHT
+        left_frame.config(height=height, width=total_width + device_scrollbar.winfo_width())
+        left_frame.pack_propagate(False)
+    else:
+        height = total_height
+        left_frame.config(height=height, width=total_width + device_scrollbar.winfo_width())
+        left_frame.pack_propagate(False)  # 需要设置为 False，以手动控制尺寸
+
+    device_canvas.config(scrollregion=device_canvas.bbox("all"), height=height, width=total_width)
+    device_canvas.yview_moveto(0)
+
+# 绑定设备框架大小变化事件
+device_frame.bind("<Configure>", adjust_left_frame_height)
+
+# 创建右侧显示区域，包含日志标签和日志显示框
+right_frame = tk.Frame(root)
+
+# 日志标签框，初始状态隐藏
+log_tab_frame = tk.Frame(right_frame)
+log_display_frame = tk.Frame(right_frame)
+
+# 日志内容显示框
+log_text = ScrolledText(log_display_frame, wrap=tk.WORD)
+log_text.pack(fill=tk.BOTH, expand=True)
 
 # 启动设备
 def start_device(device_name, button):
@@ -98,7 +178,7 @@ def toggle_device(device_name, button):
 
 # 显示或隐藏日志标签和内容
 def show_or_hide_log(device_name):
-    global current_log_display  # 将 current_log_display 设为全局变量
+    global current_log_display, log_text  # 将变量设为全局变量
 
     # 如果设备未启动，初始化为空白日志数据
     if device_name not in log_data:
@@ -108,7 +188,7 @@ def show_or_hide_log(device_name):
     if current_log_display == device_name:
         # 隐藏日志框和日志内容
         log_tab_frame.pack_forget()
-        log_display_frame.pack_forget()  # 隐藏日志标签框和内容
+        log_display_frame.pack_forget()
         right_frame.pack_forget()  # 隐藏右侧整个日志显示区域
         current_log_display = None
     else:
@@ -117,68 +197,21 @@ def show_or_hide_log(device_name):
         log_text.insert(tk.END, log_data[device_name])  # 显示当前设备的日志
         log_text.see(tk.END)
         current_log_display = device_name
-        log_tab_frame.pack(side=tk.TOP, fill=tk.X)  # 显示日志框
-        log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)  # 显示日志内容
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # 确保右侧日志区域显示
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # 显示右侧区域
+        log_tab_frame.pack(side=tk.TOP, fill=tk.X)
+        log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-# 创建 GUI
-root = tk.Tk()
-root.title("设备管理")
+# 获取窗口的宽度和高度
+root.update_idletasks()
+window_width = root.winfo_width()
+window_height = root.winfo_height()
 
-# 创建设备列表区域带滚动条
-device_frame = tk.Frame(root)
-device_canvas = tk.Canvas(device_frame)
-device_scrollbar = tk.Scrollbar(device_frame, orient="vertical", command=device_canvas.yview)
-scrollable_frame = tk.Frame(device_canvas)
+# 计算窗口的位置，使其垂直居中，水平靠左
+x = 0  # 设置为0，使窗口位于屏幕左侧
+y = int((screen_height - window_height) / 2)
 
-scrollable_frame.bind(
-    "<Configure>",
-    lambda e: device_canvas.configure(
-        scrollregion=device_canvas.bbox("all")
-    )
-)
-
-device_canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-device_canvas.configure(yscrollcommand=device_scrollbar.set)
-
-device_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保设备框填满左侧
-device_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保画布填满空间
-device_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-# 创建右侧显示区域，包含日志标签和日志显示框
-right_frame = tk.Frame(root)
-right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保右侧填满剩余空间
-
-# 日志标签框，初始状态隐藏
-log_tab_frame = tk.Frame(right_frame)
-log_display_frame = tk.Frame(right_frame)
-
-# 日志内容显示框
-log_text = ScrolledText(log_display_frame, height=20, wrap=tk.WORD)
-log_text.pack(fill=tk.BOTH, expand=True)
-
-# 为每个设备创建按钮和日志按钮
-device_buttons = {}
-for device_name in config.keys():
-    # 使用 device_name 显示按钮名
-    frame = tk.Frame(scrollable_frame)
-    frame.pack(fill=tk.X, pady=2)  # 调整 pady 减少垂直间距
-
-    # 设备按钮
-    device_button = tk.Button(frame, text=device_name, width=12)  # 调整按钮的宽度
-    device_button.pack(side=tk.LEFT, padx=5)  # 调整 padx 减少按钮左右空余
-
-    # 创建日志按钮
-    log_button = tk.Button(frame, text="日志", width=5)  # 调整日志按钮的宽度
-    log_button.pack(side=tk.RIGHT, padx=5)  # 减少日志按钮左右空余
-
-    # 设备按钮点击事件
-    device_button.config(command=lambda name=device_name, btn=device_button: toggle_device(name, btn))
-
-    # 日志按钮点击事件
-    log_button.config(command=lambda name=device_name: show_or_hide_log(name))
-
-    device_buttons[device_name] = device_button
+# 设置窗口的位置
+root.geometry(f"+{x}+{y}")
 
 # 运行主循环
 root.mainloop()
