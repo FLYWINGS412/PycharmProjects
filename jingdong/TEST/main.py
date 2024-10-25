@@ -5,7 +5,6 @@ import time
 import json
 import portalocker
 import tkinter as tk
-import multiprocessing
 from appium import webdriver
 from datetime import datetime
 from difflib import SequenceMatcher
@@ -27,6 +26,27 @@ def refresh_page(driver):
         time.sleep(8)  # 等待页面加载完成
     except Exception as e:
         print(f"刷新页面失败")
+
+# # 刷新页面
+# def refresh_page(driver):
+#     try:
+#         # 获取设备屏幕的尺寸
+#         window_size = driver.get_window_size()
+#         width = window_size['width']
+#         height = window_size['height']
+#
+#         # 设置起始点和终止点的坐标，模拟从屏幕中间向下滑动
+#         start_x = width / 2
+#         start_y = height / 4
+#         end_y = height * 3 / 4
+#
+#         # 执行下拉操作
+#         action = TouchAction(driver)
+#         action.press(x=start_x, y=start_y).wait(200).move_to(x=start_x, y=end_y).release().perform()
+#         print("页面已刷新")
+#         time.sleep(8)  # 等待页面加载完成
+#     except Exception as e:
+#         print(f"刷新页面失败")
 
 # 执行翻页
 def perform_page_scroll(driver):
@@ -663,7 +683,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(5)
+        time.sleep(10)
         # 在第一行商品下查找 "详情" 按钮并点击
         try:
             detail_button = WebDriverWait(first_item, 5).until(
@@ -676,21 +696,25 @@ def browse_items():
             refresh_page(driver)
             continue
 
-        # 点击 "详情" 后，检查是否有 "活动太火爆啦"
+        # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
-            # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 提示
-            time.sleep(5)
-            over_activity_message = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
+            # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
+            time.sleep(3)
+            message_element = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
             )
 
+            # 检查文本内容
+            message_text = message_element.text
+
             # 如果第一次检查到 "活动太火爆啦"
-            if over_activity_message:
+            if "活动太火爆啦" in message_text:
                 print("检测到 '活动太火爆啦'，进入等待循环")
 
                 # 持续检查 "活动太火爆啦" 是否消失
                 while True:
-                    time.sleep(10)  # 等待3秒，避免频繁操作
+                    time.sleep(10)  # 等待10秒，避免频繁操作
                     try:
                         # 重新检测 "活动太火爆啦" 提示
                         over_activity_message = WebDriverWait(driver, 5).until(
@@ -704,15 +728,34 @@ def browse_items():
                         break  # 退出循环，继续执行后面的代码
 
                 # 提示消失后，执行返回操作
-                time.sleep(5)  # 等待3秒，确保返回操作完成
+                time.sleep(5)  # 等待5秒，确保返回操作完成
                 # 进行截图操作
                 take_screenshot_with_date(driver, os.getcwd())
                 print("已返回并截图")
                 submit_task_completion(driver, main_view)  # 提交任务完成的状态
                 exit()  # 终止程序
 
+            # 如果第一次检查到 "验证"
+            elif "验证" in message_text:
+                print("检测到 '验证'，进入等待循环")
+
+                # 持续检查 "验证" 是否消失
+                while True:
+                    time.sleep(10)  # 等待10秒，避免频繁操作
+                    try:
+                        # 重新检测 "验证" 提示
+                        verify_message = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+                        )
+
+                        if verify_message:
+                            continue  # 如果仍然存在 "验证"，继续循环等待
+                    except Exception:
+                        print("检测到 '验证' 消失，继续执行后续操作")
+                        break  # 退出循环，继续执行后面的代码
+
         except Exception as e:
-            print("未检测到 '活动太火爆啦'，继续执行后续操作")
+            print("未检测到 '活动太火爆啦' 或 '验证'，继续执行后续操作")
 
         # 提交第一行商品任务，更新任务完成标志
         first_item_completed = submit_first_item_task(main_view, first_item)
@@ -769,6 +812,10 @@ desired_caps = {
     # 'resetKeyboard': False,
     'noReset': True,  # 不重置应用
 }
+
+# 从 JSON 文件读取 desired_caps
+with open('desired_caps.json', 'r') as f:
+    desired_caps = json.load(f)
 
 # 启动 Appium 驱动，不重新启动浏览器
 driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)

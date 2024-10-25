@@ -1,0 +1,13 @@
+{
+    "platformName": "Android",
+    "platformVersion": "9",
+    "deviceName": "01-13883122290",
+    "udid": "emulator-5556",
+    "automationName": "UiAutomator2",
+    "settings[waitForIdleTimeout]": 10,
+    "settings[waitForSelectorTimeout]": 10,
+    "newCommandTimeout": 21600,
+    "ignoreHiddenApiPolicyError": true,
+    "dontStopAppOnReset": true,
+    "noReset": true
+}
