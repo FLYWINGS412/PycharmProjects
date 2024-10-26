@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import json
+import random
 import portalocker
 import tkinter as tk
 from appium import webdriver
