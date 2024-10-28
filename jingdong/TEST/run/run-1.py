@@ -4,12 +4,17 @@ import sys
 import time
 import json
 import random
+import threading
+import subprocess
 import portalocker
 import tkinter as tk
+from io import StringIO
 from appium import webdriver
 from datetime import datetime
 from difflib import SequenceMatcher
+from threading import Thread, Lock, Event
 from selenium.webdriver.common.by import By
+from tkinter.scrolledtext import ScrolledText
 from selenium.webdriver.support.ui import WebDriverWait
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.webdriver.support import expected_conditions as EC
@@ -499,7 +504,7 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
         return False  # 未找到店铺，返回 False
 
 # 执行任务
-def perform_tasks():
+def perform_tasks(driver):
     while True:  # 无限循环
         try:
             # 获取任务
@@ -614,7 +619,7 @@ def perform_tasks():
             # 调用查找店铺的函数
             if not find_and_click_shop(driver, target_shop_name, main_view):
                 print("未找到店铺，重新执行任务")
-                perform_tasks()  # 如果未找到店铺，重新执行任务
+                perform_tasks(driver)  # 如果未找到店铺，重新执行任务
                 return  # 确保函数不继续执行
             else:
                 # 进入店铺后，浏览商品
@@ -798,36 +803,239 @@ def browse_items():
     # 提交任务
     submit_task_completion(driver, main_view)
 
-# 默认配置参数
-default_desired_caps = {
-    'platformName': 'Android',
-    'platformVersion': '9',
-    'deviceName': '01-13883122290',
-    'udid': 'emulator-5556',
-    'automationName': 'UiAutomator2',
-    'settings[waitForIdleTimeout]': 10,
-    'settings[waitForSelectorTimeout]': 10,
-    'newCommandTimeout': 21600,
-    'ignoreHiddenApiPolicyError': True,
-    'dontStopAppOnReset': True,  # 保持浏览器运行状态
-    'noReset': True,  # 不重置应用
-}
+# 封装 main.py 的核心逻辑为函数
+def run_main_task(desired_caps, update_log_callback):
+    # 启动 Appium 驱动
+    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
-# 检查命令行参数，是否传入 desired_caps
-if len(sys.argv) > 1:
+    # 替换标准输出流，以捕获日志
+    old_stdout = sys.stdout
+    sys.stdout = mystdout = StringIO()
+
     try:
-        desired_caps = json.loads(sys.argv[1])  # 从命令行参数中解析 JSON 字符串
-    except json.JSONDecodeError:
-        print("所提供的 desired capabilities 格式无效，请检查 JSON 格式是否正确。")
-        sys.exit(1)
-else:
-    # 使用默认的配置参数
-    print("未提供命令行参数，使用默认的设备配置。")
-    desired_caps = default_desired_caps
+        # 模拟执行的实时日志输出
+        print("启动自动化任务...")
 
-# 启动 Appium 驱动
-driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+        # 执行具体的任务，并实时捕获日志输出
+        refresh_page(driver)  # 假设这是你的具体任务
 
-# 调用刷新页面和执行任务函数
-refresh_page(driver)
-perform_tasks()
+        # 启动线程捕获 perform_tasks 的日志
+        perform_task_thread = Thread(target=perform_tasks, args=(driver,))
+        perform_task_thread.start()
+
+        # 实时读取日志输出
+        while perform_task_thread.is_alive() or mystdout.getvalue():
+            time.sleep(0.1)
+            log_output = mystdout.getvalue()
+            if log_output:
+                update_log_callback(log_output)  # 将新日志更新到日志框
+                mystdout.truncate(0)  # 清空缓冲区
+                mystdout.seek(0)
+
+        perform_task_thread.join()  # 等待任务完成
+
+    except Exception as e:
+        update_log_callback(f"Error: {e}\n")
+    finally:
+        driver.quit()
+        # 恢复标准输出
+        sys.stdout = old_stdout
+
+# 设备运行状态管理（存储设备与其对应的线程）
+device_threads = {}
+log_data = {}  # 存储设备的日志数据
+log_lock = Lock()  # 日志更新锁
+current_log_display = None  # 当前显示的日志
+
+# 读取 config.json 配置文件
+with open('config.json', 'r', encoding='utf-8') as f:
+    config = json.load(f)
+
+# 创建 GUI
+root = tk.Tk()
+root.title("设备管理")
+
+# 获取屏幕尺寸
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+# 设置左侧设备区域的最大和最小高度
+MAX_HEIGHT = int(screen_height * 0.8)
+MIN_HEIGHT = 400  # 设置最小高度
+
+# 创建左侧容器框架
+left_frame = tk.Frame(root)
+left_frame.pack(side=tk.LEFT, anchor='nw')
+
+# 创建 Canvas 和 Scrollbar
+device_canvas = tk.Canvas(left_frame, width=200)
+device_scrollbar = tk.Scrollbar(left_frame, orient="vertical", command=device_canvas.yview)
+device_canvas.configure(yscrollcommand=device_scrollbar.set)
+
+device_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+device_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+# 创建设备列表框架，放置在 Canvas 中
+device_frame = tk.Frame(device_canvas)
+device_canvas.create_window((0, 0), window=device_frame, anchor='nw')
+
+# 初始化鼠标滚轮的滑动行为
+def on_mouse_wheel(event):
+    if event.delta < 0 and device_canvas.yview()[1] < 1.0:
+        device_canvas.yview_scroll(1, "unit")
+    elif event.delta > 0 and device_canvas.yview()[0] > 0.0:
+        device_canvas.yview_scroll(-1, "unit")
+
+# 绑定鼠标滚轮事件
+device_canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+
+# 调整左侧容器框架的高度和 Canvas 滚动区域
+def adjust_left_frame_height(event=None):
+    device_frame.update_idletasks()
+    total_height = device_frame.winfo_height()
+    total_width = device_frame.winfo_width()
+
+    height = min(max(total_height, MIN_HEIGHT), MAX_HEIGHT)
+    left_frame.config(height=height, width=total_width + device_scrollbar.winfo_width())
+    left_frame.pack_propagate(False)
+
+    if device_canvas.bbox("all"):
+        device_canvas.config(scrollregion=device_canvas.bbox("all"), height=height)
+
+# 绑定设备框架大小变化事件
+device_frame.bind("<Configure>", adjust_left_frame_height)
+
+# 为每个设备创建按钮和日志按钮
+device_buttons = {}
+log_buttons = {}
+for device_name in config.keys():
+    frame = tk.Frame(device_frame)
+    frame.pack(fill=tk.X, pady=1)
+
+    device_button = tk.Button(frame, text=device_name, width=12)
+    device_button.pack(side=tk.LEFT, padx=3)
+
+    log_button = tk.Button(frame, text="日志", width=5)
+    log_button.pack(side=tk.RIGHT, padx=3)
+
+    log_data[device_name] = ""
+
+    # 使用闭包确保每个按钮传递正确的 device_name
+    def make_toggle_device(name):
+        return lambda btn=device_button: toggle_device(name, btn)
+
+    def make_show_log(name):
+        return lambda: show_or_hide_log(name)
+
+    device_button.config(command=make_toggle_device(device_name))
+    log_button.config(command=make_show_log(device_name))
+
+    device_buttons[device_name] = device_button
+    log_buttons[device_name] = log_button
+
+# 创建右侧显示区域，包含日志标签和日志显示框
+right_frame = tk.Frame(root)
+log_tab_frame = tk.Frame(right_frame)
+log_display_frame = tk.Frame(right_frame)
+
+log_text = ScrolledText(log_display_frame, wrap=tk.WORD)
+log_text.pack(fill=tk.BOTH, expand=True)
+
+# 启动设备
+def start_device(device_name, button):
+    device_info = config.get(device_name)
+
+    if not device_info:
+        raise ValueError(f"Device '{device_name}' not found in config.json")
+
+    desired_caps = {
+        'platformName': 'Android',
+        'platformVersion': '9',
+        'deviceName': device_info['deviceName'],
+        'udid': device_info['udid'],
+        'automationName': 'UiAutomator2',
+        'settings[waitForIdleTimeout]': 10,
+        'settings[waitForSelectorTimeout]': 10,
+        'newCommandTimeout': 21600,
+        'ignoreHiddenApiPolicyError': True,
+        'dontStopAppOnReset': True,
+        'noReset': True,
+    }
+
+    # 检查设备是否已在运行
+    if device_name in device_threads and device_threads[device_name].is_alive():
+        print(f"设备 {device_name} 的自动化任务已在运行...")
+        return
+
+    print(f"启动设备 {device_name} 的自动化任务...")
+
+    # 创建一个新线程来运行自动化任务
+    thread = Thread(target=lambda: run_main_task(desired_caps, lambda log: update_log(device_name, log)), daemon=True)
+    thread.start()
+
+    device_threads[device_name] = thread  # 记录线程
+    log_data[device_name] = ""
+
+    button.config(bg='green', text=device_name)
+
+def stop_device(device_name, button):
+    if device_name in device_threads and device_threads[device_name].is_alive():
+        print(f"停止设备 {device_name} 的自动化任务...")
+        # 停止线程的逻辑假设`run_main_task`支持停止
+        device_threads[device_name].join(timeout=1)  # 等待线程结束
+        del device_threads[device_name]
+
+        button.config(bg='SystemButtonFace', text=device_name)
+
+def update_log(device_name, log):
+    with log_lock:
+        log_data[device_name] += log
+        if current_log_display == device_name:
+            root.after(0, update_log_text, device_name)
+
+def update_log_text(device_name):
+    log_text.delete(1.0, tk.END)
+    log_text.insert(tk.END, log_data[device_name])
+    log_text.see(tk.END)
+
+# 点击设备按钮时的切换设备状态
+def toggle_device(device_name, button):
+    if device_name in device_threads and device_threads[device_name].is_alive():
+        stop_device(device_name, button)
+    else:
+        start_device(device_name, button)
+
+# 显示或隐藏日志标签和内容
+def show_or_hide_log(device_name):
+    global current_log_display
+    if device_name not in log_data:
+        log_data[device_name] = ""
+
+    if current_log_display == device_name:
+        log_buttons[device_name].config(bg='SystemButtonFace', text='日志')
+        log_tab_frame.pack_forget()
+        log_display_frame.pack_forget()
+        right_frame.pack_forget()
+        current_log_display = None
+    else:
+        if current_log_display:
+            log_buttons[current_log_display].config(bg='SystemButtonFace', text='日志')
+        log_buttons[device_name].config(bg='green', text='日志')
+        log_text.delete(1.0, tk.END)
+        log_text.insert(tk.END, log_data[device_name])
+        log_text.see(tk.END)
+        current_log_display = device_name
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        log_tab_frame.pack(side=tk.TOP, fill=tk.X)
+        log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+# 窗口布局
+root.update_idletasks()
+window_width = root.winfo_width()
+window_height = root.winfo_height()
+x = 10
+y = int((screen_height - window_height) / 2)
+root.geometry(f"+{x}+{y}")
+
+# 运行主循环
+root.mainloop()

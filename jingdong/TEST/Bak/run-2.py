@@ -11,7 +11,7 @@ import time
 device_processes = {}
 
 # 读取 config.json 配置文件
-with open('config.json', 'r') as f:
+with open('../config.json', 'r') as f:
     config = json.load(f)
 
 # 启动设备

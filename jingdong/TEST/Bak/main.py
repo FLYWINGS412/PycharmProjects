@@ -499,7 +499,7 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
         return False  # 未找到店铺，返回 False
 
 # 执行任务
-def perform_tasks():
+def perform_tasks(driver):
     while True:  # 无限循环
         try:
             # 获取任务
@@ -830,4 +830,4 @@ driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
 # 调用刷新页面和执行任务函数
 refresh_page(driver)
-perform_tasks()
+perform_tasks(driver)

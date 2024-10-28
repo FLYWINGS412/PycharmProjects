@@ -1,9 +1,9 @@
 import json
-import argparse
 import subprocess
+import argparse
 
 # 读取 config.json 配置文件
-with open('config.json', 'r') as f:
+with open('../config.json', 'r') as f:
     config = json.load(f)
 
 # 查询设备
@@ -42,9 +42,9 @@ def run_device(device_name):
     with open('desired_caps.json', 'w') as f:
         json.dump(desired_caps, f, indent=4)
 
-    # 通过子进程调用 main.py
-    print(f"Running automation for {device_name}...")
-    subprocess.run(['python', 'main.py'])
+    # 使用 Popen 启动 main.py，并在新的控制台窗口中运行
+    print(f"Running automation for {device_name} in a new terminal window...")
+    subprocess.Popen(['python', 'main.py'], creationflags=subprocess.CREATE_NEW_CONSOLE)
 
 # 菜单功能
 def menu():
@@ -63,7 +63,7 @@ def menu():
             try:
                 device_index = int(device_number) - 1
                 device_name = list(config.keys())[device_index]
-                run_device(device_name)
+                run_device(device_name)  # 异步运行设备任务，并在新窗口中打开
             except (ValueError, IndexError):
                 print("无效的设备编号，请重试。")
         elif choice == '3':

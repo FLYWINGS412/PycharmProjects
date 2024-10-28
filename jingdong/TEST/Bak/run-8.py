@@ -8,10 +8,11 @@ from tkinter.scrolledtext import ScrolledText
 # 设备运行状态管理（存储设备与其对应的进程）
 device_processes = {}
 log_data = {}  # 存储设备的日志数据
+log_buttons = {}  # 存储日志按钮
 current_log_display = None  # 当前显示的日志
 
 # 读取 config.json 配置文件
-with open('config.json', 'r', encoding='utf-8') as f:
+with open('../config.json', 'r', encoding='utf-8') as f:
     config = json.load(f)
 
 # 创建 GUI
@@ -43,6 +44,7 @@ device_canvas.create_window((0, 0), window=device_frame, anchor='nw')
 
 # 为每个设备创建按钮和日志按钮
 device_buttons = {}
+log_buttons = {}  # 创建存储日志按钮的字典
 for device_name in config.keys():
     frame = tk.Frame(device_frame)
     frame.pack(fill=tk.X, pady=1)
@@ -52,6 +54,9 @@ for device_name in config.keys():
 
     log_button = tk.Button(frame, text="日志", width=5)
     log_button.pack(side=tk.RIGHT, padx=3)
+
+    # 初始化每个设备的日志数据为空字符串
+    log_data[device_name] = ""  # 确保每个设备都有对应的日志数据
 
     # 使用闭包确保每个按钮传递正确的 device_name
     def make_toggle_device(name):
@@ -64,7 +69,9 @@ for device_name in config.keys():
     device_button.config(command=make_toggle_device(device_name))
     log_button.config(command=make_show_log(device_name))
 
+    # 将设备按钮和日志按钮分别存储在字典中
     device_buttons[device_name] = device_button
+    log_buttons[device_name] = log_button  # 存储日志按钮
 
 # 调整左侧容器框架的高度和 Canvas 滚动区域
 def adjust_left_frame_height(event=None):
@@ -186,13 +193,18 @@ def show_or_hide_log(device_name):
 
     # 如果当前设备的日志已经显示，则隐藏日志框和日志内容
     if current_log_display == device_name:
-        # 隐藏日志框和日志内容
+        # 恢复日志按钮为默认外观
+        log_buttons[device_name].config(bg='SystemButtonFace', text='日志')
         log_tab_frame.pack_forget()
         log_display_frame.pack_forget()
         right_frame.pack_forget()  # 隐藏右侧整个日志显示区域
         current_log_display = None
     else:
-        # 如果当前没有显示日志，则重新显示日志框和内容
+        # 隐藏当前显示的日志
+        if current_log_display:
+            log_buttons[current_log_display].config(bg='SystemButtonFace', text='日志')
+
+        # 显示新日志，改变日志按钮为绿色
         log_text.delete(1.0, tk.END)  # 清除现有日志内容
         log_text.insert(tk.END, log_data[device_name])  # 显示当前设备的日志
         log_text.see(tk.END)
@@ -200,6 +212,9 @@ def show_or_hide_log(device_name):
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # 显示右侧区域
         log_tab_frame.pack(side=tk.TOP, fill=tk.X)
         log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # 更改日志按钮的颜色并仅显示"日志"
+        log_buttons[device_name].config(bg='green', text='日志')
 
 # 获取窗口的宽度和高度
 root.update_idletasks()

@@ -7,14 +7,12 @@ import time
 
 # 设备运行状态管理（存储设备与其对应的进程）
 device_processes = {}
-log_texts = {}  # 存储每个设备的日志内容框
+log_texts = {}  # 存储每个设备的日志内容
+log_windows = {}  # 存储每个设备的日志窗口
 log_data = {}  # 存储设备的日志数据
-log_buttons = {}  # 存储日志标签按钮
-log_text_frames = {}  # 存储日志内容显示的Frame
-current_log_display = None  # 当前显示的日志
 
 # 读取 config.json 配置文件
-with open('config.json', 'r') as f:
+with open('../config.json', 'r') as f:
     config = json.load(f)
 
 # 启动设备
@@ -67,7 +65,7 @@ def start_device(device_name, button):
             output = process.stdout.readline()
             if output:
                 log_data[device_name] += output  # 保存日志数据
-                if current_log_display == device_name and device_name in log_texts:
+                if device_name in log_texts and log_texts[device_name].winfo_exists():
                     log_texts[device_name].insert(tk.END, output)
                     log_texts[device_name].see(tk.END)
             time.sleep(0.1)  # 每100ms检查一次日志输出
@@ -87,6 +85,12 @@ def stop_device(device_name, button):
         # 改变按钮颜色为灰色，表示设备已停止，并显示设备名
         button.config(bg='SystemButtonFace', text=device_name)
 
+    # 销毁日志窗口
+    if device_name in log_windows:
+        log_windows[device_name].destroy()
+        del log_windows[device_name]
+        del log_texts[device_name]
+
 # 点击设备按钮时的行为
 def toggle_device(device_name, button):
     if device_name in device_processes:
@@ -94,46 +98,27 @@ def toggle_device(device_name, button):
     else:
         start_device(device_name, button)
 
-# 显示或隐藏日志标签和内容
-def show_or_hide_log(device_name):
-    if device_name not in log_data:
-        log_data[device_name] = ""  # 如果设备未启动，初始化为空白日志数据
+# 点击日志按钮时显示日志窗口
+def show_log(device_name):
+    if device_name not in log_windows or not log_windows[device_name].winfo_exists():
+        # 如果日志窗口不存在或者已经被销毁，重新创建
+        log_window = tk.Toplevel()
+        log_window.title(f"{device_name} 日志")
 
-    if device_name in log_buttons:  # 日志标签存在，关闭它
-        # 删除日志标签和内容
-        log_buttons[device_name].pack_forget()
-        log_text_frames[device_name].pack_forget()
-        del log_buttons[device_name]
-        del log_text_frames[device_name]
-    else:  # 日志标签不存在，显示它
-        # 创建日志标签并绑定显示日志的功能
-        log_tab_button = tk.Button(log_tab_frame, text=f"{device_name} 日志", command=lambda: show_log_content(device_name))
-        log_tab_button.pack(side=tk.LEFT, padx=2, pady=2)
-
-        # 创建日志文本框的容器
-        log_text_frame = tk.Frame(log_display_frame)
-        log_text_frame.pack(fill=tk.BOTH, expand=True)
-
-        # 创建日志文本框
-        log_text = ScrolledText(log_text_frame, height=20, wrap=tk.WORD)
+        # 创建一个文本框来显示日志
+        log_text = ScrolledText(log_window, height=20, wrap=tk.WORD)
         log_text.pack(fill=tk.BOTH, expand=True)
 
-        # 存储日志标签和文本框
-        log_buttons[device_name] = log_tab_button
-        log_text_frames[device_name] = log_text_frame
+        # 如果有之前的日志数据，填充到日志框
+        if device_name in log_data:
+            log_text.insert(tk.END, log_data[device_name])
+
+        # 将日志框和日志窗口存储起来
         log_texts[device_name] = log_text
-
-        # 显示对应设备的日志
-        show_log_content(device_name)
-
-# 点击日志标签时切换日志内容
-def show_log_content(device_name):
-    global current_log_display
-    current_log_display = device_name
-    log_text = log_texts[device_name]
-    log_text.delete(1.0, tk.END)
-    log_text.insert(tk.END, log_data[device_name])
-    log_text.see(tk.END)
+        log_windows[device_name] = log_window
+    else:
+        # 如果日志窗口已经存在，激活它
+        log_windows[device_name].deiconify()
 
 # 创建 GUI
 root = tk.Tk()
@@ -159,18 +144,6 @@ device_frame.pack(side=tk.LEFT, fill=tk.Y)
 device_canvas.pack(side=tk.LEFT, fill=tk.Y, expand=True)
 device_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-# 创建右侧显示区域，包含日志标签和日志显示框
-right_frame = tk.Frame(root)
-right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-
-# 日志标签框
-log_tab_frame = tk.Frame(right_frame)
-log_tab_frame.pack(side=tk.TOP, fill=tk.X)
-
-# 日志内容显示框
-log_display_frame = tk.Frame(right_frame)
-log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
 # 为每个设备创建按钮和日志按钮
 device_buttons = {}
 for device_name in config.keys():
@@ -189,7 +162,7 @@ for device_name in config.keys():
     device_button.config(command=lambda name=device_name, btn=device_button: toggle_device(name, btn))
 
     # 日志按钮点击事件
-    log_button.config(command=lambda name=device_name: show_or_hide_log(name))
+    log_button.config(command=lambda name=device_name: show_log(name))
 
     device_buttons[device_name] = device_button
 

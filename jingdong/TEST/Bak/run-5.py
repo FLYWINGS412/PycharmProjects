@@ -1,18 +1,21 @@
 import json
+import time
+import threading
 import subprocess
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
-import threading
-import time
 
 # 设备运行状态管理（存储设备与其对应的进程）
 device_processes = {}
-log_texts = {}  # 存储每个设备的日志内容
-log_windows = {}  # 存储每个设备的日志窗口
 log_data = {}  # 存储设备的日志数据
+log_buttons = {}  # 存储日志标签按钮
+current_log_display = None  # 当前显示的日志
+log_text = None  # 全局日志文本框
+log_tab_frame = None  # 全局日志标签框
+log_display_frame = None  # 全局日志显示框
 
 # 读取 config.json 配置文件
-with open('config.json', 'r') as f:
+with open('../config.json', 'r') as f:
     config = json.load(f)
 
 # 启动设备
@@ -57,7 +60,7 @@ def start_device(device_name, button):
     log_data[device_name] = ""
 
     # 改变按钮颜色为绿色，表示设备启动，并显示设备名
-    button.config(bg='green', text=f'{device_name} (运行中)')
+    button.config(bg='green', text=f'{device_name}')
 
     # 实时更新日志
     def update_log():
@@ -65,9 +68,10 @@ def start_device(device_name, button):
             output = process.stdout.readline()
             if output:
                 log_data[device_name] += output  # 保存日志数据
-                if device_name in log_texts and log_texts[device_name].winfo_exists():
-                    log_texts[device_name].insert(tk.END, output)
-                    log_texts[device_name].see(tk.END)
+                if current_log_display == device_name:
+                    log_text.delete(1.0, tk.END)  # 清除当前内容
+                    log_text.insert(tk.END, log_data[device_name])  # 插入最新内容
+                    log_text.see(tk.END)
             time.sleep(0.1)  # 每100ms检查一次日志输出
 
     # 启动日志更新线程
@@ -85,12 +89,6 @@ def stop_device(device_name, button):
         # 改变按钮颜色为灰色，表示设备已停止，并显示设备名
         button.config(bg='SystemButtonFace', text=device_name)
 
-    # 销毁日志窗口
-    if device_name in log_windows:
-        log_windows[device_name].destroy()
-        del log_windows[device_name]
-        del log_texts[device_name]
-
 # 点击设备按钮时的行为
 def toggle_device(device_name, button):
     if device_name in device_processes:
@@ -98,27 +96,30 @@ def toggle_device(device_name, button):
     else:
         start_device(device_name, button)
 
-# 点击日志按钮时显示日志窗口
-def show_log(device_name):
-    if device_name not in log_windows or not log_windows[device_name].winfo_exists():
-        # 如果日志窗口不存在或者已经被销毁，重新创建
-        log_window = tk.Toplevel()
-        log_window.title(f"{device_name} 日志")
+# 显示或隐藏日志标签和内容
+def show_or_hide_log(device_name):
+    global current_log_display  # 将 current_log_display 设为全局变量
 
-        # 创建一个文本框来显示日志
-        log_text = ScrolledText(log_window, height=20, wrap=tk.WORD)
-        log_text.pack(fill=tk.BOTH, expand=True)
+    # 如果设备未启动，初始化为空白日志数据
+    if device_name not in log_data:
+        log_data[device_name] = ""
 
-        # 如果有之前的日志数据，填充到日志框
-        if device_name in log_data:
-            log_text.insert(tk.END, log_data[device_name])
-
-        # 将日志框和日志窗口存储起来
-        log_texts[device_name] = log_text
-        log_windows[device_name] = log_window
+    # 如果当前设备的日志已经显示，则隐藏日志框和日志内容
+    if current_log_display == device_name:
+        # 隐藏日志框和日志内容
+        log_tab_frame.pack_forget()
+        log_display_frame.pack_forget()  # 隐藏日志标签框和内容
+        right_frame.pack_forget()  # 隐藏右侧整个日志显示区域
+        current_log_display = None
     else:
-        # 如果日志窗口已经存在，激活它
-        log_windows[device_name].deiconify()
+        # 如果当前没有显示日志，则重新显示日志框和内容
+        log_text.delete(1.0, tk.END)  # 清除现有日志内容
+        log_text.insert(tk.END, log_data[device_name])  # 显示当前设备的日志
+        log_text.see(tk.END)
+        current_log_display = device_name
+        log_tab_frame.pack(side=tk.TOP, fill=tk.X)  # 显示日志框
+        log_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)  # 显示日志内容
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # 确保右侧日志区域显示
 
 # 创建 GUI
 root = tk.Tk()
@@ -140,30 +141,44 @@ scrollable_frame.bind(
 device_canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 device_canvas.configure(yscrollcommand=device_scrollbar.set)
 
-device_frame.pack(side=tk.LEFT, fill=tk.Y)
-device_canvas.pack(side=tk.LEFT, fill=tk.Y, expand=True)
+device_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保设备框填满左侧
+device_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保画布填满空间
 device_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+# 创建右侧显示区域，包含日志标签和日志显示框
+right_frame = tk.Frame(root)
+right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)  # fill=tk.BOTH 确保右侧填满剩余空间
+
+# 日志标签框，初始状态隐藏
+log_tab_frame = tk.Frame(right_frame)
+log_display_frame = tk.Frame(right_frame)
+
+# 日志内容显示框
+log_text = ScrolledText(log_display_frame, height=20, wrap=tk.WORD)
+log_text.pack(fill=tk.BOTH, expand=True)
 
 # 为每个设备创建按钮和日志按钮
 device_buttons = {}
 for device_name in config.keys():
-    # 使用 device_name 显示按钮名（例如 device_1, device_2）
+    # 使用 device_name 显示按钮名
     frame = tk.Frame(scrollable_frame)
-    frame.pack(fill=tk.X, pady=5)
+    frame.pack(fill=tk.X, pady=2)  # 调整 pady 减少垂直间距
 
-    device_button = tk.Button(frame, text=device_name, width=15)
-    device_button.pack(side=tk.LEFT)
+    # 设备按钮
+    device_button = tk.Button(frame, text=device_name, width=12)  # 调整按钮的宽度
+    device_button.pack(side=tk.LEFT, padx=5)  # 调整 padx 减少按钮左右空余
 
     # 创建日志按钮
-    log_button = tk.Button(frame, text="日志", width=10)
-    log_button.pack(side=tk.RIGHT)
+    log_button = tk.Button(frame, text="日志", width=5)  # 调整日志按钮的宽度
+    log_button.pack(side=tk.RIGHT, padx=5)  # 减少日志按钮左右空余
 
     # 设备按钮点击事件
     device_button.config(command=lambda name=device_name, btn=device_button: toggle_device(name, btn))
 
     # 日志按钮点击事件
-    log_button.config(command=lambda name=device_name: show_log(name))
+    log_button.config(command=lambda name=device_name: show_or_hide_log(name))
 
     device_buttons[device_name] = device_button
 
+# 运行主循环
 root.mainloop()

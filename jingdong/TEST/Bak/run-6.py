@@ -15,7 +15,7 @@ log_tab_frame = None  # 全局日志标签框
 log_display_frame = None  # 全局日志显示框
 
 # 读取 config.json 配置文件
-with open('config.json', 'r') as f:
+with open('../config.json', 'r') as f:
     config = json.load(f)
 
 # 启动设备

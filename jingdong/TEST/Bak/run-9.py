@@ -12,7 +12,7 @@ log_buttons = {}  # 存储日志按钮
 current_log_display = None  # 当前显示的日志
 
 # 读取 config.json 配置文件
-with open('config.json', 'r', encoding='utf-8') as f:
+with open('../config.json', 'r', encoding='utf-8') as f:
     config = json.load(f)
 
 # 创建 GUI
@@ -23,8 +23,9 @@ root.title("设备管理")
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
-# 设置左侧设备区域的最大高度为屏幕高度的80%
+# 设置左侧设备区域的最大高度为屏幕高度的80%和最小高度
 MAX_HEIGHT = int(screen_height * 0.8)
+MIN_HEIGHT = 400  # 设置最小高度
 
 # 创建左侧容器框架
 left_frame = tk.Frame(root)
@@ -79,14 +80,11 @@ def adjust_left_frame_height(event=None):
     total_height = device_frame.winfo_height()
     total_width = device_frame.winfo_width()
 
-    if total_height > MAX_HEIGHT:
-        height = MAX_HEIGHT
-        left_frame.config(height=height, width=total_width + device_scrollbar.winfo_width())
-        left_frame.pack_propagate(False)
-    else:
-        height = total_height
-        left_frame.config(height=height, width=total_width + device_scrollbar.winfo_width())
-        left_frame.pack_propagate(False)  # 需要设置为 False，以手动控制尺寸
+    # 使用 MIN_HEIGHT 确保窗口不会太小
+    height = max(min(total_height, MAX_HEIGHT), MIN_HEIGHT)
+
+    left_frame.config(height=height, width=total_width + device_scrollbar.winfo_width())
+    left_frame.pack_propagate(False)  # 需要设置为 False，以手动控制尺寸
 
     device_canvas.config(scrollregion=device_canvas.bbox("all"), height=height, width=total_width)
     device_canvas.yview_moveto(0)
