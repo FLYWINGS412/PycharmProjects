@@ -128,7 +128,7 @@ def start_device(device_name, button):
 
     print(f"启动设备 {device_name} 的自动化任务...")
 
-    # 获取当前脚本目录，确保调用的是 main.py 而不是重新调用 run.py
+    # 获取当前脚本目录，确保调用的是 main.py 而不是重新调用 tj.py
     current_dir = os.path.dirname(os.path.abspath(__file__))
     main_script_path = os.path.join(current_dir, 'main.py')
 
