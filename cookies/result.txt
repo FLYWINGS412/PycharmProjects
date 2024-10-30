@@ -1,1 +1,1 @@
-pt_pin=jd_OtEMYkQKlweV;pt_key=AAJnD8OrADBUIu297T6ys58WdL79EHj3QNq29pmfeMs4OZslm8SCGnNsDbeqXXyuXsCB-GY-kyA;pwdt_id=jd_OtEMYkQKlweV;（无效）
+pt_pin=jd_48b97248c6f42;pt_key=AAJnGwlbADA5ARyGVfY85Qm64esOItWJxIPsOo4Vn2m_BOh0TfhWXG5uOh9IosNHQ8V4F14QBuw;pwdt_id=jd_48b97248c6f42;（无效）
