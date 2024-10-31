@@ -687,6 +687,9 @@ def browse_items():
                 print("成功返回店铺")
                 continue
 
+        except Exception as e:
+            print("未找到 '详情' 或 '跳转数据' 按钮，未执行操作")
+
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示

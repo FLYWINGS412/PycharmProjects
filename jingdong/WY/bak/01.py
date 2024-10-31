@@ -687,27 +687,24 @@ def browse_items():
 
     while True:  # 无限循环，直到第一行商品完成
         time.sleep(random.randint(10, 20))
-        # 在第一行商品下查找 "详情" 按钮并点击
+        # 在第一行商品下查找 "详情" 或 "跳转数据"
         try:
-            detail_button = WebDriverWait(first_item, 5).until(
-                EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "详情")]'))
+            button = WebDriverWait(first_item, 5).until(
+                EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "详情") or contains(@text, "跳转数据")]'))
             )
-            detail_button.click()
-            print("成功点击第一行商品的'详情'按钮")
-        except Exception as e:
-            print("未找到第一行商品的'详情'按钮")
-            try:
-                # 检查是否存在 "跳转数据"
-                over_activity_message = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((MobileBy.XPATH, '//*[contains(@text, "跳转数据")]'))
-                )
-                # 如果找到 "跳转数据"，则模拟按下返回键
+
+            if "详情" in button.text:
+                button.click()
+                print("成功点击第一行商品的 '详情' 按钮")
+            elif "跳转数据" in button.text:
+                driver.press_keycode(AndroidKey.BACK)
+                time.sleep(3)
                 driver.press_keycode(AndroidKey.BACK)
                 print("成功返回店铺")
-            except Exception as inner_e:
-                print("未找到 '跳转数据'，未执行返回操作")
-            refresh_page(driver)
-            continue
+                continue
+
+        except Exception as e:
+            print("未找到 '详情' 或 '跳转数据' 按钮，未执行操作")
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
