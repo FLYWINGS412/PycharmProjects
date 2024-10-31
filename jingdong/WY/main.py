@@ -409,7 +409,7 @@ def submit_task_completion(driver, main_view):
             break  # 如果找不到"确定"按钮，退出循环
 
 # 查找商店
-def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
+def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=3):
     attempts = 0
     shop_found = False
 
@@ -682,13 +682,18 @@ def browse_items():
                 jump_button = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "跳转数据")]'))
                 )
+                print("查找跳转数据")
                 driver.press_keycode(AndroidKey.BACK)
                 time.sleep(3)
                 driver.press_keycode(AndroidKey.BACK)
                 print("成功返回店铺")
+                time.sleep(5)
+                refresh_page(driver)
                 continue
             except Exception as e:
                 print("未找到 '跳转数据' 按钮，未执行操作")
+                refresh_page(driver)
+                continue
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:

@@ -1,10 +1,76 @@
+import rsa
 import json
 import time
+import ctypes
+import requests
 import threading
 import subprocess
 import tkinter as tk
 from threading import Lock
+from datetime import datetime
+from cryptography.fernet import Fernet
 from tkinter.scrolledtext import ScrolledText
+
+# 将公钥直接嵌入代码（替换成生成的公钥内容）
+PUBLIC_KEY_DATA = b"""-----BEGIN RSA PUBLIC KEY-----
+MEgCQQC5LRqRNex1FXEaiQ/xebFkK49mFkI5pEevnAdF0nC1mvL/LudcaH9NRxpY
+Kpx/UurDffSxk1ZpvnDC1ksLOFjBAgMBAAE=
+-----END RSA PUBLIC KEY-----"""
+
+# 加载嵌入的公钥
+public_key = rsa.PublicKey.load_pkcs1(PUBLIC_KEY_DATA)
+
+# 授权文件路径
+LICENSE_FILE = "license_key.lic"
+
+# 从网络获取当前时间
+def get_network_time():
+    try:
+        response = requests.get("https://www.baidu.com")
+        response.raise_for_status()
+        server_time = response.headers["Date"]
+        network_time = datetime.strptime(server_time, "%a, %d %b %Y %H:%M:%S %Z")
+        return network_time
+    except Exception as e:
+        print("无法获取网络时间:", e)
+    return None
+
+# 验证并读取授权文件
+def read_and_verify_license():
+    try:
+        with open(LICENSE_FILE, "rb") as f:
+            # 读取Fernet密钥、加密的日期和签名
+            fernet_key = f.readline().strip()
+            encrypted_date = f.readline().strip()
+            signature = f.read()
+
+            # 使用公钥验证签名
+            rsa.verify(encrypted_date, signature, public_key)
+
+            # 使用Fernet密钥解密日期
+            cipher_suite = Fernet(fernet_key)
+            expiration_date_str = cipher_suite.decrypt(encrypted_date).decode()
+            expiration_date = datetime.strptime(expiration_date_str, "%Y-%m-%d")
+            return expiration_date
+    except (rsa.VerificationError, ValueError, FileNotFoundError) as e:
+        print("授权文件验证失败:", e)
+        raise SystemExit("授权验证失败")
+
+# 显示 Windows 消息框
+def show_message(title, message):
+    ctypes.windll.user32.MessageBoxW(0, message, title, 0x40 | 0x1)
+
+# 检查授权有效性
+def check_license():
+    expiration_date = read_and_verify_license()
+    network_time = get_network_time()
+
+    if network_time and network_time > expiration_date:
+        show_message("授权过期", "授权已过期")
+        raise SystemExit("授权已过期")
+
+# 调用授权检查
+check_license()
 
 # 设备运行状态管理（存储设备与其对应的进程）
 device_processes = {}
