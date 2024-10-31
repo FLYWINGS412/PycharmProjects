@@ -47,11 +47,5 @@
   "CK-17": { "deviceName": "CK-17", "udid": "emulator-5648" },
   "CK-18": { "deviceName": "CK-18", "udid": "emulator-5650" },
   "CK-19": { "deviceName": "CK-19", "udid": "emulator-5652" },
-  "CK-20": { "deviceName": "CK-20", "udid": "emulator-5654" },
-  "TJ-01": { "deviceName": "01-15520143409", "udid": "emulator-5756" },
-  "TJ-02": { "deviceName": "02-16623393179", "udid": "emulator-5758" },
-  "TJ-03": { "deviceName": "03-16623490422", "udid": "emulator-5760" },
-  "TJ-04": { "deviceName": "04-17384642429", "udid": "emulator-5762" },
-  "TJ-05": { "deviceName": "05-17389774243", "udid": "emulator-5764" },
-  "TJ-06": { "deviceName": "06-17389844427", "udid": "emulator-5766" }
+  "CK-20": { "deviceName": "CK-20", "udid": "emulator-5654" }
 }
