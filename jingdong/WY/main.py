@@ -414,70 +414,89 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=3):
         try:
             time.sleep(5)
             # 获取父容器，包含所有店铺项的列表
-            parent_containers = WebDriverWait(driver, 10).until(
+            elements = WebDriverWait(driver, 5).until(
                 EC.presence_of_all_elements_located(
-                    (By.XPATH, '//android.view.View[contains(@resource-id, "pro_info_below_")]')
+                    (By.XPATH, '//*[contains(@resource-id, "pro_info_below_") or contains(@text, "验证")]')
                 )
             )
+            parent_containers = [el for el in elements if 'pro_info_below_' in el.get_attribute('resource-id')]
+            verify_elements = [el for el in elements if '验证' in el.text]
 
-            print(f"找到 {len(parent_containers)} 个店铺项")
+            if parent_containers:
+                print(f"找到 {len(parent_containers)} 个店铺项")
+                matches = []
 
-            matches = []
-
-            # 遍历每个父容器，查找店铺名称
-            for index, parent_container in enumerate(parent_containers, start=1):
-                try:
-                    # 在父容器下查找所有具有 text 属性的 android.view.View 元素
-                    shop_name_elements = WebDriverWait(parent_container, 10).until(
-                        EC.presence_of_all_elements_located((By.XPATH, './/android.view.View[@text]'))
-                    )
-
-                    # 遍历每个具有 text 的元素
-                    for shop_name_element in shop_name_elements:
-                        shop_name = shop_name_element.get_attribute('text').strip()
-
-                        # 计算与目标店铺名称的相似度
-                        similarity = SequenceMatcher(None, target_shop_name, shop_name).ratio()
-
-                        # 将 shop_name_element 添加到匹配列表
-                        matches.append((shop_name_element, similarity, shop_name, index))
-
-                except NoSuchElementException:
-                    print(f"在店铺项 {index} 中未找到店铺名称元素")
-                    continue
-
-            # 如果找到匹配项，按相似度排序
-            if matches:
-                matches.sort(key=lambda x: x[1], reverse=True)
-                best_match_item, best_similarity, shop_name, index = matches[0]
-
-                print(f"最匹配的店铺名称: {shop_name}, 相似度: {best_similarity}")
-
-                # 如果相似度超过阈值，则点击店铺名称元素
-                if best_similarity > 0.94:
-                    best_match_item.click()  # 成功点击店铺
-
-                    # 检查父容器是否已消失，最大等待5秒
+                # 遍历每个父容器，查找店铺名称
+                for index, parent_container in enumerate(parent_containers, start=1):
                     try:
-                        WebDriverWait(driver, 5).until(
-                            EC.invisibility_of_element_located((By.XPATH, '//android.view.View[contains(@resource-id, "pro_info_below_")]'))
+                        # 在父容器下查找所有具有 text 属性的 android.view.View 元素
+                        shop_name_elements = WebDriverWait(parent_container, 10).until(
+                            EC.presence_of_all_elements_located((By.XPATH, './/android.view.View[@text]'))
                         )
-                        print(f"成功点击最匹配的店铺: {shop_name}")
-                        shop_found = True  # 设置为已找到
-                        return True  # 成功找到并点击，返回 True
-                    except TimeoutException:
-                        print("父容器未消失，刷新页面重新查找店铺...")
-                        refresh_page(driver)  # 调用页面刷新函数
-                        continue  # 重新开始 while 循环
 
+                        # 遍历每个具有 text 的元素
+                        for shop_name_element in shop_name_elements:
+                            shop_name = shop_name_element.get_attribute('text').strip()
+
+                            # 计算与目标店铺名称的相似度
+                            similarity = SequenceMatcher(None, target_shop_name, shop_name).ratio()
+
+                            # 将 shop_name_element 添加到匹配列表
+                            matches.append((shop_name_element, similarity, shop_name, index))
+
+                    except NoSuchElementException:
+                        print(f"在店铺项 {index} 中未找到店铺名称元素")
+                        continue
+
+                # 如果找到匹配项，按相似度排序
+                if matches:
+                    matches.sort(key=lambda x: x[1], reverse=True)
+                    best_match_item, best_similarity, shop_name, index = matches[0]
+
+                    print(f"最匹配的店铺名称: {shop_name}, 相似度: {best_similarity}")
+
+                    # 如果相似度超过阈值，则点击店铺名称元素
+                    if best_similarity > 0.94:
+                        best_match_item.click()  # 成功点击店铺
+
+                        # 检查父容器是否已消失，最大等待5秒
+                        try:
+                            WebDriverWait(driver, 5).until(
+                                EC.invisibility_of_element_located((By.XPATH, '//android.view.View[contains(@resource-id, "pro_info_below_")]'))
+                            )
+                            print(f"成功点击最匹配的店铺: {shop_name}")
+                            shop_found = True  # 设置为已找到
+                            return True  # 成功找到并点击，返回 True
+                        except TimeoutException:
+                            print("父容器未消失，刷新页面重新查找店铺...")
+                            refresh_page(driver)  # 调用页面刷新函数
+                            continue  # 重新开始 while 循环
+
+                    else:
+                        print("未找到高相似度的店铺，尝试翻页...")
+                        perform_page_scroll(driver)
+                        attempts += 1
                 else:
-                    print("未找到高相似度的店铺，尝试翻页...")
+                    print("未找到任何店铺名称匹配")
                     perform_page_scroll(driver)
                     attempts += 1
-            else:
-                print("未找到任何店铺名称匹配")
-                perform_page_scroll(driver)
-                attempts += 1
+
+            elif verify_elements:
+                print("检测到 '验证'，进入等待循环")
+
+                # 持续检查 "验证" 是否消失
+                while True:
+                    time.sleep(10)  # 等待10秒，避免频繁操作
+                    try:
+                        # 重新检测 "验证" 提示
+                        verify_message = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+                        )
+                        if verify_message:
+                            continue  # 如果仍然存在 "验证"，继续循环等待
+                    except Exception:
+                        print("检测到 '验证' 消失，继续执行后续操作")
+                        break  # 退出循环，继续执行后面的代码
 
         except Exception as e:
             print(f"查找店铺时出错")
@@ -627,35 +646,16 @@ def browse_items():
     second_item_found = True
 
     while True:
-        # 定位 dp-main 父容器或 "验证" 提示
+        # 定位 dp-main 父容器
         try:
-            message_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//*[contains(@resource-id, "dp-main") or contains(@text, "验证")]')
-                )
+            main_view = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
             )
-            if 'dp-main' in message_element.get_attribute('resource-id'):
-                print("成功找到dp-main父容器")
-            elif '验证' in message_element.text:
-                print("检测到 '验证'，进入等待循环")
-
-                # 持续检查 "验证" 是否消失
-                while True:
-                    time.sleep(10)  # 等待10秒，避免频繁操作
-                    try:
-                        # 重新检测 "验证" 提示
-                        verify_message = WebDriverWait(driver, 5).until(
-                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
-                        )
-                        if verify_message:
-                            continue  # 如果仍然存在 "验证"，继续循环等待
-                    except Exception:
-                        print("检测到 '验证' 消失，继续执行后续操作")
-                        break  # 退出循环，继续执行后面的代码
+            print("成功找到dp-main父容器")
         except Exception as e:
-            print("未检测到 dp-main 或 '验证' 提示，继续尝试...")
+            print("未找到dp-main父容器，继续尝试...")
             refresh_page(driver)
-            continue  # 未找到，重新进入 while 循环
+            continue  # 未找到 dp-main，重新进入 while 循环
 
         # 在 dp-main 容器下查找第一行商品
         try:
