@@ -16,37 +16,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.extensions.android.nativekey import AndroidKey
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 
-# 刷新页面
-def refresh_page(driver):
-    try:
-        loading_state_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
-        )
-        loading_state_button.click()
-        print("页面已刷新")
-        time.sleep(8)  # 等待页面加载完成
-    except Exception as e:
-        print(f"刷新页面失败")
-
-# 执行翻页
-def perform_page_scroll(driver):
-    try:
-        # 获取设备屏幕的尺寸
-        window_size = driver.get_window_size()
-        screen_width = window_size['width']
-        screen_height = window_size['height']
-
-        # 计算滑动的起点和终点（从屏幕底部向上滑动）
-        start_x = screen_width // 2  # 横向居中
-        start_y = screen_height * 9 // 10  # 滑动起点靠近屏幕底部
-        end_y = screen_height * 1 // 10  # 滑动终点靠近屏幕顶部
-
-        # 使用 TouchAction 执行全屏向上滑动操作
-        TouchAction(driver).press(x=start_x, y=start_y).wait(500).move_to(x=start_x, y=end_y).release().perform()
-        print("成功模拟全屏向上翻页动作")
-    except Exception as e:
-        print(f"全屏翻页失败")
-
 # 定义函数，截图并保存
 def take_screenshot_with_date(driver, folder_path):
     current_date = datetime.now().strftime("%Y%m%d")
@@ -78,6 +47,72 @@ def get_screenshot_number(folder_path, current_date):
             last_number = int(re.search(r'-(\d+)', last_file).group(1))
             screenshot_number = last_number + 1
     return screenshot_number
+
+# 更换账号
+def switch_account(main_view):
+    # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
+    try:
+        time.sleep(5)
+        home_button = WebDriverWait(main_view, 10).until(
+            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
+        )
+        home_button.click()
+        print("成功点击'回到首页'按钮")
+    except Exception as e:
+        print(f"点击'回到首页'按钮失败")
+
+    # 查找并点击 "我的" 按钮
+    try:
+        time.sleep(5)
+        mcommon_my_view = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "mCommonMy")]'))
+        )
+        mcommon_my_view.click()  # 直接点击 mCommonMy 父容器
+        print("成功点击'我的'按钮")
+    except Exception as e:
+        print(f"点击'我的'按钮失败")
+
+    # 在 dp-main 父容器下查找并点击 "更换账号" 按钮
+    try:
+        time.sleep(5)
+        switch_account_button = WebDriverWait(main_view, 10).until(
+            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="更换账号"]'))
+        )
+        switch_account_button.click()
+        print("成功点击'更换账号'按钮")
+    except Exception as e:
+        print(f"点击'更换账号'按钮失败")
+
+# 刷新页面
+def refresh_page(driver):
+    try:
+        loading_state_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'com.mmbox.xbrowser:id/btn_loading_state'))
+        )
+        loading_state_button.click()
+        print("页面已刷新")
+        time.sleep(8)  # 等待页面加载完成
+    except Exception as e:
+        print(f"刷新页面失败")
+
+# 执行翻页
+def perform_page_scroll(driver):
+    try:
+        # 获取设备屏幕的尺寸
+        window_size = driver.get_window_size()
+        screen_width = window_size['width']
+        screen_height = window_size['height']
+
+        # 计算滑动的起点和终点（从屏幕底部向上滑动）
+        start_x = screen_width // 2  # 横向居中
+        start_y = screen_height * 9 // 10  # 滑动起点靠近屏幕底部
+        end_y = screen_height * 1 // 10  # 滑动终点靠近屏幕顶部
+
+        # 使用 TouchAction 执行全屏向上滑动操作
+        TouchAction(driver).press(x=start_x, y=start_y).wait(500).move_to(x=start_x, y=end_y).release().perform()
+        print("成功模拟全屏向上翻页动作")
+    except Exception as e:
+        print(f"全屏翻页失败")
 
 # 定义函数：保存浏览商品的数量到同一个文件中
 def save_browsed_item_count(count):
@@ -185,41 +220,6 @@ def load_browsed_item_count():
         portalocker.unlock(f)  # 解锁
 
     return count
-
-# 更换账号
-def switch_account(main_view):
-    # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
-    try:
-        time.sleep(5)
-        home_button = WebDriverWait(main_view, 10).until(
-            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
-        )
-        home_button.click()
-        print("成功点击'回到首页'按钮")
-    except Exception as e:
-        print(f"点击'回到首页'按钮失败")
-
-    # 查找并点击 "我的" 按钮
-    try:
-        time.sleep(5)
-        mcommon_my_view = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "mCommonMy")]'))
-        )
-        mcommon_my_view.click()  # 直接点击 mCommonMy 父容器
-        print("成功点击'我的'按钮")
-    except Exception as e:
-        print(f"点击'我的'按钮失败")
-
-    # 在 dp-main 父容器下查找并点击 "更换账号" 按钮
-    try:
-        time.sleep(5)
-        switch_account_button = WebDriverWait(main_view, 10).until(
-            EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="更换账号"]'))
-        )
-        switch_account_button.click()
-        print("成功点击'更换账号'按钮")
-    except Exception as e:
-        print(f"点击'更换账号'按钮失败")
 
 # 提交第一行商品任务
 def submit_first_item_task(main_view, first_item):
@@ -495,7 +495,7 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=3):
         submit_task_completion(driver, main_view)
         return False  # 未找到店铺，返回 False
 
-# 执行任务
+# 获取任务
 def perform_tasks(driver):
     while True:  # 无限循环
         try:
@@ -544,9 +544,6 @@ def perform_tasks(driver):
                     if "任务不合格" in text:
                         print("任务不合格")
                         exit()  # 终止程序
-                        # driver.press_keycode(AndroidKey.BACK)
-                        # switch_account(main_view)
-                        # continue
                     elif "提交已限额" in text:
                         print("检测到 '提交已限额'，程序结束。")
                         exit()  # 终止脚本执行
@@ -664,7 +661,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(random.randint(10, 20))
+        time.sleep(10)
         # 在第一行商品下查找 "详情" 按钮
         try:
             details_button = WebDriverWait(first_item, 5).until(
@@ -673,25 +670,9 @@ def browse_items():
             details_button.click()
             print("成功点击第一行商品的 '详情' 按钮")
         except Exception as e:
-            print("未找到 '详情' 按钮，继续查找跳转数据...")
-
-            # 如果没有找到 "详情"，在全屏下查找 "跳转数据" 按钮
-            try:
-                jump_button = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "跳转数据")]'))
-                )
-                print("查找跳转数据")
-                driver.press_keycode(AndroidKey.BACK)
-                time.sleep(3)
-                driver.press_keycode(AndroidKey.BACK)
-                print("成功返回店铺")
-                time.sleep(5)
-                refresh_page(driver)
-                continue
-            except Exception as e:
-                print("未找到 '跳转数据' 按钮，未执行操作")
-                refresh_page(driver)
-                continue
+            print("未找到第一行商品的 '详情' 按钮")
+            refresh_page(driver)
+            continue
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
@@ -781,18 +762,9 @@ def browse_items():
             print("所有商品任务均已完成")
             break  # 退出循环
 
-        # 在 dp-main 父容器下查找并点击 "前往店铺" 按钮
-        try:
-            home_button = WebDriverWait(main_view, 10).until(
-                EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="前往店铺"]'))
-            )
-            home_button.click()
-            print("成功点击'前往店铺'按钮")
-        except Exception as e:
-            print(f"点击'前往店铺'按钮失败")
-            # 模拟按下返回键
-            driver.press_keycode(AndroidKey.BACK)
-            print("成功返回店铺")
+        # 模拟按下返回键
+        driver.press_keycode(AndroidKey.BACK)
+        print("成功返回店铺")
 
     # 提交任务
     submit_task_completion(driver, main_view)
