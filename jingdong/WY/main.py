@@ -627,16 +627,35 @@ def browse_items():
     second_item_found = True
 
     while True:
-        # 定位 dp-main 父容器
+        # 定位 dp-main 父容器或 "验证" 提示
         try:
-            main_view = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
+            message_element = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[contains(@resource-id, "dp-main") or contains(@text, "验证")]')
+                )
             )
-            print("成功找到dp-main父容器")
+            if 'dp-main' in message_element.get_attribute('resource-id'):
+                print("成功找到dp-main父容器")
+            elif '验证' in message_element.text:
+                print("检测到 '验证'，进入等待循环")
+
+                # 持续检查 "验证" 是否消失
+                while True:
+                    time.sleep(10)  # 等待10秒，避免频繁操作
+                    try:
+                        # 重新检测 "验证" 提示
+                        verify_message = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+                        )
+                        if verify_message:
+                            continue  # 如果仍然存在 "验证"，继续循环等待
+                    except Exception:
+                        print("检测到 '验证' 消失，继续执行后续操作")
+                        break  # 退出循环，继续执行后面的代码
         except Exception as e:
-            print("未找到dp-main父容器，继续尝试...")
+            print("未检测到 dp-main 或 '验证' 提示，继续尝试...")
             refresh_page(driver)
-            continue  # 未找到 dp-main，重新进入 while 循环
+            continue  # 未找到，重新进入 while 循环
 
         # 在 dp-main 容器下查找第一行商品
         try:
