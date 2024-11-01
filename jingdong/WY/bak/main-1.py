@@ -2,6 +2,8 @@ import re
 import os
 import sys
 import time
+import json
+import random
 import portalocker
 import tkinter as tk
 from appium import webdriver
@@ -25,27 +27,6 @@ def refresh_page(driver):
         time.sleep(8)  # 等待页面加载完成
     except Exception as e:
         print(f"刷新页面失败")
-
-# # 刷新页面
-# def refresh_page(driver):
-#     try:
-#         # 获取设备屏幕的尺寸
-#         window_size = driver.get_window_size()
-#         width = window_size['width']
-#         height = window_size['height']
-#
-#         # 设置起始点和终止点的坐标，模拟从屏幕中间向下滑动
-#         start_x = width / 2
-#         start_y = height / 4
-#         end_y = height * 3 / 4
-#
-#         # 执行下拉操作
-#         action = TouchAction(driver)
-#         action.press(x=start_x, y=start_y).wait(200).move_to(x=start_x, y=end_y).release().perform()
-#         print("页面已刷新")
-#         time.sleep(8)  # 等待页面加载完成
-#     except Exception as e:
-#         print(f"刷新页面失败")
 
 # 执行翻页
 def perform_page_scroll(driver):
@@ -428,7 +409,7 @@ def submit_task_completion(driver, main_view):
             break  # 如果找不到"确定"按钮，退出循环
 
 # 查找商店
-def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
+def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=3):
     attempts = 0
     shop_found = False
 
@@ -518,7 +499,7 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=5):
         return False  # 未找到店铺，返回 False
 
 # 执行任务
-def perform_tasks():
+def perform_tasks(driver):
     while True:  # 无限循环
         try:
             # 获取任务
@@ -556,9 +537,10 @@ def perform_tasks():
 
                 # 查找是否存在 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                 try:
+                    time.sleep(5)
                     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
                     )
                     # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
                     text = message_button.text
@@ -571,6 +553,9 @@ def perform_tasks():
                     elif "提交已限额" in text:
                         print("检测到 '提交已限额'，程序结束。")
                         exit()  # 终止脚本执行
+                    elif "已轮休" in text:
+                        print("检测到 '已轮休'，程序结束。")
+                        exit()  # 终止脚本执行
                     elif "任务已暂停" in text:
                         print("检测到 '任务已暂停'，程序结束。")
                         exit()  # 终止脚本执行
@@ -579,7 +564,7 @@ def perform_tasks():
                         exit()  # 终止脚本执行
 
                 except Exception:
-                    print("未检测到 '任务不合格' 或 '暂无任务' 或 '提交已限额'，继续任务。")
+                    print("未检测到任务异常，继续任务。")
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
@@ -682,23 +667,39 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
-        time.sleep(10)
-        # 在第一行商品下查找 "详情" 按钮并点击
+        time.sleep(random.randint(10, 20))
+        # 在第一行商品下查找 "详情" 按钮
         try:
-            detail_button = WebDriverWait(first_item, 5).until(
+            details_button = WebDriverWait(first_item, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "详情")]'))
             )
-            detail_button.click()
-            print("成功点击第一行商品的'详情'按钮")
+            details_button.click()
+            print("成功点击第一行商品的 '详情' 按钮")
         except Exception as e:
-            print(f"未找到第一行商品的'详情'按钮")
-            refresh_page(driver)
-            continue
+            print("未找到 '详情' 按钮，继续查找跳转数据...")
+
+            # 如果没有找到 "详情"，在全屏下查找 "跳转数据" 按钮
+            try:
+                jump_button = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "跳转数据")]'))
+                )
+                print("查找跳转数据")
+                driver.press_keycode(AndroidKey.BACK)
+                time.sleep(3)
+                driver.press_keycode(AndroidKey.BACK)
+                print("成功返回店铺")
+                time.sleep(5)
+                refresh_page(driver)
+                continue
+            except Exception as e:
+                print("未找到 '跳转数据' 按钮，未执行操作")
+                refresh_page(driver)
+                continue
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
-            time.sleep(3)
+            time.sleep(5)
             message_element = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located(
                     (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
@@ -780,7 +781,7 @@ def browse_items():
             second_item_completed = True
         except Exception:
             second_item_text = second_item.text if second_item else "未能获取文本"
-            print(f"'未完成'第二行商品任务, 第二行商品文本为: {second_item_text}")
+            print(f"'未完成'第二行商品任务")
 
         # 如果两行商品都完成了，截图并退出循环
         if first_item_completed and second_item_completed:
@@ -788,35 +789,52 @@ def browse_items():
             take_screenshot_with_date(driver, os.getcwd())  # 调用截图函数
             break  # 退出循环
 
-        # 模拟按下返回键
-        driver.press_keycode(AndroidKey.BACK)
-        print("成功返回店铺")
+        # 在 dp-main 父容器下查找并点击 "前往店铺" 按钮
+        try:
+            home_button = WebDriverWait(main_view, 10).until(
+                EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="前往店铺"]'))
+            )
+            home_button.click()
+            print("成功点击'前往店铺'按钮")
+        except Exception as e:
+            print(f"点击'前往店铺'按钮失败")
+            # 模拟按下返回键
+            driver.press_keycode(AndroidKey.BACK)
+            print("成功返回店铺")
 
     # 提交任务
     submit_task_completion(driver, main_view)
 
-# 配置参数
-desired_caps = {
+# 默认配置参数
+default_desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'deviceName': 'CK-19',
-    'udid': 'emulator-5652',
+    'deviceName': '01-13883122290',
+    'udid': 'emulator-5556',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
     'newCommandTimeout': 21600,
     'ignoreHiddenApiPolicyError': True,
     'dontStopAppOnReset': True,  # 保持浏览器运行状态
-    # 'unicodeKeyboard': False,
-    # 'resetKeyboard': False,
     'noReset': True,  # 不重置应用
 }
 
-# 启动 Appium 驱动，不重新启动浏览器
+# 检查命令行参数，是否传入 desired_caps
+if len(sys.argv) > 1:
+    try:
+        desired_caps = json.loads(sys.argv[1])  # 从命令行参数中解析 JSON 字符串
+    except json.JSONDecodeError:
+        print("所提供的 desired capabilities 格式无效，请检查 JSON 格式是否正确。")
+        sys.exit(1)
+else:
+    # 使用默认的配置参数
+    print("未提供命令行参数，使用默认的设备配置。")
+    desired_caps = default_desired_caps
+
+# 启动 Appium 驱动
 driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
-# 刷新页面
+# 调用刷新页面和执行任务函数
 refresh_page(driver)
-
-# 调用执行任务函数
-perform_tasks()
+perform_tasks(driver)

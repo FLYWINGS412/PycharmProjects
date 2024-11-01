@@ -4,5 +4,12 @@
   "TJ-03": { "deviceName": "03-16623490422", "udid": "emulator-5760" },
   "TJ-04": { "deviceName": "04-17384642429", "udid": "emulator-5762" },
   "TJ-05": { "deviceName": "05-17389774243", "udid": "emulator-5764" },
-  "TJ-06": { "deviceName": "06-17389844427", "udid": "emulator-5766" }
+  "TJ-06": { "deviceName": "06-17389844427", "udid": "emulator-5766" },
+  "TJ-07": { "deviceName": "07-17330827297", "udid": "emulator-5768" },
+  "TJ-08": { "deviceName": "08-17786916035", "udid": "emulator-5770" },
+  "TJ-09": { "deviceName": "09-17389841557", "udid": "emulator-5772" },
+  "TJ-10": { "deviceName": "10-19083233254", "udid": "emulator-5774" },
+  "TJ-11": { "deviceName": "11-19392063345", "udid": "emulator-5776" },
+  "TJ-12": { "deviceName": "12-19083233248", "udid": "emulator-5778" },
+  "TJ-13": { "deviceName": "13-19358424313", "udid": "emulator-5780" }
 }

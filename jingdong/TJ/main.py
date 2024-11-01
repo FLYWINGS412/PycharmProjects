@@ -279,10 +279,7 @@ def submit_first_item_task(main_view, first_item):
                             break  # 退出循环，继续执行后面的代码
 
                     # 提示消失后，执行返回操作
-                    time.sleep(5)  # 等待3秒，确保返回操作完成
-                    # 进行截图操作
-                    take_screenshot_with_date(driver, os.getcwd())
-                    print("已返回并截图")
+                    time.sleep(5)  # 等待5秒，确保返回操作完成
                     submit_task_completion(driver, main_view)  # 提交任务完成的状态
                     exit()  # 终止程序
 
@@ -537,6 +534,7 @@ def perform_tasks(driver):
 
                 # 查找是否存在 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                 try:
+                    time.sleep(5)
                     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
@@ -728,9 +726,6 @@ def browse_items():
 
                 # 提示消失后，执行返回操作
                 time.sleep(5)  # 等待5秒，确保返回操作完成
-                # 进行截图操作
-                take_screenshot_with_date(driver, os.getcwd())
-                print("已返回并截图")
                 submit_task_completion(driver, main_view)  # 提交任务完成的状态
                 exit()  # 终止程序
 
@@ -767,7 +762,6 @@ def browse_items():
         # 如果第一行商品完成且没有第二行商品，退出循环
         if first_item_completed and not second_item_found:
             print("第一行商品已完成且没有找到第二行商品，退出循环")
-            take_screenshot_with_date(driver, os.getcwd())  # 调用截图函数
             break
 
         # 检查第二行商品是否 "已完成"
@@ -784,8 +778,7 @@ def browse_items():
 
         # 如果两行商品都完成了，截图并退出循环
         if first_item_completed and second_item_completed:
-            print("所有商品任务均已完成，退出循环并截图")
-            take_screenshot_with_date(driver, os.getcwd())  # 调用截图函数
+            print("所有商品任务均已完成")
             break  # 退出循环
 
         # 在 dp-main 父容器下查找并点击 "前往店铺" 按钮
