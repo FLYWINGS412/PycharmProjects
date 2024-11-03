@@ -23,11 +23,8 @@ def take_screenshot_with_date(driver, folder_path):
     # 从 desired_caps 中获取设备名称
     device_name = desired_caps.get('deviceName', 'UnknownDevice')
 
-    # 从 desired_caps 中获取账号标识
-    account_identifier = desired_caps.get('account', 'DefaultAccount')
-
     # 获取或创建目录，将设备名称和日期包含在路径中
-    screenshot_folder = os.path.join(folder_path, 'screenshot', account_identifier, current_date)
+    screenshot_folder = os.path.join(folder_path, 'screenshot', current_date)
     if not os.path.exists(screenshot_folder):
         os.makedirs(screenshot_folder)
 
@@ -122,11 +119,8 @@ def save_browsed_item_count(count):
     # 从 desired_caps 中获取设备名称，假设 deviceName 是手机号
     device_name = desired_caps.get('deviceName', 'UnknownDevice')
 
-    # 从 desired_caps 中获取账号标识
-    account_identifier = desired_caps.get('account', 'DefaultAccount')
-
     # 在函数内部定义目录路径
-    log_directory = os.path.join(os.getcwd(), "logs", account_identifier)
+    log_directory = os.path.join(os.getcwd(), "logs")
 
     # 确保目录存在，如果不存在则创建
     if not os.path.exists(log_directory):
@@ -191,11 +185,8 @@ def load_browsed_item_count():
     # 从 desired_caps 中获取设备名称
     device_name = desired_caps.get('deviceName', 'UnknownDevice')
 
-    # 从 desired_caps 中获取账号标识
-    account_identifier = desired_caps.get('account', 'DefaultAccount')
-
     # 在函数内部定义目录路径
-    log_directory = os.path.join(os.getcwd(), "logs", account_identifier)
+    log_directory = os.path.join(os.getcwd(), "logs")
 
     # 确保目录存在
     if not os.path.exists(log_directory):
@@ -801,7 +792,6 @@ def browse_items():
 default_desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'account': 'WY',
     'deviceName': '01-13883122290',
     'udid': 'emulator-5556',
     'automationName': 'UiAutomator2',
