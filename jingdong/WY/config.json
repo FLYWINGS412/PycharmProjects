@@ -47,5 +47,18 @@
   "CK-17": { "account": "WY", "deviceName": "CK-17", "udid": "emulator-5648" },
   "CK-18": { "account": "WY", "deviceName": "CK-18", "udid": "emulator-5650" },
   "CK-19": { "account": "WY", "deviceName": "CK-19", "udid": "emulator-5652" },
-  "CK-20": { "account": "WY", "deviceName": "CK-20", "udid": "emulator-5654" }
+  "CK-20": { "account": "TJ", "deviceName": "CK-20", "udid": "emulator-5654" },
+  "TJ-01": { "account": "TJ", "deviceName": "01-15520143409", "udid": "emulator-5756" },
+  "TJ-02": { "account": "TJ", "deviceName": "02-16623393179", "udid": "emulator-5758" },
+  "TJ-03": { "account": "TJ", "deviceName": "03-16623490422", "udid": "emulator-5760" },
+  "TJ-04": { "account": "TJ", "deviceName": "04-17384642429", "udid": "emulator-5762" },
+  "TJ-05": { "account": "TJ", "deviceName": "05-17389774243", "udid": "emulator-5764" },
+  "TJ-06": { "account": "TJ", "deviceName": "06-17389844427", "udid": "emulator-5766" },
+  "TJ-07": { "account": "TJ", "deviceName": "07-17330827297", "udid": "emulator-5768" },
+  "TJ-08": { "account": "TJ", "deviceName": "08-17786916035", "udid": "emulator-5770" },
+  "TJ-09": { "account": "TJ", "deviceName": "09-17389841557", "udid": "emulator-5772" },
+  "TJ-10": { "account": "TJ", "deviceName": "10-19083233254", "udid": "emulator-5774" },
+  "TJ-11": { "account": "TJ", "deviceName": "11-19392063345", "udid": "emulator-5776" },
+  "TJ-12": { "account": "TJ", "deviceName": "12-19083233248", "udid": "emulator-5778" },
+  "TJ-13": { "account": "TJ", "deviceName": "13-19358424313", "udid": "emulator-5780" }
 }
