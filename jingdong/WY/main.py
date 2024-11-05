@@ -372,6 +372,33 @@ def submit_first_item_task(main_view, first_item):
             print("'未完成'第一行商品任务，继续提交任务")
             refresh_page(driver)
 
+        # 刷新页面后，检查是否有 "验证"
+        try:
+            # 检查是否存在 "验证" 提示
+            message_element = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[contains(@text, "验证")]'))
+            )
+            if message_element:
+                print("检测到 '验证'，进入等待循环")
+
+                # 持续检查 "验证" 是否消失
+                while True:
+                    time.sleep(10)  # 等待10秒，避免频繁操作
+                    try:
+                        # 重新检测 "验证" 提示
+                        verify_message = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+                        )
+
+                        if verify_message:
+                            continue  # 如果仍然存在 "验证"，继续循环等待
+                    except Exception:
+                        print("检测到 '验证' 消失，继续执行后续操作")
+                        break  # 退出循环，继续执行后面的代码
+        except Exception:
+            print("未检测到 '验证' 提示，继续执行后续操作")
+
 # 提交任务
 def submit_task_completion(driver, main_view):
     # 查找并点击 "任务完成" 按钮
@@ -565,7 +592,7 @@ def perform_tasks(driver):
                     time.sleep(5)
                     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "暂无任务")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "网络") or contains(@text, "暂无任务")]'))
                     )
                     # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
                     text = message_button.text
@@ -580,6 +607,9 @@ def perform_tasks(driver):
                         exit()  # 终止脚本执行
                     elif "任务已暂停" in text:
                         print("检测到 '任务已暂停'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "网络" in text:
+                        print("检测到 '网络'，程序结束。")
                         exit()  # 终止脚本执行
                     elif "暂无任务" in text:
                         print("检测到 '暂无任务'，程序结束。")
