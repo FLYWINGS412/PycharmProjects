@@ -372,6 +372,34 @@ def submit_first_item_task(main_view, first_item):
             print("'未完成'第一行商品任务，继续提交任务")
             refresh_page(driver)
 
+            # 刷新页面后，检查是否有 "验证"
+            try:
+                # 使用 WebDriverWait 检查是否存在 "验证" 提示
+                time.sleep(5)
+                message_element = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//*[contains(@text, "验证")]'))
+                )
+                if message_element:
+                    print("检测到 '验证'，进入等待循环")
+
+                    # 持续检查 "验证" 是否消失
+                    while True:
+                        time.sleep(10)  # 等待10秒，避免频繁操作
+                        try:
+                            # 重新检测 "验证" 提示
+                            verify_message = WebDriverWait(driver, 5).until(
+                                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+                            )
+
+                            if verify_message:
+                                continue  # 如果仍然存在 "验证"，继续循环等待
+                        except Exception:
+                            print("检测到 '验证' 消失，继续执行后续操作")
+                            break  # 退出循环，继续执行后面的代码
+            except Exception:
+                print("未检测到 '验证' 提示，继续执行后续操作")
+
         # 刷新页面后，检查是否有 "验证"
         try:
             # 检查是否存在 "验证" 提示
