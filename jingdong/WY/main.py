@@ -376,8 +376,7 @@ def submit_first_item_task(main_view, first_item):
             try:
                 # 使用 WebDriverWait 检查是否存在 "验证" 提示
                 message_element = WebDriverWait(driver, 0).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[contains(@text, "验证")]'))
+                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                 )
                 if message_element:
                     print("检测到 '验证'，进入等待循环")
@@ -430,8 +429,7 @@ def submit_task_completion(driver, main_view):
             try:
                 # 使用 WebDriverWait 检查是否存在 "验证" 提示
                 message_element = WebDriverWait(driver, 0).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[contains(@text, "验证")]'))
+                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                 )
                 if message_element:
                     print("检测到 '验证'，进入等待循环")
@@ -585,16 +583,18 @@ def perform_tasks(driver):
             while True:
                 # 定位 dp-main 父容器
                 try:
-                    main_view = WebDriverWait(driver, 10).until(
+                    main_view = WebDriverWait(driver, 5).until(
                         EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
                     )
                     print("成功找到dp-main父容器")
                 except Exception as e:
                     print(f"未找到dp-main父容器")
+                    refresh_page(driver)
+                    continue
 
                 # 在 dp-main 父容器下查找并点击 "回到首页" 按钮
                 try:
-                    home_button = WebDriverWait(main_view, 10).until(
+                    home_button = WebDriverWait(main_view, 5).until(
                         EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="回到首页"]'))
                     )
                     home_button.click()
@@ -604,8 +604,8 @@ def perform_tasks(driver):
 
                 # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
                 try:
-                    time.sleep(3)
-                    Get_Task = WebDriverWait(main_view, 10).until(
+                    time.sleep(5)
+                    Get_Task = WebDriverWait(main_view, 5).until(
                         EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="获取任务"]'))
                     )
 
@@ -619,7 +619,7 @@ def perform_tasks(driver):
                     time.sleep(5)
                     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "网络") or contains(@text, "暂无任务")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "任务已暂停") or contains(@text, "任务未开启") or contains(@text, "暂无任务")]'))
                     )
                     # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
                     text = message_button.text
@@ -635,8 +635,11 @@ def perform_tasks(driver):
                     elif "任务已暂停" in text:
                         print("检测到 '任务已暂停'，程序结束。")
                         exit()  # 终止脚本执行
-                    elif "网络" in text:
-                        print("检测到 '网络'，程序结束。")
+                    elif "更换网络" in text:
+                        print("检测到 '更换网络'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "任务未开启" in text:
+                        print("检测到 '任务未开启'，程序结束。")
                         exit()  # 终止脚本执行
                     elif "暂无任务" in text:
                         print("检测到 '暂无任务'，程序结束。")
@@ -647,7 +650,7 @@ def perform_tasks(driver):
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
-                    shop_name_view = WebDriverWait(main_view, 10).until(
+                    shop_name_view = WebDriverWait(main_view, 5).until(
                         EC.presence_of_element_located((By.XPATH, './/android.view.View[6]'))
                     )
                     target_shop_name = shop_name_view.text  # 获取店铺名称
@@ -666,8 +669,7 @@ def perform_tasks(driver):
 
             # 查找并点击包含 m_common_tip_x_0 的按钮
             try:
-                # time.sleep(5)
-                cancel_button = WebDriverWait(driver, 10).until(
+                cancel_button = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "m_common_tip_x_0")]'))
                 )
                 cancel_button.click()
@@ -678,7 +680,7 @@ def perform_tasks(driver):
             # 在搜索栏搜索店铺名称
             try:
                 time.sleep(3)
-                keyword_button = WebDriverWait(driver, 10).until(
+                keyword_button = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "msKeyWord")]'))
                 )
                 keyword_button.click()
@@ -714,7 +716,7 @@ def browse_items():
     while True:
         # 定位 dp-main 父容器
         try:
-            main_view = WebDriverWait(driver, 10).until(
+            main_view = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
             )
             print("成功找到dp-main父容器")
@@ -725,7 +727,7 @@ def browse_items():
 
         # 在 dp-main 容器下查找第一行商品
         try:
-            first_item = WebDriverWait(main_view, 10).until(
+            first_item = WebDriverWait(main_view, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[1]'))
             )
             print("成功找到第一行商品")
@@ -737,7 +739,7 @@ def browse_items():
 
     # 在 dp-main 容器下查找第二行商品，如果没有找到则标记
     try:
-        second_item = WebDriverWait(main_view, 10).until(
+        second_item = WebDriverWait(main_view, 5).until(
             EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[2]'))
         )
         print("成功找到第二行商品")
@@ -833,7 +835,7 @@ def browse_items():
         # 检查第二行商品是否 "已完成"
         second_item_completed = False
         try:
-            WebDriverWait(second_item, 5).until(
+            WebDriverWait(second_item, 0).until(
                 EC.presence_of_element_located((By.XPATH, './/*[contains(@text, "已完成")]'))
             )
             print("'已完成'第二行商品任务")
@@ -842,13 +844,39 @@ def browse_items():
             second_item_text = second_item.text if second_item else "未能获取文本"
             print(f"'未完成'第二行商品任务")
 
-        # 如果两行商品都完成了，截图并退出循环
+        # 如果两行商品都完成了，退出循环
         if first_item_completed and second_item_completed:
             print("所有商品任务均已完成")
             break  # 退出循环
 
         # 模拟按下返回键
         driver.press_keycode(AndroidKey.BACK)
+        # 刷新页面后，检查是否有 "验证"
+        try:
+            # 使用 WebDriverWait 检查是否存在 "验证" 提示
+            message_element = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+            )
+            if message_element:
+                print("检测到 '验证'，进入等待循环")
+
+                # 持续检查 "验证" 是否消失
+                while True:
+                    time.sleep(10)  # 等待10秒，避免频繁操作
+                    try:
+                        # 重新检测 "验证" 提示
+                        verify_message = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
+                        )
+
+                        if verify_message:
+                            continue  # 如果仍然存在 "验证"，继续循环等待
+                    except Exception:
+                        print("检测到 '验证' 消失，继续执行后续操作")
+                        break  # 退出循环，继续执行后面的代码
+        except Exception:
+            print("未检测到 '验证' 提示，继续执行后续操作")
+
         print("成功返回店铺")
 
     # 提交任务
