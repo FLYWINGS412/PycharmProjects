@@ -375,8 +375,7 @@ def submit_first_item_task(main_view, first_item):
             # 刷新页面后，检查是否有 "验证"
             try:
                 # 使用 WebDriverWait 检查是否存在 "验证" 提示
-                time.sleep(5)
-                message_element = WebDriverWait(driver, 5).until(
+                message_element = WebDriverWait(driver, 0).until(
                     EC.presence_of_element_located(
                         (By.XPATH, '//*[contains(@text, "验证")]'))
                 )
@@ -430,8 +429,7 @@ def submit_task_completion(driver, main_view):
             # 刷新页面后，检查是否有 "验证"
             try:
                 # 使用 WebDriverWait 检查是否存在 "验证" 提示
-                time.sleep(5)
-                message_element = WebDriverWait(driver, 5).until(
+                message_element = WebDriverWait(driver, 0).until(
                     EC.presence_of_element_located(
                         (By.XPATH, '//*[contains(@text, "验证")]'))
                 )
