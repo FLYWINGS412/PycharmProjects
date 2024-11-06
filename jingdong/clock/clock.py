@@ -70,9 +70,9 @@ while True:
 
     # 检查获取任务弹窗
     try:
-        time.sleep(5)
+        time.sleep(10)
         # 查找包含消息的弹窗元素
-        message_button = WebDriverWait(driver, 10).until(
+        message_button = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "android:id/message")]'))
         )
 
