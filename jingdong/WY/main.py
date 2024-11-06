@@ -619,7 +619,7 @@ def perform_tasks(driver):
                     time.sleep(5)
                     # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "任务已暂停") or contains(@text, "任务未开启") or contains(@text, "暂无任务")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "任务未开启") or contains(@text, "暂无任务")]'))
                     )
                     # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
                     text = message_button.text
