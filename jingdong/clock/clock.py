@@ -42,20 +42,20 @@ desired_caps = {
 # 启动 Appium 驱动
 driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
+# refresh_page(driver)
+
+# 定位 dp-main 父容器
+try:
+    main_view = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
+    )
+    print("成功找到dp-main父容器")
+except Exception as e:
+    print(f"未找到dp-main父容器")
+    # continue
+
 # 获取任务
 while True:
-    # refresh_page(driver)
-
-    # 定位 dp-main 父容器
-    try:
-        main_view = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
-        )
-        print("成功找到dp-main父容器")
-    except Exception as e:
-        print(f"未找到dp-main父容器")
-        continue
-
     # 在 dp-main 父容器下查找并点击 "获取任务" 按钮
     try:
         time.sleep(5)
