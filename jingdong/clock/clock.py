@@ -42,7 +42,7 @@ desired_caps = {
 # 启动 Appium 驱动
 driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
-# refresh_page(driver)
+refresh_page(driver)
 
 # 定位 dp-main 父容器
 try:
