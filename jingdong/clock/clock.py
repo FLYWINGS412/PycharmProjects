@@ -44,7 +44,7 @@ driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
 # 获取任务
 while True:
-    refresh_page(driver)
+    # refresh_page(driver)
 
     # 定位 dp-main 父容器
     try:
