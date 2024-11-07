@@ -193,6 +193,7 @@ def start_device(device_name, button):
     desired_caps = {
         'platformName': 'Android',
         'platformVersion': '9',
+        'account': device_info['account'],
         'deviceName': device_info['deviceName'],
         'udid': device_info['udid'],
         'automationName': 'UiAutomator2',
