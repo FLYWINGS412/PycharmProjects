@@ -80,6 +80,7 @@ while True:
         print("检测到弹窗，执行返回并等待 10 分钟。")
         driver.press_keycode(AndroidKey.BACK)  # 按下返回键关闭弹窗
         time.sleep(600)  # 等待 10 分钟后继续
+        continue
 
     except Exception:
         print("未检测到获取任务弹窗，继续任务。")
