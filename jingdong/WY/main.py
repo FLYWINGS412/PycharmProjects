@@ -274,7 +274,7 @@ def submit_first_item_task(main_view, first_item):
 
                     # 持续检查 "活动太火爆啦" 是否消失
                     while True:
-                        time.sleep(5)  # 等待3秒，避免频繁操作
+                        time.sleep(10)  # 等待3秒，避免频繁操作
                         try:
                             # 重新检测 "活动太火爆啦" 提示
                             over_activity_message = WebDriverWait(driver, 0).until(
