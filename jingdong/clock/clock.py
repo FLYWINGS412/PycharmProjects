@@ -76,8 +76,11 @@ while True:
             EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "android:id/message")]'))
         )
 
+        # 打印弹窗消息的文本内容
+        print("弹窗信息:", message_button.text)
+
         # 检测到弹窗后执行返回操作并等待
-        print("检测到弹窗，执行返回并等待 10 分钟。")
+        print("执行返回并等待 10 分钟。")
         driver.press_keycode(AndroidKey.BACK)  # 按下返回键关闭弹窗
         time.sleep(600)  # 等待 10 分钟后继续
         continue

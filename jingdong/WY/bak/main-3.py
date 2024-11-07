@@ -277,7 +277,7 @@ def submit_first_item_task(main_view, first_item):
                         time.sleep(5)  # 等待3秒，避免频繁操作
                         try:
                             # 重新检测 "活动太火爆啦" 提示
-                            over_activity_message = WebDriverWait(driver, 0).until(
+                            over_activity_message = WebDriverWait(driver, 5).until(
                                 EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
                             )
 
@@ -372,38 +372,13 @@ def submit_first_item_task(main_view, first_item):
             print("'未完成'第一行商品任务，继续提交任务")
             refresh_page(driver)
 
-            # 检查是否有 "活动太火爆啦" 或 "验证"
+            # 刷新页面后，检查是否有 "验证"
             try:
-                # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
+                # 使用 WebDriverWait 检查是否存在 "验证" 提示
                 message_element = WebDriverWait(driver, 0).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                 )
-
-                # 检查文本内容
-                message_text = message_element.text
-
-                # 如果第一次检查到 "活动太火爆啦"
-                if "活动太火爆啦" in message_text:
-                    print("检测到 '活动太火爆啦'，进入等待循环")
-
-                    # 持续检查 "活动太火爆啦" 是否消失
-                    while True:
-                        time.sleep(10)  # 等待10秒，避免频繁操作
-                        try:
-                            # 重新检测 "活动太火爆啦" 提示
-                            over_activity_message = WebDriverWait(driver, 0).until(
-                                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
-                            )
-
-                            if over_activity_message:
-                                continue  # 如果仍然存在 "活动太火爆啦"，继续循环等待
-                        except Exception:
-                            print("检测到 '活动太火爆啦' 消失，准备返回并执行后续操作")
-                            break  # 退出循环，继续执行后面的代码
-
-                # 如果第一次检查到 "验证"
-                elif "验证" in message_text:
+                if message_element:
                     print("检测到 '验证'，进入等待循环")
 
                     # 持续检查 "验证" 是否消失
@@ -411,7 +386,7 @@ def submit_first_item_task(main_view, first_item):
                         time.sleep(10)  # 等待10秒，避免频繁操作
                         try:
                             # 重新检测 "验证" 提示
-                            verify_message = WebDriverWait(driver, 0).until(
+                            verify_message = WebDriverWait(driver, 5).until(
                                 EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                             )
 
@@ -420,9 +395,8 @@ def submit_first_item_task(main_view, first_item):
                         except Exception:
                             print("检测到 '验证' 消失，继续执行后续操作")
                             break  # 退出循环，继续执行后面的代码
-
-            except Exception as e:
-                pass
+            except Exception:
+                print("未检测到 '验证' 提示，继续执行后续操作")
 
 # 提交任务
 def submit_task_completion(driver, main_view):
@@ -430,7 +404,7 @@ def submit_task_completion(driver, main_view):
     while True:  # 使用循环以防任务未完成时反复点击
         try:
             time.sleep(5)
-            Task_Completed = WebDriverWait(main_view, 5).until(
+            Task_Completed = WebDriverWait(main_view, 10).until(
                 EC.presence_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
             )
             Task_Completed.click()
@@ -442,7 +416,7 @@ def submit_task_completion(driver, main_view):
         # 确定 "任务完成"
         try:
             time.sleep(5)
-            confirm_button = WebDriverWait(driver, 5).until(
+            confirm_button = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, '//android.widget.Button[@text="确定"]'))
             )
             confirm_button.click()
@@ -451,38 +425,13 @@ def submit_task_completion(driver, main_view):
             time.sleep(10)
             refresh_page(driver)
 
-            # 检查是否有 "活动太火爆啦" 或 "验证"
+            # 刷新页面后，检查是否有 "验证"
             try:
-                # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
+                # 使用 WebDriverWait 检查是否存在 "验证" 提示
                 message_element = WebDriverWait(driver, 0).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                 )
-
-                # 检查文本内容
-                message_text = message_element.text
-
-                # 如果第一次检查到 "活动太火爆啦"
-                if "活动太火爆啦" in message_text:
-                    print("检测到 '活动太火爆啦'，进入等待循环")
-
-                    # 持续检查 "活动太火爆啦" 是否消失
-                    while True:
-                        time.sleep(10)  # 等待10秒，避免频繁操作
-                        try:
-                            # 重新检测 "活动太火爆啦" 提示
-                            over_activity_message = WebDriverWait(driver, 0).until(
-                                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
-                            )
-
-                            if over_activity_message:
-                                continue  # 如果仍然存在 "活动太火爆啦"，继续循环等待
-                        except Exception:
-                            print("检测到 '活动太火爆啦' 消失，准备返回并执行后续操作")
-                            break  # 退出循环，继续执行后面的代码
-
-                # 如果第一次检查到 "验证"
-                elif "验证" in message_text:
+                if message_element:
                     print("检测到 '验证'，进入等待循环")
 
                     # 持续检查 "验证" 是否消失
@@ -490,7 +439,7 @@ def submit_task_completion(driver, main_view):
                         time.sleep(10)  # 等待10秒，避免频繁操作
                         try:
                             # 重新检测 "验证" 提示
-                            verify_message = WebDriverWait(driver, 0).until(
+                            verify_message = WebDriverWait(driver, 5).until(
                                 EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                             )
 
@@ -499,13 +448,12 @@ def submit_task_completion(driver, main_view):
                         except Exception:
                             print("检测到 '验证' 消失，继续执行后续操作")
                             break  # 退出循环，继续执行后面的代码
-
-            except Exception as e:
-                pass
+            except Exception:
+                print("未检测到 '验证' 提示，继续执行后续操作")
 
             # 检查 "任务完成" 是否消失
             try:
-                WebDriverWait(main_view, 0).until(
+                WebDriverWait(driver, 10).until(
                     EC.invisibility_of_element_located((By.XPATH, './/android.widget.Button[@text="任务完成"]'))
                 )
                 print("'任务完成'按钮已消失")
@@ -516,16 +464,16 @@ def submit_task_completion(driver, main_view):
 
         except Exception as e:
             print(f"未找到全屏的'确定'按钮")
-            continue
+            break  # 如果找不到"确定"按钮，退出循环
 
 # 查找商店
 def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=3):
     attempts = 0
     shop_found = False
-    time.sleep(5)
 
     while attempts < max_attempts and not shop_found:
         try:
+            time.sleep(5)
             # 获取父容器，包含所有店铺项的列表
             elements = WebDriverWait(driver, 5).until(
                 EC.presence_of_all_elements_located(
@@ -559,8 +507,7 @@ def find_and_click_shop(driver, target_shop_name, main_view, max_attempts=3):
 
                     except NoSuchElementException:
                         print(f"在店铺项 {index} 中未找到店铺名称元素")
-                        refresh_page(driver)  # 调用页面刷新函数
-                        continue  # 重新开始 while 循环
+                        continue
 
                 # 如果找到匹配项，按相似度排序
                 if matches:
@@ -667,20 +614,39 @@ def perform_tasks(driver):
                 except Exception as e:
                     print(f"点击'获取任务'按钮失败")
 
-                # 检查获取任务弹窗
+                # 查找是否存在 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                 try:
                     time.sleep(10)
-                    # 查找包含消息的弹窗元素
+                    # 查找 "任务不合格" 或 "暂无任务" 或 "提交已限额"
                     message_button = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "android:id/message")]'))
+                        EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "任务不合格") or contains(@text, "提交已限额") or contains(@text, "已轮休") or contains(@text, "任务已暂停") or contains(@text, "任务未开启") or contains(@text, "暂无任务")]'))
                     )
-
-                    # 检测到弹窗后执行返回操作并等待
-                    print("检测到弹窗，程序结束。")
-                    exit()  # 终止脚本执行
+                    # 如果找到 "任务不合格" 或 "暂无任务" 或 "提交已限额"，结束程序
+                    text = message_button.text
+                    if "任务不合格" in text:
+                        print("任务不合格")
+                        exit()  # 终止程序
+                    elif "提交已限额" in text:
+                        print("检测到 '提交已限额'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "已轮休" in text:
+                        print("检测到 '已轮休'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "任务已暂停" in text:
+                        print("检测到 '任务已暂停'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "更换网络" in text:
+                        print("检测到 '更换网络'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "任务未开启" in text:
+                        print("检测到 '任务未开启'，程序结束。")
+                        exit()  # 终止脚本执行
+                    elif "暂无任务" in text:
+                        print("检测到 '暂无任务'，程序结束。")
+                        exit()  # 终止脚本执行
 
                 except Exception:
-                    print("未检测到获取任务弹窗，继续任务。")
+                    print("未检测到任务异常，继续任务。")
 
                 # 查找并获取 dp-main 父容器下 "店铺名称"
                 try:
@@ -730,7 +696,8 @@ def perform_tasks(driver):
             # 调用查找店铺的函数
             if not find_and_click_shop(driver, target_shop_name, main_view):
                 print("未找到店铺，重新执行任务")
-                continue  # 继续任务循环，重新开始获取任务
+                perform_tasks()  # 如果未找到店铺，重新执行任务
+                return  # 确保函数不继续执行
             else:
                 # 进入店铺后，浏览商品
                 browse_items()  # 成功点击店铺后调用浏览商品函数
@@ -743,13 +710,13 @@ def perform_tasks(driver):
 
 # 浏览商品
 def browse_items():
-    time.sleep(10)
+    time.sleep(5)
     second_item_found = True
 
     while True:
         # 定位 dp-main 父容器
         try:
-            main_view = WebDriverWait(driver, 0).until(
+            main_view = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, '//*[contains(@resource-id, "dp-main")]'))
             )
             print("成功找到dp-main父容器")
@@ -760,7 +727,7 @@ def browse_items():
 
         # 在 dp-main 容器下查找第一行商品
         try:
-            first_item = WebDriverWait(main_view, 0).until(
+            first_item = WebDriverWait(main_view, 5).until(
                 EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[1]'))
             )
             print("成功找到第一行商品")
@@ -772,7 +739,7 @@ def browse_items():
 
     # 在 dp-main 容器下查找第二行商品，如果没有找到则标记
     try:
-        second_item = WebDriverWait(main_view, 0).until(
+        second_item = WebDriverWait(main_view, 5).until(
             EC.presence_of_element_located((By.XPATH, './/android.widget.ListView/android.view.View[2]'))
         )
         print("成功找到第二行商品")
@@ -781,6 +748,7 @@ def browse_items():
         second_item_found = False  # 没有找到第二行商品，设置标记
 
     while True:  # 无限循环，直到第一行商品完成
+        time.sleep(10)
         # 在第一行商品下查找 "详情" 按钮
         try:
             details_button = WebDriverWait(first_item, 5).until(
@@ -797,7 +765,7 @@ def browse_items():
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
             time.sleep(5)
-            message_element = WebDriverWait(driver, 0).until(
+            message_element = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located(
                     (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
             )
@@ -814,7 +782,7 @@ def browse_items():
                     time.sleep(10)  # 等待10秒，避免频繁操作
                     try:
                         # 重新检测 "活动太火爆啦" 提示
-                        over_activity_message = WebDriverWait(driver, 0).until(
+                        over_activity_message = WebDriverWait(driver, 5).until(
                             EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
                         )
 
@@ -838,7 +806,7 @@ def browse_items():
                     time.sleep(10)  # 等待10秒，避免频繁操作
                     try:
                         # 重新检测 "验证" 提示
-                        verify_message = WebDriverWait(driver, 0).until(
+                        verify_message = WebDriverWait(driver, 5).until(
                             EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                         )
 
@@ -849,7 +817,7 @@ def browse_items():
                         break  # 退出循环，继续执行后面的代码
 
         except Exception as e:
-            pass
+            print("未检测到 '活动太火爆啦' 或 '验证'，继续执行后续操作")
 
         # 提交第一行商品任务，更新任务完成标志
         first_item_completed = submit_first_item_task(main_view, first_item)
@@ -883,45 +851,13 @@ def browse_items():
 
         # 模拟按下返回键
         driver.press_keycode(AndroidKey.BACK)
-
-        # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
+        # 刷新页面后，检查是否有 "验证"
         try:
-            # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
-            time.sleep(5)
-            message_element = WebDriverWait(driver, 0).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+            # 使用 WebDriverWait 检查是否存在 "验证" 提示
+            message_element = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
             )
-
-            # 检查文本内容
-            message_text = message_element.text
-
-            # 如果第一次检查到 "活动太火爆啦"
-            if "活动太火爆啦" in message_text:
-                print("检测到 '活动太火爆啦'，进入等待循环")
-
-                # 持续检查 "活动太火爆啦" 是否消失
-                while True:
-                    time.sleep(10)  # 等待10秒，避免频繁操作
-                    try:
-                        # 重新检测 "活动太火爆啦" 提示
-                        over_activity_message = WebDriverWait(driver, 0).until(
-                            EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦")]'))
-                        )
-
-                        if over_activity_message:
-                            continue  # 如果仍然存在 "活动太火爆啦"，继续循环等待
-                    except Exception:
-                        print("检测到 '活动太火爆啦' 消失，准备返回并执行后续操作")
-                        break  # 退出循环，继续执行后面的代码
-
-                # 提示消失后，执行返回操作
-                time.sleep(5)  # 等待5秒，确保返回操作完成
-                submit_task_completion(driver, main_view)  # 提交任务完成的状态
-                exit()  # 终止程序
-
-            # 如果第一次检查到 "验证"
-            elif "验证" in message_text:
+            if message_element:
                 print("检测到 '验证'，进入等待循环")
 
                 # 持续检查 "验证" 是否消失
@@ -929,7 +865,7 @@ def browse_items():
                     time.sleep(10)  # 等待10秒，避免频繁操作
                     try:
                         # 重新检测 "验证" 提示
-                        verify_message = WebDriverWait(driver, 0).until(
+                        verify_message = WebDriverWait(driver, 5).until(
                             EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "验证")]'))
                         )
 
@@ -938,14 +874,10 @@ def browse_items():
                     except Exception:
                         print("检测到 '验证' 消失，继续执行后续操作")
                         break  # 退出循环，继续执行后面的代码
-
-                time.sleep(5)
-
-        except Exception as e:
-            pass
+        except Exception:
+            print("未检测到 '验证' 提示，继续执行后续操作")
 
         print("成功返回店铺")
-        time.sleep(5)
 
     # 提交任务
     submit_task_completion(driver, main_view)
