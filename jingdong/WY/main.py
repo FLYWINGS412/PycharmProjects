@@ -376,8 +376,7 @@ def submit_first_item_task(main_view, first_item):
             try:
                 # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
                 message_element = WebDriverWait(driver, 0).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
                 )
 
                 # 检查文本内容
@@ -455,8 +454,7 @@ def submit_task_completion(driver, main_view):
             try:
                 # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
                 message_element = WebDriverWait(driver, 0).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+                    EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
                 )
 
                 # 检查文本内容
@@ -798,8 +796,7 @@ def browse_items():
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
             time.sleep(5)
             message_element = WebDriverWait(driver, 0).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
             )
 
             # 检查文本内容
@@ -889,8 +886,7 @@ def browse_items():
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
             time.sleep(5)
             message_element = WebDriverWait(driver, 0).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
+                EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
             )
 
             # 检查文本内容
