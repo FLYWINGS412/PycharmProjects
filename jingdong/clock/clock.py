@@ -77,7 +77,7 @@ while True:
 
         # 打印弹窗消息的文本内容
         current_time = time.strftime("%H:%M:%S")
-        print(f"({current_time}) 任务信息:", message_button.text)
+        print(f"{current_time}  任务信息:", message_button.text)
         driver.press_keycode(AndroidKey.BACK)  # 按下返回键关闭弹窗
         time.sleep(600)  # 等待 10 分钟后继续
         continue
@@ -99,7 +99,7 @@ while True:
             continue  # 重新开始 while 循环，跳过后续操作
         else:
             current_time = time.strftime("%H:%M:%S")
-            print(f"({current_time}) 成功获取任务")
+            print(f"{current_time}  成功获取任务")
             # 启动循环播放音乐的线程
             music_thread = threading.Thread(target=play_music_loop, daemon=True)
             music_thread.start()
