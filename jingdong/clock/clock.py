@@ -52,7 +52,6 @@ try:
     print("成功找到dp-main父容器")
 except Exception as e:
     print(f"未找到dp-main父容器")
-    # continue
 
 # 获取任务
 while True:
