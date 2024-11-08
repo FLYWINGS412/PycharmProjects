@@ -26,6 +26,8 @@ def play_music_loop():
         pygame.mixer.music.load("song.mp3")
         pygame.mixer.music.play(-1)  # -1 表示无限循环播放
         print("音乐开始循环播放")
+        while pygame.mixer.music.get_busy():  # 等待音乐播放
+            time.sleep(1)
     except Exception as e:
         print(f"播放音乐时出错: {e}")
 
@@ -107,6 +109,7 @@ while True:
             # 启动循环播放音乐的线程
             music_thread = threading.Thread(target=play_music_loop, daemon=True)
             music_thread.start()
+            music_thread.join()  # 等待音乐线程结束
             break  # 店铺名称不为 '-'，跳出循环，执行后续任务
 
     except Exception as e:
