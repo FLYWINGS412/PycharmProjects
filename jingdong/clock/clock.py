@@ -110,6 +110,7 @@ while True:
             music_thread = threading.Thread(target=play_music_loop, daemon=True)
             music_thread.start()
             music_thread.join()
+            break
 
     except Exception as e:
         print(f"获取店铺名称失败")
