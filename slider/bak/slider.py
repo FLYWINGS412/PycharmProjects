@@ -47,7 +47,6 @@ def get_slider_images(driver):
 
     print("图片已成功保存为 background.png 和 small_piece.png")
 
-# 优化后的process_slider_images函数
 # 查找轮廓时，增加对边缘的过滤
 def process_slider_images():
     # 读取图像
