@@ -109,8 +109,7 @@ while True:
             # 启动循环播放音乐的线程
             music_thread = threading.Thread(target=play_music_loop, daemon=True)
             music_thread.start()
-            music_thread.join()  # 等待音乐线程结束
-            break  # 店铺名称不为 '-'，跳出循环，执行后续任务
+            music_thread.join()
 
     except Exception as e:
         print(f"获取店铺名称失败")
