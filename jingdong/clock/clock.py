@@ -22,8 +22,12 @@ def refresh_page(driver):
 # 音乐循环播放的函数
 def play_music_loop():
     pygame.mixer.init()
-    pygame.mixer.music.load("song.mp3")
-    pygame.mixer.music.play(-1)  # -1 表示无限循环播放
+    try:
+        pygame.mixer.music.load("song.mp3")
+        pygame.mixer.music.play(-1)  # -1 表示无限循环播放
+        print("音乐开始循环播放")
+    except Exception as e:
+        print(f"播放音乐时出错: {e}")
 
 # 默认配置参数
 desired_caps = {
