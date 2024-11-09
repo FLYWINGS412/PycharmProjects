@@ -674,7 +674,7 @@ def perform_tasks(driver):
                     )
 
                     # 检测到弹窗后执行返回操作并等待
-                    print("检测到弹窗，程序结束。")
+                    print(message_button.text)
                     exit()  # 终止脚本执行
 
                 except Exception:
