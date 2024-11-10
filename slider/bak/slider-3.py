@@ -90,7 +90,7 @@ def extract_target_contour(image_path, output_prefix='result', threshold_value=1
 
 # 处理小块图像的函数
 def process_small_piece():
-    contours, contour_image = extract_target_contour('small_piece.png', output_prefix='small_piece', threshold_value=235)
+    contours, contour_image = extract_target_contour('small_piece.png', output_prefix='small_piece', threshold_value=240)
     if contours:
         # 根据面积和形状过滤小块轮廓，找出最接近目标的轮廓
         target_contour = max(contours, key=cv2.contourArea)

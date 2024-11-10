@@ -49,7 +49,7 @@ desired_caps = {
 #     print("图片已成功保存为 background.png 和 small_piece.png")
 
 # 提取有效图片轮廓，进行多重阈值测试并优化选择
-def extract_target_contour(image_path, output_prefix, threshold_values, area_range):
+def extract_target_contour(image_path, output_prefix, threshold_values, area_range, target_contour=None):
     image = cv2.imread(image_path)
     if image is None:
         print(f"无法读取图片文件: {image_path}")
@@ -61,8 +61,9 @@ def extract_target_contour(image_path, output_prefix, threshold_values, area_ran
     best_contour_area = 0
     best_binary_image = None
     best_score = float('inf')
+    best_threshold = None
 
-    # 多重阈值测试
+    # 多重阈值测试，从最大值到最小值
     for threshold_value in threshold_values:
         _, binary_image = cv2.threshold(gray_image, threshold_value, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(binary_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -71,13 +72,18 @@ def extract_target_contour(image_path, output_prefix, threshold_values, area_ran
             contour_area = cv2.contourArea(contour)
             # 检查轮廓面积是否在指定范围内
             if area_range[0] <= contour_area <= area_range[1]:
-                # 计算轮廓复杂度（可以使用周长、近似多边形等度量）
+                # 计算轮廓复杂度和形状相似性（如果目标轮廓存在）
                 perimeter = cv2.arcLength(contour, True)
                 approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)  # 近似多边形
-                complexity = len(approx)  # 边数越多复杂度越高
+                complexity = len(approx)
 
-                # 计算评分：面积与复杂度结合的分数，或其他评判标准
-                score = abs(complexity - 4) + abs(best_contour_area - contour_area)
+                # 形状相似性评分
+                shape_similarity = 0
+                if target_contour is not None:
+                    shape_similarity = cv2.matchShapes(target_contour, contour, cv2.CONTOURS_MATCH_I1, 0.0)
+
+                # 综合评分：面积、复杂度、形状相似性
+                score = abs(complexity - 4) + abs(best_contour_area - contour_area) + shape_similarity
 
                 # 更新最佳轮廓
                 if score < best_score or (score == best_score and contour_area > best_contour_area):
@@ -85,6 +91,7 @@ def extract_target_contour(image_path, output_prefix, threshold_values, area_ran
                     best_contour = contour
                     best_contour_area = contour_area
                     best_binary_image = binary_image.copy()
+                    best_threshold = threshold_value  # 记录最佳阈值
 
     # 在原图上绘制最佳轮廓
     if best_contour is not None:
@@ -92,26 +99,26 @@ def extract_target_contour(image_path, output_prefix, threshold_values, area_ran
         cv2.drawContours(contour_image, [best_contour], -1, (0, 255, 0), 2)
         cv2.imwrite(f'{output_prefix}_best_binary.png', best_binary_image)
         cv2.imwrite(f'{output_prefix}_best_contour.png', contour_image)
-        print(f"最佳轮廓已保存为 '{output_prefix}_best_contour.png'，选用阈值: {threshold_value}")
+        print(f"最佳轮廓已保存为 '{output_prefix}_best_contour.png'，选用阈值: {best_threshold}")
     else:
         print("未找到符合条件的轮廓")
 
     return best_contour, best_binary_image
 
-# 提取小块轮廓
+# 调用此函数时，确保 threshold_values 按从大到小顺序传入
 small_piece_contour, small_piece_image = extract_target_contour(
     'small_piece.png',
     output_prefix='small_piece',
-    threshold_values=[180, 190, 200, 210, 220, 230, 240, 255],
+    threshold_values=[250, 240, 230, 220, 210, 200, 190, 180],
     area_range=(500, 5000)
 )
 
-# 提取背景轮廓
 background_contour, background_image = extract_target_contour(
     'background.png',
     output_prefix='background',
-    threshold_values=[180, 190, 200, 210, 220, 230, 240, 255],
-    area_range=(500, 5000)
+    threshold_values=[250, 240, 230, 220, 210, 200, 190, 180],
+    area_range=(500, 5000),
+    target_contour=small_piece_contour
 )
 
 # 匹配轮廓并加强相似度和 Y 坐标过滤
