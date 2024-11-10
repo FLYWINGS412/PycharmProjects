@@ -48,71 +48,58 @@ desired_caps = {
 #
 #     print("图片已成功保存为 background.png 和 small_piece.png")
 
-# 提取有效图片轮廓，进行多重阈值测试并优化选择
-def extract_target_contour(image_path, output_prefix, threshold_values, area_range):
+# 提取有效图片轮廓
+def extract_target_contour(image_path, output_prefix='result', threshold_value=190):
+    # 读取图片
     image = cv2.imread(image_path)
     if image is None:
         print(f"无法读取图片文件: {image_path}")
-        return None, None
+        return None
 
     # 转换为灰度图
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    best_contour = None
-    best_contour_area = 0
-    best_binary_image = None
-    best_score = float('inf')
 
-    # 多重阈值测试
-    for threshold_value in threshold_values:
-        _, binary_image = cv2.threshold(gray_image, threshold_value, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(binary_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # 二值化
+    _, binary_image = cv2.threshold(gray_image, threshold_value, 255, cv2.THRESH_BINARY)
 
-        for contour in contours:
-            contour_area = cv2.contourArea(contour)
-            # 检查轮廓面积是否在指定范围内
-            if area_range[0] <= contour_area <= area_range[1]:
-                # 计算轮廓复杂度（可以使用周长、近似多边形等度量）
-                perimeter = cv2.arcLength(contour, True)
-                approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)  # 近似多边形
-                complexity = len(approx)  # 边数越多复杂度越高
+    # 查找轮廓
+    contours, _ = cv2.findContours(binary_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-                # 计算评分：面积与复杂度结合的分数，或其他评判标准
-                score = abs(complexity - 4) + abs(best_contour_area - contour_area)
+    # 设置最小边距，排除靠近边缘的轮廓
+    min_margin = 5
+    height, width = binary_image.shape
+    valid_contours = []
 
-                # 更新最佳轮廓
-                if score < best_score or (score == best_score and contour_area > best_contour_area):
-                    best_score = score
-                    best_contour = contour
-                    best_contour_area = contour_area
-                    best_binary_image = binary_image.copy()
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        # 检查轮廓是否靠近图像边缘
+        if x > min_margin and y > min_margin and (x + w < width - min_margin) and (y + h < height - min_margin):
+            valid_contours.append(contour)
 
-    # 在原图上绘制最佳轮廓
-    if best_contour is not None:
-        contour_image = image.copy()
-        cv2.drawContours(contour_image, [best_contour], -1, (0, 255, 0), 2)
-        cv2.imwrite(f'{output_prefix}_best_binary.png', best_binary_image)
-        cv2.imwrite(f'{output_prefix}_best_contour.png', contour_image)
-        print(f"最佳轮廓已保存为 '{output_prefix}_best_contour.png'，选用阈值: {threshold_value}")
-    else:
-        print("未找到符合条件的轮廓")
+    # 在原图上绘制有效的轮廓
+    contour_image = image.copy()
+    cv2.drawContours(contour_image, valid_contours, -1, (0, 255, 0), 2)  # 使用绿色描边
 
-    return best_contour, best_binary_image
+    # 保存结果
+    cv2.imwrite(f'{output_prefix}_binary.png', binary_image)
+    cv2.imwrite(f'{output_prefix}_contour.png', contour_image)
+    print(f"二值化结果已保存为 '{output_prefix}_binary.png'")
+    print(f"带目标轮廓的图像已保存为 '{output_prefix}_contour.png'")
 
-# 提取小块轮廓
-small_piece_contour, small_piece_image = extract_target_contour(
-    'small_piece.png',
-    output_prefix='small_piece',
-    threshold_values=[180, 190, 200, 210, 220, 230, 240, 255],
-    area_range=(500, 5000)
-)
+    return valid_contours, image
 
-# 提取背景轮廓
-background_contour, background_image = extract_target_contour(
-    'background.png',
-    output_prefix='background',
-    threshold_values=[180, 190, 200, 210, 220, 230, 240, 255],
-    area_range=(500, 5000)
-)
+# 处理小块图像的函数
+def process_small_piece():
+    contours, contour_image = extract_target_contour('small_piece.png', output_prefix='small_piece', threshold_value=235)
+    if contours:
+        # 根据面积和形状过滤小块轮廓，找出最接近目标的轮廓
+        target_contour = max(contours, key=cv2.contourArea)
+        return target_contour, contour_image
+    return None, None
+
+# 处理背景图像的函数
+def process_background():
+    return extract_target_contour('background.png', output_prefix='background', threshold_value=190)
 
 # 匹配轮廓并加强相似度和 Y 坐标过滤
 def match_multiple_contours(small_contour, background_contours, background_image, score_threshold=0.1, area_tolerance=0.1, y_tolerance=10):
@@ -149,6 +136,10 @@ def match_multiple_contours(small_contour, background_contours, background_image
 
     return matches
 
-# 调用匹配函数
-if small_piece_contour is not None and background_contour is not None:
-    match_multiple_contours(small_piece_contour, [background_contour], background_image, score_threshold=0.1, area_tolerance=0.1, y_tolerance=10)
+# 调用函数
+small_piece_contour, small_piece_image = process_small_piece()
+background_contours, background_image = process_background()
+
+# 进行多重匹配
+if small_piece_contour is not None and background_contours:
+    match_multiple_contours(small_piece_contour, background_contours, background_image, score_threshold=0.1, area_tolerance=0.1, y_tolerance=10)
