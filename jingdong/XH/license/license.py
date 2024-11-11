@@ -21,7 +21,7 @@ else:
     print("已加载现有的密钥对")
 
 # 设置授权日期
-expiration_date_str = "2024-11-11"
+expiration_date_str = "2024-11-17"
 
 # 使用对称加密生成加密密钥（Fernet密钥）并加密授权日期
 fernet_key = Fernet.generate_key()
