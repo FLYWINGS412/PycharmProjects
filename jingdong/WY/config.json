@@ -82,5 +82,12 @@
   "TJ-10": { "account": "TJ", "deviceName": "10-19083233254", "udid": "emulator-5774" },
   "TJ-11": { "account": "TJ", "deviceName": "11-19392063345", "udid": "emulator-5776" },
   "TJ-12": { "account": "TJ", "deviceName": "12-19083233248", "udid": "emulator-5778" },
-  "TJ-13": { "account": "TJ", "deviceName": "13-19358424313", "udid": "emulator-5780" }
+  "TJ-13": { "account": "TJ", "deviceName": "13-19358424313", "udid": "emulator-5780" },
+  "TJ-14": { "account": "TJ", "deviceName": "13-", "udid": "emulator-5782" },
+  "TJ-15": { "account": "TJ", "deviceName": "13-", "udid": "emulator-5784" },
+  "TJ-16": { "account": "TJ", "deviceName": "13-", "udid": "emulator-5786" },
+  "TJ-17": { "account": "TJ", "deviceName": "13-", "udid": "emulator-5788" },
+  "TJ-18": { "account": "TJ", "deviceName": "13-", "udid": "emulator-5790" },
+  "TJ-19": { "account": "TJ", "deviceName": "13-", "udid": "emulator-5792" },
+  "TJ-20": { "account": "TJ", "deviceName": "13-", "udid": "emulator-5794" }
 }
