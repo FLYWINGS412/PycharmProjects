@@ -792,9 +792,9 @@ def browse_items():
             continue
 
         # 点击 "详情" 后，检查是否有 "活动太火爆啦" 或 "验证"
+        time.sleep(5)
         try:
             # 使用 WebDriverWait 检查是否存在 "活动太火爆啦" 或 "验证" 提示
-            time.sleep(5)
             message_element = WebDriverWait(driver, 0).until(
                 EC.presence_of_element_located((By.XPATH, '//*[contains(@text, "活动太火爆啦") or contains(@text, "验证")]'))
             )
@@ -849,6 +849,7 @@ def browse_items():
             pass
 
         # 提交第一行商品任务，更新任务完成标志
+        time.sleep(5)
         first_item_completed = submit_first_item_task(main_view, first_item)
 
         # 如果返回 False，表示任务失败，退出循环
