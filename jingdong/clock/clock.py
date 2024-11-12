@@ -85,7 +85,7 @@ while True:
         current_time = time.strftime("%H:%M:%S")
         print(f"{current_time}:", message_button.text)
         driver.press_keycode(AndroidKey.BACK)  # 按下返回键关闭弹窗
-        time.sleep(600)  # 等待 10 分钟后继续
+        time.sleep(300)  # 等待 5 分钟后继续
         continue
 
     except Exception:
