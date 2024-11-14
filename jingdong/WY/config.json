@@ -77,6 +77,8 @@
   "WY-76": { "account": "WY", "deviceName": "76", "udid": "emulator-5706" },
   "WY-77": { "account": "WY", "deviceName": "77", "udid": "emulator-5708" },
   "WY-78": { "account": "WY", "deviceName": "78", "udid": "emulator-5710" },
+  "WY-79": { "account": "WY", "deviceName": "79", "udid": "emulator-5712" },
+  "WY-80": { "account": "WY", "deviceName": "80", "udid": "emulator-5714" },
   "TJ-01": { "account": "TJ", "deviceName": "01-15520143409", "udid": "emulator-5756" },
   "TJ-02": { "account": "TJ", "deviceName": "02-16623393179", "udid": "emulator-5758" },
   "TJ-03": { "account": "TJ", "deviceName": "03-16623490422", "udid": "emulator-5760" },
