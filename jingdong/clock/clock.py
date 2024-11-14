@@ -35,7 +35,7 @@ def play_music_loop():
 desired_caps = {
     'platformName': 'Android',
     'platformVersion': '9',
-    'udid': 'emulator-5558',
+    'udid': 'emulator-5556',
     'automationName': 'UiAutomator2',
     'settings[waitForIdleTimeout]': 10,
     'settings[waitForSelectorTimeout]': 10,
